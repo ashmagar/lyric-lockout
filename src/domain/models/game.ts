@@ -77,9 +77,11 @@ export interface ActiveTurn {
   primaryTeamId: string;
   opposingTeamId: string;
   categoryId?: string | undefined;
+  challengeReference?: ChallengeReference | undefined;
   primaryAttempt?: AnswerAttempt | undefined;
   stealAttempt?: AnswerAttempt | undefined;
   score?: TurnScore | undefined;
+  scoreApplied: boolean;
   startedAt: string;
 }
 

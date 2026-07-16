@@ -107,9 +107,11 @@ export const activeTurnSchema: z.ZodType<ActiveTurn> = z.object({
   primaryTeamId: idSchema,
   opposingTeamId: idSchema,
   categoryId: idSchema.optional(),
+  challengeReference: challengeReferenceSchema.optional(),
   primaryAttempt: answerAttemptSchema.optional(),
   stealAttempt: answerAttemptSchema.optional(),
   score: turnScoreSchema.optional(),
+  scoreApplied: z.boolean(),
   startedAt: timestampSchema,
 });
 
