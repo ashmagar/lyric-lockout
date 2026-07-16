@@ -1,0 +1,31 @@
+{
+  "id": "song-starlight-parade",
+  "schemaVersion": 1,
+  "title": "Starlight Parade",
+  "artist": "Lyric Lockout Demo Ensemble",
+  "youtubeVideoId": "sample00001",
+  "videoType": "LYRIC",
+  "categoryIds": ["party-songs", "dance-hits"],
+  "language": "English",
+  "releaseYear": 2026,
+  "enabled": true,
+  "notes": "Fictional metadata and placeholder video ID for schema tests.",
+  "challenges": [
+    {
+      "id": "challenge-starlight-level-1",
+      "difficulty": 1,
+      "playbackStartSeconds": 12,
+      "pauseAtSeconds": 24,
+      "verifyFromSeconds": 20,
+      "verifyToSeconds": 31,
+      "expectedLyrics": "we follow every spark into the night",
+      "missingWordCount": 7,
+      "hintText": "The final word rhymes with light.",
+      "enabled": true,
+      "createdAt": "2026-07-15T00:00:00.000Z",
+      "updatedAt": "2026-07-15T00:00:00.000Z"
+    }
+  ],
+  "createdAt": "2026-07-15T00:00:00.000Z",
+  "updatedAt": "2026-07-15T00:00:00.000Z"
+}

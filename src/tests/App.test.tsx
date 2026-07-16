@@ -43,6 +43,7 @@ describe('theme bootstrap', () => {
 
     bootstrapTheme(root);
 
-    expect(root.dataset.theme).toBe(DEFAULT_THEME);
+    expect(DEFAULT_THEME).toBe('DAY_PARTY');
+    expect(root.dataset.theme).toBe('day-party');
   });
 });

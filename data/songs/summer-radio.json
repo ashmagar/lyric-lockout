@@ -1,0 +1,31 @@
+{
+  "id": "song-summer-radio",
+  "schemaVersion": 1,
+  "title": "Summer on the Radio",
+  "artist": "Lyric Lockout Demo Ensemble",
+  "youtubeVideoId": "sample00002",
+  "videoType": "KARAOKE",
+  "categoryIds": ["romantic", "female-vocals"],
+  "language": "English",
+  "releaseYear": 2026,
+  "enabled": true,
+  "notes": "Fictional metadata and placeholder video ID for schema tests.",
+  "challenges": [
+    {
+      "id": "challenge-summer-level-2",
+      "difficulty": 2,
+      "playbackStartSeconds": 8,
+      "pauseAtSeconds": 29,
+      "verifyFromSeconds": 24,
+      "verifyToSeconds": 36,
+      "expectedLyrics": "your voice turns the static into gold",
+      "missingWordCount": 7,
+      "hintText": "Think of a precious metal.",
+      "enabled": true,
+      "createdAt": "2026-07-15T00:00:00.000Z",
+      "updatedAt": "2026-07-15T00:00:00.000Z"
+    }
+  ],
+  "createdAt": "2026-07-15T00:00:00.000Z",
+  "updatedAt": "2026-07-15T00:00:00.000Z"
+}

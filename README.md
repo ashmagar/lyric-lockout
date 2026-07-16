@@ -1,6 +1,6 @@
 # Lyric Lockout
 
-Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. This repository currently contains **Milestone 1: Project Foundation**—a runnable React shell and development toolchain, without gameplay behavior.
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation and the Milestone 2 domain/data contracts. Gameplay behavior has not been implemented yet.
 
 ## Prerequisites
 
@@ -80,7 +80,22 @@ The dependency direction is `UI → application → domain`. Integration service
 | `public`           | Static audio and image assets served by Vite                |
 | `server`           | Optional local Admin API, introduced in a later milestone   |
 
-Empty boundary folders are intentional Milestone 1 placeholders and contain no behavior yet.
+Empty boundary folders are intentional placeholders for later milestones and contain no behavior yet.
+
+## Data contracts and samples
+
+Pure TypeScript models live in `src/domain`; Zod validation boundaries live independently in `src/schemas`. Domain code has no React, Zustand, DOM, storage, or media dependency.
+
+Milestone 2 sample data includes:
+
+- exactly ten categories in `data/categories.json`;
+- two fictional one-file-per-song records in `data/songs`;
+- one ten-category draft Game Plan in `data/game-plans`;
+- one isolated challenge in `data/demo`.
+
+The sample YouTube IDs are deliberate placeholders. They validate the catalog shape but are not intended for playback; a real embeddable video is introduced by the Milestone 6 technical spike.
+
+The Engineering Specification names Game Plan validation status without enumerating its values. Milestone 2 uses `DRAFT`, `READY`, `READY_WITH_WARNINGS`, and `INVALID`, which are the smallest states needed by the documented save/validate/play workflow. Supporting Game Session snapshot types are deliberately data-only; progression and transition behavior remain deferred.
 
 ## Theme foundation
 
@@ -88,6 +103,10 @@ The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the 
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Zustand and Zod dependencies, Day Party shell, ESLint, Prettier, Vitest, Testing Library, and Playwright setup. It intentionally excludes gameplay rules, catalog schemas, YouTube playback, scoring, Admin CRUD, persistence, and Saved Game Plans.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative enums, data-only domain models, schema versions, Zod validation, frozen configuration defaults, and sample data. The project still intentionally excludes progression, scoring functions, command processing, state-machine behavior, YouTube playback, persistence, and Admin CRUD.
+
+## Milestone prompts
+
+All implementation prompts are saved in `prompts/01_Foundation.md` through `prompts/15_Release_Candidate.md` and indexed by `prompts/README.md`. Execute one numbered prompt at a time after reading `prompts/00_Master_Prompt.md`, verify it completely, and stop before starting the next milestone.
 
 Authoritative project documents are in [`docs/`](docs), with milestone working rules in [`prompts/00_Master_Prompt.md`](prompts/00_Master_Prompt.md).

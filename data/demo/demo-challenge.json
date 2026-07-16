@@ -1,0 +1,15 @@
+{
+  "id": "challenge-demo-level-3",
+  "difficulty": 3,
+  "playbackStartSeconds": 20,
+  "pauseAtSeconds": 48,
+  "verifyFromSeconds": 43,
+  "verifyToSeconds": 58,
+  "expectedLyrics": "hold the melody close and carry it home",
+  "missingWordCount": 8,
+  "hintText": "The line ends with somewhere you return to.",
+  "enabled": true,
+  "notes": "Isolated demo data; it is not part of a real game catalog.",
+  "createdAt": "2026-07-15T00:00:00.000Z",
+  "updatedAt": "2026-07-15T00:00:00.000Z"
+}

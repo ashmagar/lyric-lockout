@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "plan-sample-day-party",
+  "name": "Sample Day Party",
+  "description": "A ten-category starter plan for validating the Milestone 2 data contract.",
+  "status": "DRAFT",
+  "roundConfig": {
+    "categorySelectionMode": "MANUAL",
+    "songSelectionMode": "FULL_CATALOG",
+    "categoryCount": 10,
+    "difficultyLevels": [1, 2, 3, 4, 5],
+    "selectedCategoryIds": [
+      "90s-bollywood",
+      "romantic",
+      "party-songs",
+      "female-vocals",
+      "sad-songs",
+      "dance-hits",
+      "classic-rock",
+      "disney",
+      "tamil",
+      "marathi"
+    ],
+    "manualChallengePools": [],
+    "preventChallengeReuse": true,
+    "preventSongReuse": true,
+    "allowRuntimeReroll": true,
+    "randomSeed": "sample-day-party"
+  },
+  "gameConfig": {
+    "freeHintUsesPerTeam": 1,
+    "freeAskFriendUsesPerTeam": 1,
+    "additionalLifelinePenaltyPoints": 25,
+    "fullPointsByDifficulty": {
+      "1": 100,
+      "2": 200,
+      "3": 300,
+      "4": 400,
+      "5": 500
+    },
+    "answerSecondsByDifficulty": {
+      "1": 30,
+      "2": 45,
+      "3": 60,
+      "4": 90,
+      "5": 120
+    },
+    "stealTimerMode": "FIXED",
+    "stealTimerSeconds": 30,
+    "allowLifelinesDuringSteal": false,
+    "scoreFloorAtZero": true,
+    "allowHostScoreOverride": true,
+    "allowHostTimerOverride": true,
+    "allowSongReroll": true,
+    "revealSongBeforePlayback": true
+  },
+  "preferredTheme": "DAY_PARTY",
+  "revealSongBeforePlayback": true,
+  "validationIssues": [],
+  "createdAt": "2026-07-15T00:00:00.000Z",
+  "updatedAt": "2026-07-15T00:00:00.000Z"
+}
