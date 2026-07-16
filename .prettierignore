@@ -1,0 +1,8 @@
+dist
+coverage
+node_modules
+playwright-report
+test-results
+package-lock.json
+docs
+prompts/00_Master_Prompt.md

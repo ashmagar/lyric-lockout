@@ -1,0 +1,93 @@
+# Lyric Lockout
+
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. This repository currently contains **Milestone 1: Project Foundation**—a runnable React shell and development toolchain, without gameplay behavior.
+
+## Prerequisites
+
+- Node.js 24 LTS (declared in `.nvmrc`)
+- npm (included with Node.js)
+
+The app targets current desktop Chrome first, with Edge, Safari, and Firefox as secondary targets.
+
+## Setup
+
+With [NVM](https://github.com/nvm-sh/nvm) installed:
+
+```bash
+nvm install
+nvm use
+npm install
+npm run dev
+```
+
+NVM keeps the project Node version separate from Conda environments and other projects. If NVM is not used, install a compatible Node.js 24 release directly and start with `npm install`.
+
+Vite prints the local URL, normally `http://localhost:5173`.
+
+## Quality checks
+
+```bash
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+```
+
+Playwright is configured for browser smoke tests. Install its Chromium binary once before the first E2E run:
+
+```bash
+npx playwright install chromium
+npm run e2e
+```
+
+Other useful commands:
+
+```bash
+npm run test:watch
+npm run format:check
+npm run preview
+```
+
+## Routes
+
+| Route             | Milestone 1 purpose                                |
+| ----------------- | -------------------------------------------------- |
+| `/`               | Home and application entry point                   |
+| `/game`           | Placeholder for the future game flow               |
+| `/admin`          | Placeholder for catalog authoring tools            |
+| `/settings`       | Placeholder for display, audio, and theme settings |
+| any unknown route | Friendly not-found screen                          |
+
+## Source boundaries
+
+The dependency direction is `UI → application → domain`. Integration services and repositories are accessed through application-layer coordination; the domain must remain independent of React and browser APIs.
+
+| Folder             | Responsibility                                              |
+| ------------------ | ----------------------------------------------------------- |
+| `src/app`          | Routing and application composition                         |
+| `src/components`   | Reusable presentation components with no game rules         |
+| `src/features`     | Route-level feature UI, grouped by user-facing capability   |
+| `src/store`        | Zustand UI/application state coordination; never game rules |
+| `src/application`  | Commands, use cases, and side-effect coordination           |
+| `src/domain`       | Pure TypeScript rules and authoritative game behavior       |
+| `src/services`     | Media, timer, audio, persistence, and other integrations    |
+| `src/repositories` | Data-access interfaces and implementations                  |
+| `src/schemas`      | Zod validation schemas and persisted-data boundaries        |
+| `src/utils`        | Small general-purpose helpers without domain policy         |
+| `src/tests`        | Shared test setup and cross-feature tests                   |
+| `e2e`              | Playwright browser tests                                    |
+| `data`             | Version-controlled catalog, plan, demo, and backup data     |
+| `public`           | Static audio and image assets served by Vite                |
+| `server`           | Optional local Admin API, introduced in a later milestone   |
+
+Empty boundary folders are intentional Milestone 1 placeholders and contain no behavior yet.
+
+## Theme foundation
+
+The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
+
+## Scope
+
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Zustand and Zod dependencies, Day Party shell, ESLint, Prettier, Vitest, Testing Library, and Playwright setup. It intentionally excludes gameplay rules, catalog schemas, YouTube playback, scoring, Admin CRUD, persistence, and Saved Game Plans.
+
+Authoritative project documents are in [`docs/`](docs), with milestone working rules in [`prompts/00_Master_Prompt.md`](prompts/00_Master_Prompt.md).

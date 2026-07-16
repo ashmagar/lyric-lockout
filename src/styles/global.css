@@ -1,0 +1,37 @@
+@import './theme.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+  background: var(--color-canvas);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-width: 20rem;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% 15%, rgb(245 189 62 / 12%), transparent 20rem),
+    radial-gradient(circle at 90% 80%, rgb(239 75 63 / 10%), transparent 24rem), var(--color-canvas);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
