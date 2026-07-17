@@ -2,8 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { RouterProvider } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import type { AdminGateway } from '../application/admin';
 import { createTestRouter } from '../app/router';
 import { ACTIVE_GAME_STORAGE_KEY } from '../repositories';
+import { configureAdminGateway, useAdminStore } from '../store/adminStore';
 import { configureGamePlanRepository, useGamePlanStore } from '../store/gamePlanStore';
 import { configureGameplayRepository, useGameplayStore } from '../store/gameplayStore';
 import { bootstrapTheme, DEFAULT_THEME } from '../store/settingsStore';
@@ -12,11 +14,29 @@ function renderRoute(path = '/') {
   return render(<RouterProvider router={createTestRouter([path])} />);
 }
 
+const EMPTY_ADMIN_GATEWAY: AdminGateway = {
+  health: () => Promise.resolve(),
+  loadCatalog: () => Promise.resolve({ categories: [], songs: [], issues: [] }),
+  saveSong: (song) => Promise.resolve({ song, issues: [] }),
+  deleteSong: () => Promise.resolve({ backupPath: 'test-backup' }),
+  exportCatalog: () => Promise.resolve({ categories: [], songs: [] }),
+  importSongs: () => Promise.resolve({ categories: [], songs: [], issues: [] }),
+};
+
 describe('application shell', () => {
   beforeEach(() => {
     localStorage.clear();
     configureGameplayRepository(undefined);
     configureGamePlanRepository(undefined);
+    configureAdminGateway(EMPTY_ADMIN_GATEWAY);
+    useAdminStore.setState({
+      status: 'UNINITIALIZED',
+      categories: [],
+      songs: [],
+      issues: [],
+      error: undefined,
+      lastBackupPath: undefined,
+    });
     useGamePlanStore.setState({
       status: 'UNINITIALIZED',
       plans: [],

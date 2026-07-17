@@ -2,13 +2,19 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createGamePlan, DIFFICULTY_LEVELS, startGameFromPlan } from '../domain';
 import { getCatalogCandidates } from '../domain/catalog';
-import { GAMEPLAY_CATALOG_INDEX } from '../features/game/gameplayCatalog';
+import { GAMEPLAY_CATALOG_INDEX, GAMEPLAY_CATEGORIES } from '../features/game/gameplayCatalog';
+import {
+  getRuntimeCatalogIndex,
+  resetRuntimeCatalog,
+  updateRuntimeCatalog,
+} from '../features/game/runtimeCatalog';
 import { configureGameplayRepository, useGameplayStore } from '../store/gameplayStore';
 
 describe('gameplay application store', () => {
   beforeEach(() => {
     localStorage.clear();
     configureGameplayRepository(undefined);
+    resetRuntimeCatalog();
     useGameplayStore.getState().reset();
   });
 
@@ -99,5 +105,34 @@ describe('gameplay application store', () => {
     expect(useGameplayStore.getState().session?.activeChallenge?.challenge.id).toBe(
       'challenge-90s-bollywood-1-2',
     );
+  });
+
+  it('keeps an active challenge detached from later Admin catalog edits', () => {
+    const store = useGameplayStore.getState();
+    store.startSetup('Alpha', 'Beta');
+    useGameplayStore.getState().send({ type: 'VALIDATE_ROUND' });
+    useGameplayStore.getState().send({ type: 'START_GAME' });
+    useGameplayStore.getState().send({ type: 'BEGIN_TRIVIA' });
+    useGameplayStore.getState().send({ type: 'RECORD_TRIVIA_WINNER', teamId: 'team-a' });
+    useGameplayStore.getState().confirmTurnOrder('team-a');
+    useGameplayStore.getState().assignCategory('90s-bollywood', 'SELF_SELECTED');
+    useGameplayStore.getState().selectChallenge();
+
+    const activeSong = useGameplayStore.getState().session?.activeChallenge?.song;
+    expect(activeSong).toBeDefined();
+    if (!activeSong) throw new Error('Expected an active song.');
+
+    const originalTitle = activeSong.title;
+    updateRuntimeCatalog(GAMEPLAY_CATEGORIES, [
+      {
+        ...activeSong,
+        title: 'Edited after the game started',
+      },
+    ]);
+
+    expect(getRuntimeCatalogIndex().songById.get(activeSong.id)?.title).toBe(
+      'Edited after the game started',
+    );
+    expect(useGameplayStore.getState().session?.activeChallenge?.song.title).toBe(originalTitle);
   });
 });

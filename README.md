@@ -17,17 +17,28 @@ With [NVM](https://github.com/nvm-sh/nvm) installed:
 nvm install
 nvm use
 npm install
-npm run dev
 ```
 
 NVM keeps the project Node version separate from Conda environments and other projects. If NVM is not used, install a compatible Node.js 24 release directly and start with `npm install`.
 
-Vite prints the local URL, normally `http://localhost:5173`.
+For the complete local authoring experience, use two terminals:
+
+```bash
+# Terminal 1: local Admin API
+npm run admin
+
+# Terminal 2: browser application
+npm run dev
+```
+
+Vite prints the browser URL, normally `http://localhost:5173`. The Admin API listens only on
+`http://127.0.0.1:3001`. Game Mode remains usable if that API is not running.
 
 ## Quality checks
 
 ```bash
 npm run typecheck
+npm run admin:check
 npm run lint
 npm run test
 npm run build
@@ -50,15 +61,15 @@ npm run preview
 
 ## Routes
 
-| Route             | Purpose                                              |
-| ----------------- | ---------------------------------------------------- |
-| `/`               | Home and application entry point                     |
-| `/game`           | Complete two-team, five-level host-led game          |
-| `/plans`          | Create, validate, reuse, and manage Saved Game Plans |
-| `/playback-spike` | Isolated YouTube playback and pause-point rehearsal  |
-| `/admin`          | Placeholder for catalog authoring tools              |
-| `/settings`       | Placeholder for display, audio, and theme settings   |
-| any unknown route | Friendly not-found screen                            |
+| Route             | Purpose                                                |
+| ----------------- | ------------------------------------------------------ |
+| `/`               | Home and application entry point                       |
+| `/game`           | Complete two-team, five-level host-led game            |
+| `/plans`          | Create, validate, reuse, and manage Saved Game Plans   |
+| `/playback-spike` | Isolated YouTube playback and pause-point rehearsal    |
+| `/admin`          | Local song, challenge, coverage, and catalog authoring |
+| `/settings`       | Placeholder for display, audio, and theme settings     |
+| any unknown route | Friendly not-found screen                              |
 
 ## Source boundaries
 
@@ -80,7 +91,7 @@ The dependency direction is `UI → application → domain`. Integration service
 | `e2e`              | Playwright browser tests                                    |
 | `data`             | Version-controlled catalog, plan, demo, and backup data     |
 | `public`           | Static audio and image assets served by Vite                |
-| `server`           | Optional local Admin API, introduced in a later milestone   |
+| `server`           | Local-only Admin API and atomic catalog file persistence    |
 
 Empty boundary folders are intentional placeholders for later milestones and contain no behavior yet.
 
@@ -195,13 +206,58 @@ session identity.
 5. Click **Play**, enter two team names, and start the independent game.
 6. Return to Plans and edit the source plan; confirm the active game retains its original settings.
 
+## Admin song and challenge authoring
+
+Milestone 11 replaces the Admin placeholder with a local authoring workspace. The song library
+supports continuous scrolling, search, category/status/level filters, sorting, creation,
+duplication, enable/disable, guarded deletion, and explicit-save editing. The editor parses common
+YouTube URL forms, keeps stable song IDs, validates metadata and challenge time ordering, offers
+manual/capture/nudge timestamp controls, and previews against the same playback coordinator used by
+Game Mode.
+
+Coverage and validation views expose catalog gaps and file/schema issues. Import validates the
+entire candidate set before replacing files; export can download either the whole catalog or a
+single song. Save, update, delete, and import writes use temporary files or directories and atomic
+renames. Existing records are copied to timestamped folders under `data/backups` before destructive
+changes.
+
+The browser never writes project files directly. `npm run admin` builds and starts the loopback-only
+Node API that owns those operations. Its data root defaults to `data` and can be overridden with
+`LYRIC_LOCKOUT_DATA_DIR`; its port can be changed with `ADMIN_PORT`.
+
+### Manual Admin test
+
+1. Start `npm run admin` and `npm run dev` in separate terminals, then open
+   `http://localhost:5173/admin`.
+2. Open **Songs**, click **Add song**, paste a valid YouTube URL, and complete the metadata.
+3. Add a challenge, set its start/pause/verification timestamps, and run the preview controls.
+4. Save the song. Confirm it appears in the library and that Coverage and Validation update.
+5. Disable and re-enable the song, then duplicate it. Confirm the copies remain independently
+   editable.
+6. Delete the duplicate through the confirmation step and confirm a backup notice appears.
+7. Stop the Admin API and refresh. Confirm the authoring workspace reports it is offline while
+   `/game` remains available.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds the complete minimal gameplay UI and end-to-end fake-media game. Milestone 9 adds versioned active-session persistence, startup Resume/Discard recovery, paused timer/media restoration, recovery export, and completed-game summaries. Milestone 10 adds reusable Saved Game Plans, plan validation, curated pools, warning-gated starts, and independent session copies. The project still intentionally excludes real party catalog authoring, advanced animation, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development
+tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds
+pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase
+transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds
+catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6
+proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio
+abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds
+the complete minimal gameplay UI and end-to-end fake-media game. Milestone 9 adds versioned
+active-session persistence, startup Resume/Discard recovery, paused timer/media restoration,
+recovery export, and completed-game summaries. Milestone 10 adds reusable Saved Game Plans, plan
+validation, curated pools, warning-gated starts, and independent session copies. Milestone 11 adds
+the local Admin API and song/challenge authoring, coverage, validation, preview, atomic persistence,
+backup, and import/export workflows. The project still intentionally excludes advanced animation,
+custom theming, and release-candidate hardening.
 
 ## Milestone prompts
 

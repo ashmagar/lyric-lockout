@@ -8,7 +8,7 @@ import {
   type GamePlan,
   type StartGameFromPlanResult,
 } from '../domain';
-import { GAMEPLAY_CATALOG_INDEX } from '../features/game/gameplayCatalog';
+import { getRuntimeCatalogIndex } from '../features/game/runtimeCatalog';
 import { LocalStorageGamePlanRepository, type GamePlanRepository } from '../repositories';
 
 interface PlanStorageIssue {
@@ -118,7 +118,7 @@ export const useGamePlanStore = create<GamePlanState>((set, get) => ({
       id: nextId('plan'),
       name: trimmedName,
       createdAt: now(),
-      catalog: GAMEPLAY_CATALOG_INDEX,
+      catalog: getRuntimeCatalogIndex(),
     });
     try {
       repository().savePlan(plan);
@@ -150,7 +150,7 @@ export const useGamePlanStore = create<GamePlanState>((set, get) => ({
     if (!plan) return undefined;
     const validated = validateGamePlan({
       plan,
-      catalog: GAMEPLAY_CATALOG_INDEX,
+      catalog: getRuntimeCatalogIndex(),
       random: Math.random,
       validatedAt: now(),
     });
@@ -213,7 +213,7 @@ export const useGamePlanStore = create<GamePlanState>((set, get) => ({
     }
     const result = startGameFromPlan({
       plan,
-      catalog: GAMEPLAY_CATALOG_INDEX,
+      catalog: getRuntimeCatalogIndex(),
       random: Math.random,
       validatedAt: now(),
       gameId: nextId('game'),

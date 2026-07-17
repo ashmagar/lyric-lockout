@@ -1,3 +1,4 @@
+export * from './authoring';
 export * from './challengeSelection';
 export * from './coverage';
 export * from './indexing';

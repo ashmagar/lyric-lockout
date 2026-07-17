@@ -4,16 +4,18 @@ test('the foundation routes are available', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Ready to lock in the lyrics?' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Game', exact: true }).click();
+  const primaryNavigation = page.getByLabel('Primary navigation');
+
+  await primaryNavigation.getByRole('link', { name: 'Game', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Bring two teams to the stage.' })).toBeVisible();
 
   await page.goto('/playback-spike');
   await expect(page.getByRole('heading', { name: 'YouTube pause-point rehearsal' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Admin', exact: true }).click();
+  await primaryNavigation.getByRole('link', { name: 'Admin', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Your song library, backstage.' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  await primaryNavigation.getByRole('link', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Tune the room your way.' })).toBeVisible();
 });
 

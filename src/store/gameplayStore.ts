@@ -7,7 +7,8 @@ import type { ActiveChallenge, GameSession } from '../domain/models/game';
 import type { GameCommand } from '../domain/stateMachine/commands';
 import type { DomainEvent } from '../domain/stateMachine/events';
 import { processGameCommand } from '../domain/stateMachine';
-import { GAMEPLAY_CATALOG_INDEX, GAMEPLAY_ROUND_CONFIG } from '../features/game/gameplayCatalog';
+import { GAMEPLAY_ROUND_CONFIG } from '../features/game/gameplayCatalog';
+import { getRuntimeCatalogIndex } from '../features/game/runtimeCatalog';
 import { LocalStorageGameSessionRepository, type GameSessionRepository } from '../repositories';
 import type { CompletedGameSummary } from '../schemas';
 
@@ -331,7 +332,7 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
       return;
     }
     const result = selectChallenge(
-      GAMEPLAY_CATALOG_INDEX,
+      getRuntimeCatalogIndex(),
       {
         categoryId: turn.categoryId,
         difficulty: turn.difficulty,
