@@ -5,6 +5,7 @@ import { AdminPage } from '../features/admin/AdminPage';
 import { GamePage } from '../features/game/GamePage';
 import { HomePage } from '../features/home/HomePage';
 import { NotFoundPage } from '../features/not-found/NotFoundPage';
+import { PlaybackSpikePage } from '../features/playback-spike/PlaybackSpikePage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 
 export const appRoutes: RouteObject[] = [
@@ -13,6 +14,7 @@ export const appRoutes: RouteObject[] = [
     children: [
       { index: true, element: <HomePage /> },
       { path: 'game', element: <GamePage /> },
+      { path: 'playback-spike', element: <PlaybackSpikePage /> },
       { path: 'admin', element: <AdminPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: '*', element: <NotFoundPage /> },

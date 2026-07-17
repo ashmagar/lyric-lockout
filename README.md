@@ -1,6 +1,6 @@
 # Lyric Lockout
 
-Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated domain contracts, a deterministic game engine and state machine, and catalog/round-building services. The browser UI remains a placeholder.
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated gameplay and catalog services, and an isolated YouTube playback technical spike. The full gameplay UI remains a placeholder.
 
 ## Prerequisites
 
@@ -50,13 +50,14 @@ npm run preview
 
 ## Routes
 
-| Route             | Milestone 1 purpose                                |
-| ----------------- | -------------------------------------------------- |
-| `/`               | Home and application entry point                   |
-| `/game`           | Placeholder for the future game flow               |
-| `/admin`          | Placeholder for catalog authoring tools            |
-| `/settings`       | Placeholder for display, audio, and theme settings |
-| any unknown route | Friendly not-found screen                          |
+| Route             | Milestone 1 purpose                                 |
+| ----------------- | --------------------------------------------------- |
+| `/`               | Home and application entry point                    |
+| `/game`           | Placeholder for the future game flow                |
+| `/playback-spike` | Isolated YouTube playback and pause-point rehearsal |
+| `/admin`          | Placeholder for catalog authoring tools             |
+| `/settings`       | Placeholder for display, audio, and theme settings  |
+| any unknown route | Friendly not-found screen                           |
 
 ## Source boundaries
 
@@ -115,13 +116,31 @@ Milestone 5 adds catalog repository interfaces with in-memory and bundled static
 
 Coverage analysis reports exact enabled challenge counts for every category and level. The round builder validates or deterministically creates all random/manual category and full-catalog/curated-pool combinations. Challenge selection respects curated approvals and permanent challenge exclusions; it avoids played songs when possible and explicitly reports when safe song reuse fallback was required.
 
+## YouTube playback technical spike
+
+Milestone 6 adds a generic `VideoPlayerService`, a YouTube IFrame adapter, and a playback coordinator under `src/services/video`. YouTube numeric states and error codes do not escape the adapter. The coordinator polls every 100 ms, pauses within the configured 0.15-second tolerance, records the observed pause time, prevents duplicate pause triggers, and supports verification replay, Retry, Restart, and cleanup.
+
+The `/playback-spike` route uses the embeddable sample video from the official [YouTube IFrame API documentation](https://developers.google.com/youtube/iframe_api_reference). Loading and cueing do not start playback; the host must click **Play challenge**.
+
+### Manual playback smoke test
+
+1. Run `npm run dev` and open `http://localhost:5173/playback-spike` in desktop Chrome.
+2. Wait for the coordinator to show `READY` and the player to show `CUED`.
+3. Click **Play challenge**. Confirm playback starts around 5 seconds and pauses around 10 seconds.
+   If the browser blocks API playback, click **Play challenge** again or click the play overlay inside the video.
+4. Confirm **Actual pause** records the observed player time near 10 seconds.
+5. Click **Replay verification**. Confirm playback seeks to about 7 seconds and stops around 12 seconds.
+6. Click **Restart challenge** and confirm the challenge begins again from about 5 seconds.
+
+This manual check requires internet access, an embeddable video, and a browser that permits playback after the host gesture. Automated tests use a fake player and never depend on live YouTube availability.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. The project still intentionally excludes effect execution, YouTube playback, persistence, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. The project still intentionally excludes full-game effect coordination, suspense audio, gameplay timers, persistence, and Admin CRUD.
 
 ## Milestone prompts
 
