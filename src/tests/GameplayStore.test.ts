@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { useGameplayStore } from '../store/gameplayStore';
+import { configureGameplayRepository, useGameplayStore } from '../store/gameplayStore';
 
 describe('gameplay application store', () => {
   beforeEach(() => {
+    localStorage.clear();
+    configureGameplayRepository(undefined);
     useGameplayStore.getState().reset();
   });
 

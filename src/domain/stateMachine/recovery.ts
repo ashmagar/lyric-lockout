@@ -39,16 +39,26 @@ function pauseAttempt(
 ): AnswerAttempt | undefined {
   if (attempt?.timer.status !== 'RUNNING') return attempt;
 
+  const resumedAt = attempt.timer.lastResumedAt ?? attempt.timer.startedAt;
+  const elapsedMilliseconds = resumedAt
+    ? Math.max(0, Date.parse(pausedAt) - Date.parse(resumedAt))
+    : 0;
+  const remainingMilliseconds = Math.max(
+    0,
+    attempt.timer.remainingMilliseconds - elapsedMilliseconds,
+  );
+
   return {
     ...attempt,
     timer: {
       ...attempt.timer,
       status: 'PAUSED',
+      remainingMilliseconds,
       pauseHistory: [
         ...attempt.timer.pauseHistory,
         {
           pausedAt,
-          remainingMilliseconds: attempt.timer.remainingMilliseconds,
+          remainingMilliseconds,
         },
       ],
     },

@@ -4,6 +4,7 @@ export * from './common';
 export * from './gamePlanSchemas';
 export * from './gameSchemas';
 export * from './hostOverrideSchemas';
+export * from './persistenceSchemas';
 export * from './roundSchemas';
 export * from './scoreSchemas';
 export * from './teamSchemas';

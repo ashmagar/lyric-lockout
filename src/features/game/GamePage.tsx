@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useCallback, useState } from 'react';
+import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { getWinningTeams } from '../../domain/engine';
@@ -25,8 +25,20 @@ const ASSIGNMENT_LABELS: Record<CategoryAssignmentMode, string> = {
   HOST_ASSIGNED: 'Host assigns',
 };
 
+function downloadRecoveryData(data: string) {
+  const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `lyric-lockout-recovery-${new Date().toISOString()}.json`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 function TeamSetup() {
   const startSetup = useGameplayStore((state) => state.startSetup);
+  const completedSummaries = useGameplayStore((state) => state.completedSummaries);
+  const persistenceError = useGameplayStore((state) => state.persistenceError);
+  const clearPersistenceError = useGameplayStore((state) => state.clearPersistenceError);
   const [teamOne, setTeamOne] = useState('Team Sunset');
   const [teamTwo, setTeamTwo] = useState('Team Starlight');
   const [validation, setValidation] = useState<string | undefined>();
@@ -50,9 +62,25 @@ function TeamSetup() {
         <p className={styles.eyebrow}>New game</p>
         <h1>Bring two teams to the stage.</h1>
         <p>
-          Ten categories, five levels, and one host who makes the final call. This game stays in
-          this browser until persistence arrives in Milestone 9.
+          Ten categories, five levels, and one host who makes the final call. Active games are saved
+          in this browser after every meaningful host action.
         </p>
+        {completedSummaries.length > 0 && (
+          <div className={styles.recentGames}>
+            <h2>Recent games</h2>
+            {completedSummaries.slice(0, 5).map((summary) => (
+              <article key={summary.gameId}>
+                <strong>
+                  {summary.teams
+                    .filter((team) => summary.winnerTeamIds.includes(team.id))
+                    .map((team) => team.name)
+                    .join(' & ')}
+                </strong>
+                <span>{summary.teams.map((team) => `${team.name} ${team.score}`).join(' · ')}</span>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
       <form className={styles.setupForm} onSubmit={submit}>
         <label>
@@ -77,7 +105,87 @@ function TeamSetup() {
         <button className={styles.primaryButton} type="submit">
           Build the round
         </button>
+        {persistenceError && (
+          <div className={styles.inlineError} role="alert">
+            <span>{persistenceError}</span>
+            <button onClick={clearPersistenceError} type="button">
+              Dismiss
+            </button>
+          </div>
+        )}
       </form>
+    </section>
+  );
+}
+
+function SavedGamePrompt() {
+  const {
+    savedSession,
+    savedSessionIssue,
+    persistenceError,
+    resumeSavedGame,
+    discardSavedGame,
+    exportRecoveryData,
+    clearPersistenceError,
+  } = useGameplayStore();
+
+  const exportData = () => downloadRecoveryData(exportRecoveryData());
+
+  if (savedSession) {
+    const teamNames = savedSession.teams.map((team) => team.name).join(' vs ');
+    return (
+      <section className={styles.resumeShell}>
+        <p className={styles.eyebrow}>Saved game found</p>
+        <h1>Resume {teamNames}?</h1>
+        <p>
+          The game will reopen at a safe host-controlled phase. Media, suspense audio, and any
+          answering timer will remain paused.
+        </p>
+        <div className={styles.actionRow}>
+          <button className={styles.primaryButton} onClick={resumeSavedGame} type="button">
+            Resume saved game
+          </button>
+          <button className={styles.secondaryButton} onClick={discardSavedGame} type="button">
+            Discard saved game
+          </button>
+        </div>
+        {persistenceError && (
+          <div className={styles.inlineError} role="alert">
+            <span>{persistenceError}</span>
+            <button onClick={exportData} type="button">
+              Export saved data
+            </button>
+            <button onClick={clearPersistenceError} type="button">
+              Dismiss
+            </button>
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.resumeShell}>
+      <p className={styles.eyebrow}>Recovery needed</p>
+      <h1>Saved game needs attention.</h1>
+      <p>{savedSessionIssue?.message}</p>
+      <p>The original browser data has not been changed.</p>
+      <div className={styles.actionRow}>
+        <button className={styles.primaryButton} onClick={exportData} type="button">
+          Export saved data
+        </button>
+        <button className={styles.secondaryButton} onClick={discardSavedGame} type="button">
+          Discard saved game
+        </button>
+      </div>
+      {persistenceError && (
+        <div className={styles.inlineError} role="alert">
+          <span>{persistenceError}</span>
+          <button onClick={clearPersistenceError} type="button">
+            Dismiss
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -808,6 +916,9 @@ function ActiveGame({ session }: { session: GameSession }) {
     completeTurn,
     adjustTimer,
     clearFailure,
+    persistenceError,
+    exportRecoveryData,
+    clearPersistenceError,
     reset,
   } = useGameplayStore();
 
@@ -866,6 +977,19 @@ function ActiveGame({ session }: { session: GameSession }) {
         {audioError && (
           <div className={styles.notice} role="status">
             Audio is unavailable, but gameplay can continue: {audioError.message}
+          </div>
+        )}
+        {persistenceError && (
+          <div className={styles.errorBanner} role="alert">
+            <span>{persistenceError} Gameplay can continue in memory.</span>
+            <div className={styles.actionRow}>
+              <button onClick={() => downloadRecoveryData(exportRecoveryData())} type="button">
+                Export current game
+              </button>
+              <button onClick={clearPersistenceError} type="button">
+                Dismiss
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -938,6 +1062,21 @@ function ActiveGame({ session }: { session: GameSession }) {
 }
 
 export function GamePage() {
-  const session = useGameplayStore((state) => state.session);
+  const { session, persistenceStatus, savedSession, savedSessionIssue, initializePersistence } =
+    useGameplayStore();
+
+  useEffect(() => {
+    initializePersistence();
+  }, [initializePersistence]);
+
+  if (persistenceStatus !== 'READY') {
+    return (
+      <section className={styles.resumeShell} aria-live="polite">
+        <p className={styles.eyebrow}>Local game</p>
+        <h1>Checking for a saved game…</h1>
+      </section>
+    );
+  }
+  if (!session && (savedSession || savedSessionIssue)) return <SavedGamePrompt />;
   return session ? <ActiveGame session={session} /> : <TeamSetup />;
 }

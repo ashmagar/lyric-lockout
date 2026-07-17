@@ -150,13 +150,36 @@ The normal `/game` route uses the YouTube adapter and an embedded fictional demo
 
 The gameplay shell includes score strips, contextual lifelines, host timer controls, safe pause, answer and steal reviews, verification-only lyric reveal, recommended and overridden score breakdowns, turn/level summaries, and the final winner.
 
+## Refresh recovery and local persistence
+
+Milestone 9 stores active games in schema-versioned Local Storage envelopes after meaningful
+commands. Startup validates the saved envelope and always asks the host to **Resume saved game** or
+**Discard saved game**; corrupt or unsupported data is preserved for export instead of being
+silently replaced. Completed-game summaries are kept separately from the active game.
+
+Resume passes through the domain recovery transition. Playback phases reopen at video ready, active
+answer timers restore paused with their calculated remaining time, and suspense audio, timers, and
+media never autoplay after refresh. If browser storage fails, gameplay continues in memory and the
+host can export the current session as JSON.
+
+### Manual refresh recovery test
+
+1. Run `npm run dev` and open `http://localhost:5173/game?media=fake`.
+2. Start a game, lock a challenge, click **Play challenge**, and refresh before simulating the
+   challenge pause.
+3. Confirm the Resume/Discard prompt appears. Click **Resume saved game** and verify the challenge
+   is at **Play challenge**, not playing.
+4. Play and simulate the pause, refresh during primary answering, and resume again.
+5. Confirm the answer screen returns with the timer marked **PAUSED** and requires the host to click
+   **Resume**.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds the complete minimal gameplay UI and end-to-end fake-media game. The project still intentionally excludes persistence, Saved Game Plans, real party catalog authoring, advanced animation, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds the complete minimal gameplay UI and end-to-end fake-media game. Milestone 9 adds versioned active-session persistence, startup Resume/Discard recovery, paused timer/media restoration, recovery export, and completed-game summaries. The project still intentionally excludes Saved Game Plans, real party catalog authoring, advanced animation, and Admin CRUD.
 
 ## Milestone prompts
 

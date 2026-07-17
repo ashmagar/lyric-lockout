@@ -59,6 +59,46 @@ async function finishTurn(page: Page, overridePrimary?: number) {
   await page.getByRole('button', { name: 'Continue' }).click();
 }
 
+async function startFirstChallenge(page: Page) {
+  await page.goto('/game?media=fake');
+  await page.getByRole('textbox', { name: 'Team one' }).fill('Alpha');
+  await page.getByRole('textbox', { name: 'Team two' }).fill('Beta');
+  await page.getByRole('button', { name: 'Build the round' }).click();
+  await page.getByRole('button', { name: 'Validate round' }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+  await page.getByRole('button', { name: 'Begin trivia' }).click();
+  await page.getByRole('button', { name: 'Alpha', exact: true }).click();
+  await page.getByRole('button', { name: 'Alpha plays first' }).click();
+  await page.getByRole('button', { name: CATEGORIES[0], exact: true }).click();
+  await page.getByRole('button', { name: 'Select challenge' }).click();
+  await page.getByRole('button', { name: 'Lock challenge' }).click();
+}
+
+test('refresh requires an explicit safe resume and keeps media and timers paused', async ({
+  page,
+}) => {
+  await startFirstChallenge(page);
+  await page.getByRole('button', { name: 'Play challenge' }).click();
+  await expect(page.getByRole('button', { name: 'Simulate challenge pause' })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Resume Alpha vs Beta?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Resume saved game' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Listen for the lockout.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Play challenge' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Simulate challenge pause' })).toHaveCount(0);
+
+  await playMedia(page);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Resume Alpha vs Beta?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Resume saved game' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Continue the lyrics.' })).toBeVisible();
+  await expect(page.getByText('PAUSED', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Resume', exact: true })).toBeEnabled();
+});
+
 test('a host completes all five levels with fake media and every critical branch', async ({
   page,
 }) => {
@@ -120,4 +160,9 @@ test('a host completes all five levels with fake media and every critical branch
 
   await expect(page.getByRole('heading', { name: 'Alpha wins!' })).toBeVisible();
   await expect(page.getByText('All five levels and ten categories are complete.')).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Bring two teams to the stage.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recent games' })).toBeVisible();
+  await expect(page.getByText(/Alpha \d+ · Beta \d+/)).toBeVisible();
 });

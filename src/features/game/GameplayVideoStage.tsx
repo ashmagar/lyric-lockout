@@ -30,6 +30,8 @@ export function GameplayVideoStage({
   const coordinatorRef = useRef<ChallengePlaybackCoordinator | undefined>(undefined);
   const readySentRef = useRef(false);
   const pauseSentRef = useRef(false);
+  const phaseRef = useRef(session.phase);
+  phaseRef.current = session.phase;
   const [snapshot, setSnapshot] = useState<PlaybackSnapshot | undefined>();
   const [verificationStarted, setVerificationStarted] = useState(false);
   const activeChallenge = session.activeChallenge;
@@ -41,8 +43,9 @@ export function GameplayVideoStage({
     setVerificationStarted(false);
 
     if (!activeChallenge) return;
+    const shouldReportReady = phaseRef.current === 'VIDEO_LOADING';
     if (fakeMedia) {
-      if (!verification) {
+      if (shouldReportReady) {
         readySentRef.current = true;
         onReady();
       }
@@ -58,7 +61,7 @@ export function GameplayVideoStage({
     coordinatorRef.current = coordinator;
     const unsubscribe = coordinator.subscribe((nextSnapshot) => {
       setSnapshot(nextSnapshot);
-      if (!verification && nextSnapshot.status === 'READY' && !readySentRef.current) {
+      if (shouldReportReady && nextSnapshot.status === 'READY' && !readySentRef.current) {
         readySentRef.current = true;
         onReady();
       }

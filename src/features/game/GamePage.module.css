@@ -13,6 +13,78 @@
     var(--color-surface);
 }
 
+.resumeShell {
+  display: grid;
+  align-content: center;
+  gap: var(--space-4);
+  min-height: 100%;
+  padding: clamp(2rem, 8vw, 7rem);
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      color-mix(in srgb, var(--color-highlight) 20%, transparent),
+      transparent 24rem
+    ),
+    var(--color-surface);
+}
+
+.resumeShell h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.98;
+}
+
+.resumeShell > p:not(.eyebrow) {
+  max-width: 42rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.recentGames {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.recentGames h2 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.recentGames article {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+}
+
+.recentGames span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.inlineError {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  color: #7a1414;
+  background: #ffe2df;
+  border-radius: 0.75rem;
+}
+
+.inlineError button {
+  justify-self: start;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-weight: 850;
+}
+
 .setup h1,
 .stageHeader h1 {
   max-width: 18ch;

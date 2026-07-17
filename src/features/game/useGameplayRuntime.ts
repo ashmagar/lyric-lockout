@@ -83,6 +83,19 @@ export function useGameplayRuntime(
   }, [runtime]);
 
   useEffect(() => {
+    const attempt =
+      session.phase === 'STEAL_ANSWERING'
+        ? session.activeTurn?.stealAttempt
+        : session.activeTurn?.primaryAttempt;
+    if (attempt?.timer.status !== 'PAUSED') return;
+
+    runtime.timer.restorePaused({
+      configuredMilliseconds: attempt.timer.configuredSeconds * 1000,
+      remainingMilliseconds: attempt.timer.remainingMilliseconds,
+    });
+  }, [runtime, session]);
+
+  useEffect(() => {
     events.forEach((event) => {
       if (event.type === 'SUSPENSE_START_REQUESTED') {
         void runtime.audio.playSuspense('countdown');

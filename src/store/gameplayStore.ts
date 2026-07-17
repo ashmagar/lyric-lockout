@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 
 import { selectChallenge } from '../domain/catalog';
-import { createGame } from '../domain/engine';
+import { createGame, getWinningTeams } from '../domain/engine';
 import type { CategoryAssignmentMode, LifelineType } from '../domain/enums';
 import type { ActiveChallenge, GameSession } from '../domain/models/game';
 import type { GameCommand } from '../domain/stateMachine/commands';
 import type { DomainEvent } from '../domain/stateMachine/events';
 import { processGameCommand } from '../domain/stateMachine';
 import { GAMEPLAY_CATALOG_INDEX, GAMEPLAY_ROUND_CONFIG } from '../features/game/gameplayCatalog';
+import { LocalStorageGameSessionRepository, type GameSessionRepository } from '../repositories';
+import type { CompletedGameSummary } from '../schemas';
 
 type CommandInput<T extends GameCommand = GameCommand> = T extends GameCommand
   ? Omit<T, 'commandId' | 'issuedAt'>
@@ -20,12 +22,28 @@ interface PaidLifelineRequest {
   penaltyPoints: number;
 }
 
-interface GameplayState {
+export interface SavedSessionIssue {
+  kind: 'CORRUPT' | 'UNSUPPORTED';
+  message: string;
+  raw: string;
+}
+
+export interface GameplayState {
   session?: GameSession | undefined;
   events: DomainEvent[];
   eventBatch: number;
   failure?: string | undefined;
+  persistenceStatus: 'UNINITIALIZED' | 'LOADING' | 'READY';
+  savedSession?: GameSession | undefined;
+  savedSessionIssue?: SavedSessionIssue | undefined;
+  completedSummaries: CompletedGameSummary[];
+  persistenceError?: string | undefined;
   pendingPaidLifeline?: PaidLifelineRequest | undefined;
+  initializePersistence: () => void;
+  resumeSavedGame: () => void;
+  discardSavedGame: () => void;
+  exportRecoveryData: () => string;
+  clearPersistenceError: () => void;
   startSetup: (teamOneName: string, teamTwoName: string) => void;
   send: (command: CommandInput) => boolean;
   selectChallenge: () => void;
@@ -43,10 +61,15 @@ interface GameplayState {
 }
 
 let idSequence = 0;
+let configuredRepository: GameSessionRepository | undefined;
 
 function nextId(prefix: string): string {
   idSequence += 1;
-  return `${prefix}-${idSequence}`;
+  const unique =
+    typeof globalThis.crypto?.randomUUID === 'function'
+      ? globalThis.crypto.randomUUID()
+      : `${Date.now()}-${idSequence}`;
+  return `${prefix}-${unique}`;
 }
 
 function timestamp(): string {
@@ -61,9 +84,157 @@ function withCommandMetadata(input: CommandInput): GameCommand {
   };
 }
 
+function getRepository(): GameSessionRepository {
+  return (configuredRepository ??= new LocalStorageGameSessionRepository(window.localStorage));
+}
+
+function completedSummary(session: GameSession): CompletedGameSummary {
+  return {
+    schemaVersion: 1,
+    gameId: session.id,
+    completedAt: session.completedAt ?? session.updatedAt,
+    teams: session.teams.map(({ id, name, score }) => ({ id, name, score })),
+    winnerTeamIds: getWinningTeams(session).map((team) => team.id),
+  };
+}
+
+function persistenceMessage(error: unknown): string {
+  return error instanceof Error
+    ? `Game progress could not be saved: ${error.message}`
+    : 'Game progress could not be saved.';
+}
+
+export function configureGameplayRepository(repository: GameSessionRepository | undefined): void {
+  configuredRepository = repository;
+}
+
 export const useGameplayStore = create<GameplayState>((set, get) => ({
   events: [],
   eventBatch: 0,
+  persistenceStatus: 'UNINITIALIZED',
+  completedSummaries: [],
+
+  initializePersistence() {
+    if (get().persistenceStatus !== 'UNINITIALIZED') return;
+    set({ persistenceStatus: 'LOADING' });
+
+    try {
+      const repository = getRepository();
+      const active = repository.loadActiveSession();
+      const completedSummaries = repository.loadCompletedSummaries();
+      if (active.status === 'VALID') {
+        set({
+          persistenceStatus: 'READY',
+          savedSession: active.session,
+          savedSessionIssue: undefined,
+          completedSummaries,
+          persistenceError: undefined,
+        });
+      } else if (active.status === 'CORRUPT' || active.status === 'UNSUPPORTED') {
+        set({
+          persistenceStatus: 'READY',
+          savedSession: undefined,
+          savedSessionIssue: {
+            kind: active.status,
+            message: active.message,
+            raw: active.raw,
+          },
+          completedSummaries,
+          persistenceError: undefined,
+        });
+      } else {
+        set({
+          persistenceStatus: 'READY',
+          savedSession: undefined,
+          savedSessionIssue: undefined,
+          completedSummaries,
+          persistenceError: undefined,
+        });
+      }
+    } catch (error) {
+      set({
+        persistenceStatus: 'READY',
+        persistenceError: persistenceMessage(error),
+      });
+    }
+  },
+
+  resumeSavedGame() {
+    const savedSession = get().savedSession;
+    if (!savedSession) return;
+
+    if (savedSession.phase === 'GAME_SUMMARY') {
+      set({
+        session: savedSession,
+        savedSession: undefined,
+        events: [],
+        eventBatch: get().eventBatch + 1,
+        failure: undefined,
+      });
+      return;
+    }
+
+    const recoveryResult =
+      savedSession.phase === 'RECOVERY'
+        ? { ok: true as const, session: savedSession }
+        : processGameCommand(
+            savedSession,
+            withCommandMetadata({
+              type: 'ENTER_RECOVERY',
+              reason: 'Browser refresh',
+            }),
+          );
+    if (!recoveryResult.ok) {
+      set({ failure: recoveryResult.failure.message });
+      return;
+    }
+
+    const resumeResult = processGameCommand(
+      recoveryResult.session,
+      withCommandMetadata({ type: 'RESUME_FROM_RECOVERY' }),
+    );
+    if (!resumeResult.ok) {
+      set({ failure: resumeResult.failure.message });
+      return;
+    }
+
+    set({
+      session: resumeResult.session,
+      savedSession: undefined,
+      events: resumeResult.events,
+      eventBatch: get().eventBatch + 1,
+      failure: undefined,
+      persistenceError: undefined,
+    });
+    try {
+      getRepository().saveActiveSession(resumeResult.session);
+    } catch (error) {
+      set({ persistenceError: persistenceMessage(error) });
+    }
+  },
+
+  discardSavedGame() {
+    try {
+      getRepository().clearActiveSession();
+      set({
+        savedSession: undefined,
+        savedSessionIssue: undefined,
+        persistenceError: undefined,
+      });
+    } catch (error) {
+      set({ persistenceError: persistenceMessage(error) });
+    }
+  },
+
+  exportRecoveryData() {
+    const issue = get().savedSessionIssue;
+    if (issue) return issue.raw;
+    return JSON.stringify(get().session ?? get().savedSession ?? null, null, 2);
+  },
+
+  clearPersistenceError() {
+    set({ persistenceError: undefined });
+  },
 
   startSetup(teamOneName, teamTwoName) {
     const createdAt = timestamp();
@@ -82,6 +253,7 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
       failure: undefined,
       pendingPaidLifeline: undefined,
       eventBatch: get().eventBatch + 1,
+      persistenceError: undefined,
     });
     get().send({ type: 'ENTER_ROUND_BUILDING' });
   },
@@ -116,6 +288,23 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
           }
         : undefined,
     });
+
+    try {
+      const repository = getRepository();
+      if (result.session.phase === 'GAME_SUMMARY') {
+        repository.saveCompletedSummary(completedSummary(result.session));
+        repository.clearActiveSession();
+        set({
+          completedSummaries: repository.loadCompletedSummaries(),
+          persistenceError: undefined,
+        });
+      } else {
+        repository.saveActiveSession(result.session);
+        set({ persistenceError: undefined });
+      }
+    } catch (error) {
+      set({ persistenceError: persistenceMessage(error) });
+    }
     return true;
   },
 
@@ -233,13 +422,19 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
   },
 
   reset() {
-    idSequence = 0;
+    let persistenceError: string | undefined;
+    try {
+      getRepository().clearActiveSession();
+    } catch (error) {
+      persistenceError = persistenceMessage(error);
+    }
     set({
       session: undefined,
       events: [],
       eventBatch: get().eventBatch + 1,
       failure: undefined,
       pendingPaidLifeline: undefined,
+      persistenceError,
     });
   },
 }));

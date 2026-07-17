@@ -309,6 +309,22 @@ describe('recovery, timer, and reroll behavior', () => {
     expect(expired.events[0]?.type).toBe('TIMER_EXPIRED');
   });
 
+  it('subtracts elapsed wall-clock time before pausing a running timer for recovery', () => {
+    const { session, sequence } = enterAnswering();
+    const originalRemaining = session.activeTurn?.primaryAttempt?.timer.remainingMilliseconds ?? 0;
+    const recoveryCommand = command('ENTER_RECOVERY', sequence, {
+      reason: 'Browser refresh',
+    });
+    recoveryCommand.issuedAt = '2026-07-16T12:00:05.000Z';
+
+    const recovery = dispatch(session, recoveryCommand);
+
+    expect(recovery.session.activeTurn?.primaryAttempt?.timer).toMatchObject({
+      status: 'PAUSED',
+      remainingMilliseconds: originalRemaining - 5_000,
+    });
+  });
+
   it('requests confirmation before applying a paid lifeline', () => {
     let { session, sequence } = enterAnswering();
     session = dispatch(
