@@ -1,6 +1,6 @@
 # Lyric Lockout
 
-Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated domain contracts, and a deterministic pure game engine. The browser UI remains a placeholder.
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated domain contracts, a deterministic pure game engine, and its command-driven state machine. The browser UI remains a placeholder.
 
 ## Prerequisites
 
@@ -101,7 +101,13 @@ The Engineering Specification names Game Plan validation status without enumerat
 
 Milestone 3 lives in `src/domain/engine`. Its immutable functions create games, record trivia and team order, consume categories, classify attempts, account for lifelines, calculate and override scores, and progress two primary turns through all five levels. Callers provide IDs, timestamps, challenge references, and randomness, so engine tests are deterministic and do not rely on browser APIs.
 
-Illegal operations throw typed `GameRuleError` values. Command IDs, domain events, and explicit `GamePhase` transitions are intentionally deferred to Milestone 4.
+Illegal engine operations throw typed `GameRuleError` values.
+
+## Commands and state machine
+
+Milestone 4 lives in `src/domain/stateMachine`. The discriminated `GameCommand` union is the only phase-aware gameplay entry point, and `processGameCommand` returns either an updated session with typed domain events or a structured, non-mutating rejection. Successful command IDs are retained in a bounded recent-history list so duplicate UI or service delivery cannot replay a score or side effect.
+
+The legal transition table covers setup through the game summary. Media, suspense, timer, hint, score, and recovery events are effect requests only; the Domain Layer does not execute integrations. Recovery pauses running timer snapshots, requests media and suspense stops, and resumes at a host-controlled phase without autoplaying or restarting timers.
 
 ## Theme foundation
 
@@ -109,7 +115,7 @@ The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the 
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. The project still intentionally excludes command processing, state-machine behavior, YouTube playback, persistence, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. The project still intentionally excludes effect execution, YouTube playback, persistence, catalog repositories, and Admin CRUD.
 
 ## Milestone prompts
 

@@ -45,6 +45,13 @@ export interface ConfirmChallengeInput {
   confirmedAt: string;
 }
 
+export interface AssignCategoryInput {
+  assignmentRecordId: string;
+  assignmentMode: CategoryAssignmentMode;
+  categoryId: string;
+  assignedAt: string;
+}
+
 export interface StartStealInput {
   attemptId: string;
   startedAt: string;
@@ -287,12 +294,46 @@ export function selectRandomAvailableCategory(session: GameSession, random: Rand
   return selectRandomItem(available, random);
 }
 
+export function assignCategory(session: GameSession, input: AssignCategoryInput): GameSession {
+  const turn = getActiveTurn(session);
+
+  if (turn.categoryId || turn.challengeReference) {
+    throw new GameRuleError('CATEGORY_ALREADY_CONFIRMED', 'This turn already has a category');
+  }
+  if (!session.roundConfig.selectedCategoryIds.includes(input.categoryId)) {
+    throw new GameRuleError('CATEGORY_NOT_IN_ROUND', 'The category is not part of this game');
+  }
+  if (session.consumedCategoryIds.includes(input.categoryId)) {
+    throw new GameRuleError('CATEGORY_ALREADY_CONSUMED', 'The category was already consumed');
+  }
+
+  return {
+    ...session,
+    activeTurn: { ...turn, categoryId: input.categoryId },
+    categoryHistory: [
+      ...session.categoryHistory,
+      {
+        id: input.assignmentRecordId,
+        categoryId: input.categoryId,
+        difficulty: session.currentDifficulty,
+        teamId: turn.primaryTeamId,
+        assignmentMode: input.assignmentMode,
+        selectedAt: input.assignedAt,
+      },
+    ],
+    updatedAt: input.assignedAt,
+  };
+}
+
 export function confirmChallenge(session: GameSession, input: ConfirmChallengeInput): GameSession {
   const turn = getActiveTurn(session);
   const reference = input.challengeReference;
 
-  if (turn.categoryId || turn.challengeReference) {
-    throw new GameRuleError('CATEGORY_ALREADY_CONFIRMED', 'This turn already has a category');
+  if (turn.challengeReference) {
+    throw new GameRuleError('CATEGORY_ALREADY_CONFIRMED', 'This turn already has a challenge');
+  }
+  if (turn.categoryId && turn.categoryId !== reference.categoryId) {
+    throw new GameRuleError('CHALLENGE_MISMATCH', 'Challenge category does not match the turn');
   }
   if (!session.roundConfig.selectedCategoryIds.includes(reference.categoryId)) {
     throw new GameRuleError('CATEGORY_NOT_IN_ROUND', 'The category is not part of this game');
@@ -315,17 +356,19 @@ export function confirmChallenge(session: GameSession, input: ConfirmChallengeIn
       challengeReference: reference,
     },
     consumedCategoryIds: [...session.consumedCategoryIds, reference.categoryId],
-    categoryHistory: [
-      ...session.categoryHistory,
-      {
-        id: input.assignmentRecordId,
-        categoryId: reference.categoryId,
-        difficulty: session.currentDifficulty,
-        teamId: turn.primaryTeamId,
-        assignmentMode: input.assignmentMode,
-        selectedAt: input.confirmedAt,
-      },
-    ],
+    categoryHistory: turn.categoryId
+      ? session.categoryHistory
+      : [
+          ...session.categoryHistory,
+          {
+            id: input.assignmentRecordId,
+            categoryId: reference.categoryId,
+            difficulty: session.currentDifficulty,
+            teamId: turn.primaryTeamId,
+            assignmentMode: input.assignmentMode,
+            selectedAt: input.confirmedAt,
+          },
+        ],
     playedSongIds: session.playedSongIds.includes(reference.songId)
       ? session.playedSongIds
       : [...session.playedSongIds, reference.songId],
@@ -636,6 +679,7 @@ export function completeTurn(session: GameSession, completedAt: string): GameSes
     return {
       ...withStatistics,
       activeTurn: undefined,
+      activeChallenge: undefined,
       currentLevelState: {
         ...session.currentLevelState,
         primaryTurnsCompleted: completedTurns,
@@ -666,6 +710,7 @@ export function completeTurn(session: GameSession, completedAt: string): GameSes
       status: 'COMPLETED',
       completedAt,
       activeTurn: undefined,
+      activeChallenge: undefined,
       currentLevelState: {
         ...session.currentLevelState,
         primaryTurnsCompleted: 2,
@@ -680,6 +725,7 @@ export function completeTurn(session: GameSession, completedAt: string): GameSes
   return {
     ...withStatistics,
     activeTurn: undefined,
+    activeChallenge: undefined,
     currentDifficulty: nextDifficulty,
     currentLevelState: {
       difficulty: nextDifficulty,

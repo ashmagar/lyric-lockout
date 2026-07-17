@@ -10,3 +10,4 @@ export * from './models/round';
 export * from './models/score';
 export * from './models/team';
 export * from './models/timer';
+export * from './stateMachine';
