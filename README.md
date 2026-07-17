@@ -1,6 +1,6 @@
 # Lyric Lockout
 
-Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated gameplay and catalog services, and an isolated YouTube playback technical spike. The full gameplay UI remains a placeholder.
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated gameplay and catalog services, an isolated YouTube playback technical spike, and browser-ready timer and audio service boundaries. The full gameplay UI remains a placeholder.
 
 ## Prerequisites
 
@@ -134,13 +134,21 @@ The `/playback-spike` route uses the embeddable sample video from the official [
 
 This manual check requires internet access, an embeddable video, and a browser that permits playback after the host gesture. Automated tests use a fake player and never depend on live YouTube availability.
 
+## Timer and audio services
+
+Milestone 7 adds browser and fake implementations under `src/services/timer` and `src/services/audio`. The timer calculates remaining time from an injected wall clock rather than trusting interval frequency, emits expiration once, supports all documented host controls, and restores saved timers paused. Audio assets are supplied through a manifest; suspense and effects have independent volumes, suspense loops until explicitly stopped, and preload or playback failures are reported as recoverable events rather than blocking gameplay.
+
+`ChallengePlaybackCoordinator` accepts these services as optional dependencies. When configured with a timer duration and suspense asset, it sequences automatic video pause → suspense start → timer start, then stops the timer and suspense before verification. Timer expiration remains a service event; the application must send the existing `TIMER_EXPIRED` command, whose domain handling deliberately does not classify the answer.
+
+No production audio files or complete gameplay controls are added in this milestone. Those services are wired into the playable flow in Milestone 8.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. The project still intentionally excludes full-game effect coordination, suspense audio, gameplay timers, persistence, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. The project still intentionally excludes complete gameplay UI/effect coordination, persistence, production audio assets, and Admin CRUD.
 
 ## Milestone prompts
 

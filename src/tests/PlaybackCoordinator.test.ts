@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { FakeAudioService } from '../services/audio';
+import { FakeTimerService } from '../services/timer';
 import {
   ChallengePlaybackCoordinator,
   FakeVideoPlayerService,
@@ -148,5 +150,45 @@ describe('ChallengePlaybackCoordinator', () => {
       error: undefined,
     });
     expect(scheduler.activeTaskCount).toBe(1);
+  });
+
+  it('coordinates suspense and timer services without letting audio failure block answering', async () => {
+    const player = new FakeVideoPlayerService();
+    const scheduler = new ManualPollingScheduler();
+    const audio = new FakeAudioService();
+    const timer = new FakeTimerService();
+    const coordinator = new ChallengePlaybackCoordinator(player, scheduler, {
+      audio,
+      timer,
+      suspenseAssetId: 'countdown',
+    });
+    await coordinator.initialize(document.createElement('div'), {
+      ...CONFIG,
+      timerDurationMilliseconds: 30_000,
+    });
+    audio.failNext({
+      operation: 'PLAY_SUSPENSE',
+      channel: 'SUSPENSE',
+      assetId: 'countdown',
+      message: 'Audio unavailable',
+      recoverable: true,
+    });
+    coordinator.playChallenge();
+    player.setCurrentTime(9.86);
+    scheduler.run();
+
+    expect(coordinator.getSnapshot().status).toBe('PAUSED_AT_CHALLENGE');
+    expect(audio.preloadCallCount).toBe(1);
+    expect(audio.suspensePlayRequests).toEqual(['countdown']);
+    expect(timer.startRequests).toEqual([30_000]);
+
+    coordinator.playVerification();
+    expect(timer.stopCallCount).toBeGreaterThan(0);
+    expect(audio.stopSuspenseCallCount).toBeGreaterThan(0);
+    expect(coordinator.getSnapshot().status).toBe('PLAYING_VERIFICATION');
+
+    coordinator.dispose();
+    expect(timer.disposeCallCount).toBe(1);
+    expect(audio.disposeCallCount).toBe(1);
   });
 });

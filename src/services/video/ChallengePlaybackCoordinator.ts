@@ -1,3 +1,5 @@
+import type { AudioService } from '../audio';
+import type { TimerService } from '../timer';
 import type { PollingScheduler } from './PollingScheduler';
 import type {
   VideoPlayerError,
@@ -26,6 +28,13 @@ export interface PlaybackChallengeConfig {
   pauseAtSeconds: number;
   verifyFromSeconds: number;
   verifyToSeconds?: number | undefined;
+  timerDurationMilliseconds?: number | undefined;
+}
+
+export interface PlaybackSequenceServices {
+  audio: AudioService;
+  timer: TimerService;
+  suspenseAssetId: string;
 }
 
 export interface PlaybackSnapshot {
@@ -57,7 +66,9 @@ function validateConfig(config: PlaybackChallengeConfig): void {
     config.verifyFromSeconds < 0 ||
     config.pauseAtSeconds <= config.playbackStartSeconds ||
     config.pauseAtSeconds <= config.verifyFromSeconds ||
-    (config.verifyToSeconds !== undefined && config.verifyToSeconds <= config.pauseAtSeconds)
+    (config.verifyToSeconds !== undefined && config.verifyToSeconds <= config.pauseAtSeconds) ||
+    (config.timerDurationMilliseconds !== undefined &&
+      (!Number.isFinite(config.timerDurationMilliseconds) || config.timerDurationMilliseconds < 0))
   ) {
     throw new Error('Playback challenge configuration is invalid');
   }
@@ -66,6 +77,7 @@ function validateConfig(config: PlaybackChallengeConfig): void {
 export class ChallengePlaybackCoordinator {
   readonly #player: VideoPlayerService;
   readonly #scheduler: PollingScheduler;
+  readonly #sequence?: PlaybackSequenceServices | undefined;
   readonly #listeners = new Set<PlaybackSnapshotListener>();
   #config?: PlaybackChallengeConfig | undefined;
   #status: PlaybackCoordinatorState = 'IDLE';
@@ -80,9 +92,14 @@ export class ChallengePlaybackCoordinator {
   #challengePauseTriggered = false;
   #verificationEndTriggered = false;
 
-  constructor(player: VideoPlayerService, scheduler: PollingScheduler) {
+  constructor(
+    player: VideoPlayerService,
+    scheduler: PollingScheduler,
+    sequence?: PlaybackSequenceServices,
+  ) {
     this.#player = player;
     this.#scheduler = scheduler;
+    this.#sequence = sequence;
   }
 
   getSnapshot(): PlaybackSnapshot {
@@ -110,6 +127,7 @@ export class ChallengePlaybackCoordinator {
       this.#error = undefined;
       this.#unsubscribePlayer = this.#player.subscribe((event) => this.handlePlayerEvent(event));
       this.notify();
+      if (this.#sequence) await this.#sequence.audio.preload().catch(() => undefined);
       await this.#player.initialize(container);
       this.#playerInitialized = true;
       await this.loadConfiguredVideo();
@@ -128,6 +146,7 @@ export class ChallengePlaybackCoordinator {
     const config = this.requireConfig();
     try {
       this.stopPolling();
+      this.stopAnsweringSequence();
       this.#challengePauseTriggered = false;
       this.#verificationEndTriggered = false;
       this.#actualPauseTimeSeconds = undefined;
@@ -147,6 +166,7 @@ export class ChallengePlaybackCoordinator {
     const config = this.requireConfig();
     try {
       this.stopPolling();
+      this.stopAnsweringSequence();
       this.#verificationEndTriggered = false;
       this.#error = undefined;
       this.#player.seek(config.verifyFromSeconds);
@@ -203,9 +223,12 @@ export class ChallengePlaybackCoordinator {
 
   dispose(): void {
     this.stopPolling();
+    this.stopAnsweringSequence();
     this.#unsubscribePlayer?.();
     this.#unsubscribePlayer = undefined;
     this.#player.destroy();
+    this.#sequence?.audio.dispose();
+    this.#sequence?.timer.dispose();
     this.#playerInitialized = false;
     this.#container = undefined;
     this.#status = 'DISPOSED';
@@ -256,6 +279,7 @@ export class ChallengePlaybackCoordinator {
         this.#player.pause();
         this.stopPolling();
         this.#status = 'PAUSED_AT_CHALLENGE';
+        this.startAnsweringSequence();
       } else if (
         this.#status === 'PLAYING_VERIFICATION' &&
         config.verifyToSeconds !== undefined &&
@@ -298,6 +322,7 @@ export class ChallengePlaybackCoordinator {
 
   private fail(error: VideoPlayerError): void {
     this.stopPolling();
+    this.stopAnsweringSequence();
     this.#error = error;
     this.#status = 'ERROR';
     this.notify();
@@ -306,5 +331,19 @@ export class ChallengePlaybackCoordinator {
   private notify(): void {
     const snapshot = this.getSnapshot();
     this.#listeners.forEach((listener) => listener(snapshot));
+  }
+
+  private startAnsweringSequence(): void {
+    const sequence = this.#sequence;
+    const duration = this.#config?.timerDurationMilliseconds;
+    if (!sequence || duration === undefined) return;
+    void sequence.audio.playSuspense(sequence.suspenseAssetId).catch(() => undefined);
+    sequence.timer.start(duration);
+  }
+
+  private stopAnsweringSequence(): void {
+    if (!this.#sequence) return;
+    this.#sequence.timer.stop();
+    this.#sequence.audio.stopSuspense();
   }
 }
