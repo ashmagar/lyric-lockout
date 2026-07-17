@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestRouter } from '../app/router';
 import { ACTIVE_GAME_STORAGE_KEY } from '../repositories';
+import { configureGamePlanRepository, useGamePlanStore } from '../store/gamePlanStore';
 import { configureGameplayRepository, useGameplayStore } from '../store/gameplayStore';
 import { bootstrapTheme, DEFAULT_THEME } from '../store/settingsStore';
 
@@ -15,6 +16,13 @@ describe('application shell', () => {
   beforeEach(() => {
     localStorage.clear();
     configureGameplayRepository(undefined);
+    configureGamePlanRepository(undefined);
+    useGamePlanStore.setState({
+      status: 'UNINITIALIZED',
+      plans: [],
+      storageIssue: undefined,
+      error: undefined,
+    });
     useGameplayStore.setState({
       session: undefined,
       persistenceStatus: 'UNINITIALIZED',
@@ -36,6 +44,7 @@ describe('application shell', () => {
 
   it.each([
     ['/game', 'Bring two teams to the stage.'],
+    ['/plans', 'Prepare the party before it starts.'],
     ['/admin', 'Your song library, backstage.'],
     ['/settings', 'Tune the room your way.'],
   ])('loads the %s route', async (path, heading) => {

@@ -645,8 +645,16 @@ function PhaseStage(props: PhaseStageProps) {
       return (
         <Stage
           eyebrow={`${challenge?.category.name ?? 'Category'} · Level ${session.currentDifficulty}`}
-          title={challenge?.song.title ?? 'Challenge preview'}
-          description={challenge?.song.artist}
+          title={
+            session.gameConfig.revealSongBeforePlayback
+              ? (challenge?.song.title ?? 'Challenge preview')
+              : 'Mystery song challenge'
+          }
+          description={
+            session.gameConfig.revealSongBeforePlayback
+              ? challenge?.song.artist
+              : 'Song and artist stay hidden until verification.'
+          }
         >
           <div className={styles.previewStats}>
             <div>

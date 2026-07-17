@@ -1,15 +1,18 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
+import { useSettingsStore } from '../../store/settingsStore';
 import styles from './AppShell.module.css';
 
 const navigation = [
   { label: 'Home', to: '/' },
   { label: 'Game', to: '/game' },
+  { label: 'Plans', to: '/plans' },
   { label: 'Admin', to: '/admin' },
   { label: 'Settings', to: '/settings' },
 ] as const;
 
 export function AppShell() {
+  const theme = useSettingsStore((state) => state.theme);
   return (
     <div className={styles.appShell}>
       <header className={styles.header}>
@@ -38,7 +41,7 @@ export function AppShell() {
 
         <div className={styles.themeBadge}>
           <span aria-hidden="true" />
-          Day Party
+          {theme === 'DAY_PARTY' ? 'Day Party' : 'Game Night'}
         </div>
       </header>
 

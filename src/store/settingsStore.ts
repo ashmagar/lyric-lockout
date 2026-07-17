@@ -7,10 +7,15 @@ export { DEFAULT_THEME } from '../domain/constants';
 
 interface SettingsState {
   theme: ThemeName;
+  setTheme: (theme: ThemeName) => void;
 }
 
-export const useSettingsStore = create<SettingsState>(() => ({
+export const useSettingsStore = create<SettingsState>((set) => ({
   theme: DEFAULT_THEME,
+  setTheme(theme) {
+    applyTheme(theme);
+    set({ theme });
+  },
 }));
 
 const THEME_DOM_TOKENS: Record<ThemeName, string> = {

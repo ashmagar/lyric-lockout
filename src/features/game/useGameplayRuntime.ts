@@ -63,9 +63,12 @@ export function useGameplayRuntime(
   const [timerSnapshot, setTimerSnapshot] = useState(runtime.timer.getSnapshot());
   const [audioError, setAudioError] = useState<AudioServiceError | undefined>();
   const expiredHandlerRef = useRef(onTimerExpired);
+  const lifecycleRef = useRef(0);
   expiredHandlerRef.current = onTimerExpired;
 
   useEffect(() => {
+    const lifecycle = lifecycleRef.current + 1;
+    lifecycleRef.current = lifecycle;
     void runtime.audio.preload();
     const unsubscribeTimer = runtime.timer.subscribe((event) => {
       setTimerSnapshot(event.snapshot);
@@ -77,8 +80,11 @@ export function useGameplayRuntime(
     return () => {
       unsubscribeTimer();
       unsubscribeAudio();
-      runtime.audio.dispose();
-      runtime.timer.dispose();
+      queueMicrotask(() => {
+        if (lifecycleRef.current !== lifecycle) return;
+        runtime.audio.dispose();
+        runtime.timer.dispose();
+      });
     };
   }, [runtime]);
 

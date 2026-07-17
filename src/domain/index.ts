@@ -2,6 +2,7 @@ export * from './constants';
 export * from './catalog';
 export * from './engine';
 export * from './enums';
+export * from './gamePlans';
 export * from './models/attempt';
 export * from './models/catalog';
 export * from './models/game';

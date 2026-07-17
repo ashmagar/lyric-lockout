@@ -1,0 +1,420 @@
+.plansPage {
+  display: grid;
+  min-height: 100%;
+  background: var(--color-surface);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: end;
+  padding: clamp(2rem, 5vw, 4.5rem);
+  background:
+    radial-gradient(circle at 90% 15%, var(--color-highlight-soft), transparent 25rem),
+    var(--color-surface-warm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.editor h2,
+.emptyEditor h2,
+.modal h2 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.hero h1 {
+  max-width: 16ch;
+  font-size: clamp(2.4rem, 5vw, 4.7rem);
+  line-height: 0.96;
+}
+
+.hero p:not(.eyebrow) {
+  max-width: 42rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.newPlan,
+.modal {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 1.2rem;
+  box-shadow: var(--shadow-card);
+}
+
+.plansPage label,
+.newPlan label,
+.modal label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.plansPage input,
+.plansPage select,
+.plansPage textarea {
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0.65rem 0.78rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.7rem;
+}
+
+.primaryButton,
+.secondaryButton,
+.plansPage button {
+  min-height: 2.55rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.7rem;
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.primaryButton {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: transparent;
+}
+
+.secondaryButton,
+.plansPage button {
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.68fr) minmax(0, 1.32fr);
+  min-height: 42rem;
+}
+
+.planList {
+  padding: var(--space-5);
+  background: var(--color-surface-muted);
+  border-right: 1px solid var(--color-border);
+}
+
+.planList > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.planList h2 {
+  font-family: var(--font-display);
+}
+
+.planList > header span {
+  display: grid;
+  min-width: 2rem;
+  min-height: 2rem;
+  place-items: center;
+  background: var(--color-highlight-soft);
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.planList article {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+}
+
+.planList .selectedCard {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.planList article > div:first-child {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.planList small {
+  color: var(--color-text-muted);
+}
+
+.status {
+  justify-self: start;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.draft {
+  background: var(--color-surface-muted);
+}
+
+.ready {
+  color: #175b37;
+  background: #dff5e7;
+}
+
+.ready_with_warnings {
+  color: #71500b;
+  background: #fff0ba;
+}
+
+.invalid {
+  color: #861c1c;
+  background: #ffe2df;
+}
+
+.cardActions,
+.actions,
+.editorFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.cardActions button {
+  min-height: 2.15rem;
+  padding: 0.4rem 0.58rem;
+  font-size: 0.72rem;
+}
+
+.editor {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.formGrid,
+.configGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.formGrid label:nth-child(2) {
+  grid-column: 1 / -1;
+}
+
+.checkboxLabel {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+}
+
+.checkboxLabel input,
+.checkboxCard input,
+.warningAcceptance input {
+  width: auto;
+  min-height: auto;
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.fieldset legend,
+.fieldset summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.checkboxCard {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--color-surface-raised);
+  border-radius: 0.75rem;
+}
+
+.poolList,
+.issues {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.poolList details {
+  padding: var(--space-3);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.poolList summary {
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.poolLevel {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.levelConfig {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.levelRow {
+  display: contents;
+}
+
+.toggleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.issues {
+  padding: var(--space-4);
+  color: var(--color-text);
+  background: var(--color-highlight-soft);
+  border-left: 0.3rem solid var(--color-highlight);
+  border-radius: 0.75rem;
+}
+
+.issues ul {
+  margin: 0;
+}
+
+.issues span {
+  font-weight: 900;
+}
+
+.emptyEditor {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-6);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.emptyEditor > span {
+  font-size: 4rem;
+  color: var(--color-highlight);
+}
+
+.renameForm {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.errorBanner {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  color: #7a1414;
+  background: #ffe2df;
+}
+
+.formError {
+  margin: 0;
+  color: #8c1c1c;
+  font-weight: 800;
+}
+
+.modalBackdrop {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  padding: var(--space-4);
+  place-items: center;
+  background: rgb(20 16 12 / 58%);
+}
+
+.modal {
+  width: min(100%, 32rem);
+}
+
+.modal h2 {
+  font-size: 2rem;
+}
+
+.warningAcceptance {
+  display: flex !important;
+  flex-direction: row;
+  padding: var(--space-3);
+  color: #684a0b !important;
+  background: #fff0ba;
+  border-radius: 0.7rem;
+}
+
+.loading {
+  margin: auto;
+}
+
+@media (max-width: 62rem) {
+  .hero,
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .planList {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 38rem) {
+  .formGrid,
+  .configGrid,
+  .categoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .editorHeader {
+    flex-direction: column;
+  }
+}

@@ -2,6 +2,7 @@ export * from './attemptSchemas';
 export * from './catalogSchemas';
 export * from './common';
 export * from './gamePlanSchemas';
+export * from './gamePlanPersistenceSchemas';
 export * from './gameSchemas';
 export * from './hostOverrideSchemas';
 export * from './persistenceSchemas';

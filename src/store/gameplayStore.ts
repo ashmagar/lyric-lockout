@@ -45,6 +45,7 @@ export interface GameplayState {
   exportRecoveryData: () => string;
   clearPersistenceError: () => void;
   startSetup: (teamOneName: string, teamTwoName: string) => void;
+  startSession: (session: GameSession) => void;
   send: (command: CommandInput) => boolean;
   selectChallenge: () => void;
   assignCategory: (categoryId: string, assignmentMode: CategoryAssignmentMode) => void;
@@ -258,6 +259,20 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
     get().send({ type: 'ENTER_ROUND_BUILDING' });
   },
 
+  startSession(session) {
+    set({
+      session,
+      savedSession: undefined,
+      savedSessionIssue: undefined,
+      events: [],
+      failure: undefined,
+      pendingPaidLifeline: undefined,
+      eventBatch: get().eventBatch + 1,
+      persistenceError: undefined,
+    });
+    get().send({ type: 'ENTER_ROUND_BUILDING' });
+  },
+
   send(input) {
     const session = get().session;
     if (!session) {
@@ -321,6 +336,9 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
         categoryId: turn.categoryId,
         difficulty: turn.difficulty,
         songSelectionMode: session.roundConfig.songSelectionMode,
+        approvedChallengeIds: session.roundConfig.manualChallengePools.find(
+          (pool) => pool.categoryId === turn.categoryId,
+        )?.approvedChallengeIdsByDifficulty[turn.difficulty],
         excludedChallengeIds: [
           ...new Set([...session.playedChallengeIds, ...session.rejectedChallengeIds]),
         ],

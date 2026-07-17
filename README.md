@@ -50,14 +50,15 @@ npm run preview
 
 ## Routes
 
-| Route             | Purpose                                             |
-| ----------------- | --------------------------------------------------- |
-| `/`               | Home and application entry point                    |
-| `/game`           | Complete two-team, five-level host-led game         |
-| `/playback-spike` | Isolated YouTube playback and pause-point rehearsal |
-| `/admin`          | Placeholder for catalog authoring tools             |
-| `/settings`       | Placeholder for display, audio, and theme settings  |
-| any unknown route | Friendly not-found screen                           |
+| Route             | Purpose                                              |
+| ----------------- | ---------------------------------------------------- |
+| `/`               | Home and application entry point                     |
+| `/game`           | Complete two-team, five-level host-led game          |
+| `/plans`          | Create, validate, reuse, and manage Saved Game Plans |
+| `/playback-spike` | Isolated YouTube playback and pause-point rehearsal  |
+| `/admin`          | Placeholder for catalog authoring tools              |
+| `/settings`       | Placeholder for display, audio, and theme settings   |
+| any unknown route | Friendly not-found screen                            |
 
 ## Source boundaries
 
@@ -173,13 +174,34 @@ host can export the current session as JSON.
 5. Confirm the answer screen returns with the timer marked **PAUSED** and requires the host to click
    **Resume**.
 
+## Saved Game Plans
+
+Milestone 10 adds a schema-versioned Local Storage repository and a `/plans` workspace for preparing
+multiple reusable games. Hosts can create, edit, rename, duplicate, delete, and validate plans;
+choose manual or random categories; use the full catalog or curated challenge pools; adjust game
+configuration; select a preferred theme; and control whether song details appear before playback.
+
+Starting a plan validates it against the current catalog and creates a new detached `GameSession`.
+Invalid plans cannot start. Plans with warnings require explicit host acceptance. Later plan edits
+cannot alter an active game, and each reuse creates fresh teams, scores, category history, and stable
+session identity.
+
+### Manual Saved Game Plan test
+
+1. Open `http://localhost:5173/plans` and create three differently named plans.
+2. Edit one plan, choose its categories and settings, then click **Save and validate**.
+3. Duplicate and rename it; confirm both plans remain independently editable.
+4. For a curated plan, click **Approve all current demo challenges**, save, and validate.
+5. Click **Play**, enter two team names, and start the independent game.
+6. Return to Plans and edit the source plan; confirm the active game retains its original settings.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds the complete minimal gameplay UI and end-to-end fake-media game. Milestone 9 adds versioned active-session persistence, startup Resume/Discard recovery, paused timer/media restoration, recovery export, and completed-game summaries. The project still intentionally excludes Saved Game Plans, real party catalog authoring, advanced animation, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds the complete minimal gameplay UI and end-to-end fake-media game. Milestone 9 adds versioned active-session persistence, startup Resume/Discard recovery, paused timer/media restoration, recovery export, and completed-game summaries. Milestone 10 adds reusable Saved Game Plans, plan validation, curated pools, warning-gated starts, and independent session copies. The project still intentionally excludes real party catalog authoring, advanced animation, and Admin CRUD.
 
 ## Milestone prompts
 

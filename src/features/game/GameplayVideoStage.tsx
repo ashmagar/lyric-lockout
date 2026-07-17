@@ -36,6 +36,7 @@ export function GameplayVideoStage({
   const [verificationStarted, setVerificationStarted] = useState(false);
   const activeChallenge = session.activeChallenge;
   const verification = session.phase === 'CHALLENGE_VERIFICATION';
+  const revealSong = session.gameConfig.revealSongBeforePlayback || verification;
 
   useEffect(() => {
     readySentRef.current = false;
@@ -124,7 +125,7 @@ export function GameplayVideoStage({
 
       <div className={styles.mediaStatus}>
         <span>{fakeMedia ? 'FAKE' : (snapshot?.playerState ?? 'LOADING')}</span>
-        <span>{activeChallenge.song.title}</span>
+        <span>{revealSong ? activeChallenge.song.title : 'Mystery song'}</span>
       </div>
 
       {session.phase === 'VIDEO_LOADING' && <p>Loading the challenge without autoplay…</p>}
