@@ -1,0 +1,612 @@
+.setup {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: center;
+  padding: clamp(2rem, 7vw, 6rem);
+  background:
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--color-highlight-soft) 70%, transparent),
+      transparent 45%
+    ),
+    var(--color-surface);
+}
+
+.setup h1,
+.stageHeader h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.setup p,
+.stageHeader > p:last-child {
+  max-width: 45rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-3);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.setupForm {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 1.4rem;
+  box-shadow: var(--shadow-card);
+}
+
+.setupForm label,
+.overrideFields label,
+.selectLabel {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.setupForm input,
+.overrideFields input,
+.selectLabel select {
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.7rem 0.85rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.75rem;
+}
+
+.setupForm input:focus,
+.overrideFields input:focus,
+.selectLabel select:focus,
+button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.formError {
+  margin: 0;
+  color: #a61b1b;
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.gameplayShell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto minmax(29rem, 1fr) auto auto;
+  min-height: 100%;
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      color-mix(in srgb, var(--color-highlight) 18%, transparent),
+      transparent 22rem
+    ),
+    var(--color-surface);
+}
+
+.gameHeader,
+.scoreStrip,
+.hostDrawer {
+  padding: var(--space-3) clamp(1rem, 4vw, 2.5rem);
+  border-color: var(--color-border);
+}
+
+.gameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gameHeader div:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.gameHeader span,
+.gameHeader strong {
+  font-size: 0.73rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gameHeader span {
+  color: var(--color-text-muted);
+}
+
+.headerActions,
+.actionRow,
+.teamChoice,
+.compactActions,
+.lifelineRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.fakeBadge {
+  padding: 0.4rem 0.7rem;
+  color: var(--color-on-highlight) !important;
+  background: var(--color-highlight-soft);
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.gameStage {
+  display: grid;
+}
+
+.messages {
+  display: grid;
+}
+
+.stage {
+  display: grid;
+  align-content: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  width: min(100%, 70rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+.stageHeader {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.stageHeader h1 {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+}
+
+.stageHeader > p:last-child {
+  margin: 0;
+}
+
+.stageBody {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.primaryButton,
+.secondaryButton,
+.categoryButton,
+.gameHeader button,
+.compactActions button,
+.lifelineRow button,
+.hostDrawer button,
+.notice button,
+.overrideFields button {
+  min-height: 2.8rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.78rem;
+  cursor: pointer;
+  font-weight: 850;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    opacity 140ms ease;
+}
+
+.primaryButton {
+  justify-self: start;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  box-shadow: 0 0.55rem 1rem color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+.secondaryButton,
+.gameHeader button,
+.compactActions button,
+.lifelineRow button,
+.hostDrawer button,
+.notice button,
+.overrideFields button {
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.categoryButton:hover,
+.gameHeader button:hover,
+.compactActions button:hover,
+.lifelineRow button:hover {
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none !important;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(7rem, 1fr));
+  gap: var(--space-3);
+}
+
+.categoryCard,
+.categoryButton {
+  display: grid;
+  gap: var(--space-2);
+  min-height: 6.5rem;
+  place-content: center;
+  text-align: center;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.categoryCard span,
+.categoryButton span {
+  font-size: 1.5rem;
+}
+
+.categoryButton {
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.previewStats,
+.scoreCards,
+.winnerScores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.previewStats > div,
+.winnerScores > div {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.previewStats span,
+.winnerScores span,
+.scoreCard > span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewStats strong,
+.winnerScores strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.timerPanel {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--color-on-highlight);
+  border-radius: 1rem;
+  color: white;
+}
+
+.timerPanel > div:first-child {
+  display: grid;
+  min-width: 7rem;
+  text-align: center;
+}
+
+.timerPanel strong {
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+
+.timerPanel small {
+  opacity: 0.7;
+}
+
+.timerPanel .compactActions {
+  justify-content: flex-end;
+}
+
+.timerPanel .compactActions button {
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  color: white;
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 22%);
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.resultGrid button {
+  justify-self: stretch;
+}
+
+.lifelineRow button {
+  background: var(--color-highlight-soft);
+  border-color: color-mix(in srgb, var(--color-highlight) 50%, var(--color-border));
+}
+
+.reveal,
+.expectedLyrics,
+.notice {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-highlight-soft);
+  border-left: 0.3rem solid var(--color-highlight);
+  border-radius: 0.75rem;
+}
+
+.expectedLyrics {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.35;
+}
+
+.scoreCard {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.scoreCard > strong {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+}
+
+.scoreCard dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.scoreCard dl div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.scoreCard dt,
+.scoreCard dd {
+  margin: 0;
+}
+
+.overridePanel,
+.hostDrawer {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+}
+
+.overridePanel summary,
+.hostDrawer summary {
+  padding: var(--space-4);
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.overrideFields {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: end;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.videoLayout {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.videoFrame {
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #171411;
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+.youtubeMount,
+.youtubeMount iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.fakeMedia {
+  display: grid;
+  height: 100%;
+  place-content: center;
+  gap: var(--space-2);
+  color: white;
+  text-align: center;
+  background:
+    radial-gradient(circle, rgb(245 189 62 / 30%), transparent 30%),
+    linear-gradient(135deg, #241b2f, #171411);
+}
+
+.fakeMedia > span {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto;
+  place-items: center;
+  color: var(--color-on-highlight);
+  background: var(--color-highlight);
+  border-radius: 50%;
+  font-size: 1.25rem;
+}
+
+.fakeMedia small {
+  opacity: 0.7;
+}
+
+.mediaStatus {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.scoreStrip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.scoreStrip div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: 0.8rem;
+}
+
+.scoreStrip .activeTeam {
+  background: var(--color-highlight-soft);
+  border-color: var(--color-highlight);
+}
+
+.scoreStrip strong {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+
+.hostDrawer {
+  margin: 0 clamp(1rem, 4vw, 2.5rem) var(--space-3);
+}
+
+.hostDrawer p,
+.hostDrawer button {
+  margin: 0 var(--space-4) var(--space-4);
+}
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) clamp(1rem, 4vw, 2.5rem);
+  color: #7a1414;
+  background: #ffe2df;
+}
+
+.errorBanner button {
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.modalBackdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  padding: var(--space-4);
+  place-items: center;
+  background: rgb(20 16 12 / 55%);
+}
+
+.modal {
+  width: min(100%, 30rem);
+  padding: var(--space-6);
+  background: var(--color-surface-raised);
+  border-radius: 1.2rem;
+  box-shadow: var(--shadow-shell);
+}
+
+.modal h2 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+@media (max-width: 54rem) {
+  .setup {
+    grid-template-columns: 1fr;
+  }
+
+  .categoryGrid {
+    grid-template-columns: repeat(2, minmax(7rem, 1fr));
+  }
+
+  .timerPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .timerPanel .compactActions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 34rem) {
+  .stage {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .resultGrid,
+  .scoreCards,
+  .previewStats,
+  .winnerScores,
+  .overrideFields {
+    grid-template-columns: 1fr;
+  }
+
+  .gameHeader {
+    align-items: flex-start;
+  }
+
+  .headerActions {
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton,
+  .secondaryButton,
+  .categoryButton,
+  .gameHeader button,
+  .compactActions button,
+  .lifelineRow button {
+    transition: none;
+  }
+}

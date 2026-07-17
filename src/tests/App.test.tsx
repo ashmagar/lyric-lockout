@@ -20,7 +20,7 @@ describe('application shell', () => {
   });
 
   it.each([
-    ['/game', 'The stage is getting ready.'],
+    ['/game', 'Bring two teams to the stage.'],
     ['/admin', 'Your song library, backstage.'],
     ['/settings', 'Tune the room your way.'],
   ])('loads the %s route', (path, heading) => {

@@ -1,6 +1,6 @@
 # Lyric Lockout
 
-Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated gameplay and catalog services, an isolated YouTube playback technical spike, and browser-ready timer and audio service boundaries. The full gameplay UI remains a placeholder.
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository now contains a complete plain host-led gameplay UI, validated domain and catalog services, real and fake YouTube playback paths, and browser-ready timer and audio services.
 
 ## Prerequisites
 
@@ -50,10 +50,10 @@ npm run preview
 
 ## Routes
 
-| Route             | Milestone 1 purpose                                 |
+| Route             | Purpose                                             |
 | ----------------- | --------------------------------------------------- |
 | `/`               | Home and application entry point                    |
-| `/game`           | Placeholder for the future game flow                |
+| `/game`           | Complete two-team, five-level host-led game         |
 | `/playback-spike` | Isolated YouTube playback and pause-point rehearsal |
 | `/admin`          | Placeholder for catalog authoring tools             |
 | `/settings`       | Placeholder for display, audio, and theme settings  |
@@ -142,13 +142,21 @@ Milestone 7 adds browser and fake implementations under `src/services/timer` and
 
 No production audio files or complete gameplay controls are added in this milestone. Those services are wired into the playable flow in Milestone 8.
 
+## Minimal full gameplay
+
+Milestone 8 replaces the `/game` placeholder with the complete phase-driven flow from team setup through the winner screen. React screens dispatch typed commands and render the resulting session; scoring, category consumption, steal eligibility, lifeline accounting, and level progression remain in the Domain Layer. A Zustand application store owns command metadata, deterministic challenge selection, rerolls, paid-lifeline confirmation, and recoverable command failures.
+
+The normal `/game` route uses the YouTube adapter and an embedded fictional demo catalog with complete ten-category, five-level coverage. The catalog deliberately uses the official YouTube API sample video while Admin authoring and real party content remain future work. `/game?media=fake` replaces video, audio, and timer integrations with deterministic fakes for automated and rehearsal runs.
+
+The gameplay shell includes score strips, contextual lifelines, host timer controls, safe pause, answer and steal reviews, verification-only lyric reveal, recommended and overridden score breakdowns, turn/level summaries, and the final winner.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. The project still intentionally excludes complete gameplay UI/effect coordination, persistence, production audio assets, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. Milestone 6 proves isolated YouTube playback and pause synchronization. Milestone 7 adds timer and audio abstractions, browser implementations, deterministic fakes, and media sequencing. Milestone 8 adds the complete minimal gameplay UI and end-to-end fake-media game. The project still intentionally excludes persistence, Saved Game Plans, real party catalog authoring, advanced animation, and Admin CRUD.
 
 ## Milestone prompts
 
