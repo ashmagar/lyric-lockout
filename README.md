@@ -1,6 +1,6 @@
 # Lyric Lockout
 
-Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated domain contracts, a deterministic pure game engine, and its command-driven state machine. The browser UI remains a placeholder.
+Lyric Lockout is a local-first, host-led party game about remembering the next lyric when the music stops. The repository currently contains the runnable React foundation, validated domain contracts, a deterministic game engine and state machine, and catalog/round-building services. The browser UI remains a placeholder.
 
 ## Prerequisites
 
@@ -109,13 +109,19 @@ Milestone 4 lives in `src/domain/stateMachine`. The discriminated `GameCommand` 
 
 The legal transition table covers setup through the game summary. Media, suspense, timer, hint, score, and recovery events are effect requests only; the Domain Layer does not execute integrations. Recovery pauses running timer snapshots, requests media and suspense stops, and resumes at a host-controlled phase without autoplaying or restarting timers.
 
+## Catalog and round builder
+
+Milestone 5 adds catalog repository interfaces with in-memory and bundled static-JSON implementations. `loadCatalog` validates each source independently, excludes invalid or ambiguous songs, and returns structural, referential, semantic, and duplicate diagnostics without blocking valid content. Its detached snapshot is indexed by song, category, challenge, and category/level candidates.
+
+Coverage analysis reports exact enabled challenge counts for every category and level. The round builder validates or deterministically creates all random/manual category and full-catalog/curated-pool combinations. Challenge selection respects curated approvals and permanent challenge exclusions; it avoids played songs when possible and explicitly reports when safe song reuse fallback was required.
+
 ## Theme foundation
 
 The shell uses semantic CSS tokens. Startup explicitly applies `day-party`, the required default theme, to the document root. Theme selection and persistence belong to Milestone 12 and are intentionally not implemented here.
 
 ## Scope
 
-Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. The project still intentionally excludes effect execution, YouTube playback, persistence, catalog repositories, and Admin CRUD.
+Milestone 1 includes the Vite/React/TypeScript scaffold, routing, Day Party shell, and development tooling. Milestone 2 adds authoritative models, schemas, defaults, and sample data. Milestone 3 adds pure gameplay rules and full-game simulation. Milestone 4 adds commands, events, controlled phase transitions, duplicate protection, timer-control requests, and recovery metadata. Milestone 5 adds catalog loading, indexes, coverage, round building, and eligible challenge selection. The project still intentionally excludes effect execution, YouTube playback, persistence, and Admin CRUD.
 
 ## Milestone prompts
 

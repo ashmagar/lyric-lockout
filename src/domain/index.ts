@@ -1,4 +1,5 @@
 export * from './constants';
+export * from './catalog';
 export * from './engine';
 export * from './enums';
 export * from './models/attempt';
