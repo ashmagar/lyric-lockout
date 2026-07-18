@@ -238,6 +238,12 @@ polling path to pause at the configured timestamp. Preview diagnostics show the 
 duration, lifecycle, actual pause, and deviation; readiness, duration, seeking, playback, and
 autoplay errors remain visible and recoverable without changing game-session state.
 
+Challenge authoring also supports **Duplicate selected challenge** for quickly building multiple
+challenges for one song. The copy preserves difficulty, all playback and verification timestamps,
+acceptable lyrics, hidden-word selections, hint, notes, and enabled state while receiving a new
+stable challenge ID and audit timestamps. Same-level challenge tabs include a sequence number so the
+copies remain distinguishable while editing.
+
 Coverage and validation views expose catalog gaps and file/schema issues. Import validates the
 entire candidate set before replacing files; export can download either the whole catalog or a
 single song. Save, update, delete, and import writes use temporary files or directories and atomic
@@ -254,13 +260,15 @@ Node API that owns those operations. Its data root defaults to `data` and can be
    `http://localhost:5173/admin`.
 2. Open **Songs**, click **Add song**, paste a valid YouTube URL, and complete the metadata.
 3. Add a challenge, set its start/pause/verification timestamps, and run the preview controls.
-4. Save the song. Confirm it appears in the library and that Coverage and Validation update.
-5. Disable and re-enable the song, then duplicate it. Confirm the copies remain independently
+4. Click **Duplicate selected challenge**. Confirm the copy opens with the same timestamps, lyrics,
+   hidden-word choices, hint, difficulty, notes, and enabled state but a different challenge ID.
+5. Save the song. Confirm it appears in the library and that Coverage and Validation update.
+6. Disable and re-enable the song, then duplicate it. Confirm the copies remain independently
    editable.
-6. Delete the duplicate through the confirmation step and confirm a backup notice appears.
-7. Open **Categories**, create a category, then edit its display name. Confirm its displayed ID does
+7. Delete the duplicate through the confirmation step and confirm a backup notice appears.
+8. Open **Categories**, create a category, then edit its display name. Confirm its displayed ID does
    not change and that the category remains after refreshing Admin.
-8. Stop the Admin API and refresh. Confirm the authoring workspace reports it is offline while
+9. Stop the Admin API and refresh. Confirm the authoring workspace reports it is offline while
    `/game` remains available.
 
 ### Manual consumed-category test

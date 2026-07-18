@@ -61,6 +61,8 @@ test('a host authors, previews, saves, and deletes a disabled song draft', async
   await page.getByRole('textbox', { name: 'Artist' }).fill('Local Test Artist');
   await page.getByRole('checkbox', { name: 'Party Songs' }).check();
   await page.getByRole('button', { name: 'Add challenge' }).click();
+  await page.getByRole('button', { name: 'Duplicate selected challenge' }).click();
+  await expect(page.getByRole('button', { name: 'Level 1 challenge 2' })).toBeVisible();
 
   await expect(page.getByLabel('Challenge preview')).toBeVisible();
   await page.getByRole('button', { name: 'Jump to challenge (-5s)' }).click();
@@ -74,6 +76,7 @@ test('a host authors, previews, saves, and deletes a disabled song draft', async
   await expect(page.getByText('All changes saved.')).toBeVisible();
   await page.getByRole('button', { name: 'Close editor' }).click();
   await expect(page.getByText('New Party Anthem', { exact: true })).toBeVisible();
+  await expect(page.getByText('2 challenges')).toBeVisible();
 
   await page.getByRole('button', { name: 'Delete' }).click();
   await page.getByRole('button', { name: 'Confirm delete' }).click();

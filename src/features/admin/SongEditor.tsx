@@ -4,6 +4,7 @@ import {
   DIFFICULTY_LEVELS,
   allLyricWordIndexes,
   createChallengeDraft,
+  duplicateChallenge,
   isLyricWordToken,
   parseYouTubeVideoId,
   tokenizeLyrics,
@@ -473,33 +474,55 @@ export function SongEditor({
       <section className={styles.editorSection}>
         <div className={styles.sectionHeader}>
           <h3>Challenges</h3>
-          <button
-            onClick={() => {
-              const challenge = createChallengeDraft(
-                nextId('challenge'),
-                1,
-                new Date().toISOString(),
-              );
-              change((song) => ({
-                ...song,
-                challenges: [...song.challenges, challenge],
-              }));
-              setSelectedChallengeId(challenge.id);
-            }}
-            type="button"
-          >
-            Add challenge
-          </button>
+          <div className={styles.rowActions}>
+            <button
+              onClick={() => {
+                const challenge = createChallengeDraft(
+                  nextId('challenge'),
+                  1,
+                  new Date().toISOString(),
+                );
+                change((song) => ({
+                  ...song,
+                  challenges: [...song.challenges, challenge],
+                }));
+                setSelectedChallengeId(challenge.id);
+              }}
+              type="button"
+            >
+              Add challenge
+            </button>
+            <button
+              disabled={!selectedChallenge}
+              onClick={() => {
+                if (!selectedChallenge) return;
+                const challenge = duplicateChallenge(
+                  selectedChallenge,
+                  nextId('challenge'),
+                  new Date().toISOString(),
+                );
+                change((song) => ({
+                  ...song,
+                  challenges: [...song.challenges, challenge],
+                }));
+                setSelectedChallengeId(challenge.id);
+              }}
+              type="button"
+            >
+              Duplicate selected challenge
+            </button>
+          </div>
         </div>
         <div className={styles.challengeTabs}>
-          {draft.challenges.map((challenge) => (
+          {draft.challenges.map((challenge, index) => (
             <button
+              aria-label={`Level ${challenge.difficulty} challenge ${index + 1}`}
               className={selectedChallengeId === challenge.id ? styles.activeChallenge : undefined}
               key={challenge.id}
               onClick={() => setSelectedChallengeId(challenge.id)}
               type="button"
             >
-              L{challenge.difficulty}
+              L{challenge.difficulty} · #{index + 1}
             </button>
           ))}
         </div>

@@ -6,6 +6,7 @@ import {
   createCategoryDraft,
   createChallengeDraft,
   createSongDraft,
+  duplicateChallenge,
   parseYouTubeVideoId,
   type Category,
   type Song,
@@ -118,6 +119,32 @@ describe('Admin authoring domain and editor', () => {
       name: '',
       displayOrder: 11,
       enabled: true,
+    });
+  });
+
+  it('duplicates every authored challenge value with a new stable identity', () => {
+    const source = validSong().challenges[0]!;
+    const duplicatedAt = '2026-07-18T10:00:00.000Z';
+    const duplicate = duplicateChallenge(source, 'challenge-copy', duplicatedAt);
+
+    expect(duplicate).toEqual({
+      ...source,
+      id: 'challenge-copy',
+      hiddenWordIndexes: source.hiddenWordIndexes,
+      createdAt: duplicatedAt,
+      updatedAt: duplicatedAt,
+    });
+    expect(duplicate.hiddenWordIndexes).not.toBe(source.hiddenWordIndexes);
+    expect(duplicate).toMatchObject({
+      playbackStartSeconds: source.playbackStartSeconds,
+      verifyFromSeconds: source.verifyFromSeconds,
+      pauseAtSeconds: source.pauseAtSeconds,
+      verifyToSeconds: source.verifyToSeconds,
+      expectedLyrics: source.expectedLyrics,
+      hiddenWordIndexes: source.hiddenWordIndexes,
+      hintText: source.hintText,
+      difficulty: source.difficulty,
+      enabled: source.enabled,
     });
   });
 
@@ -234,6 +261,57 @@ describe('Admin authoring domain and editor', () => {
     expect(onSave).toHaveBeenCalled();
     expect(title).toHaveValue('Retained Draft Title');
     expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+  });
+
+  it('duplicates the selected challenge and saves both independent records', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn().mockResolvedValue(true);
+    const source = validSong();
+    render(
+      <SongEditor
+        categories={[CATEGORY]}
+        fakeMedia
+        initialSong={source}
+        nextId={(prefix) => `${prefix}-copy`}
+        onClose={vi.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Duplicate selected challenge' }));
+
+    expect(screen.getByRole('button', { name: 'Level 1 challenge 1' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Level 1 challenge 2' }).className).toContain(
+      'activeChallenge',
+    );
+    expect(screen.getByRole('textbox', { name: 'Challenge ID' })).toHaveValue('challenge-copy');
+    expect(screen.getByRole('spinbutton', { name: 'Playback start' })).toHaveValue(5);
+    expect(screen.getByRole('spinbutton', { name: 'Verification start' })).toHaveValue(7);
+    expect(screen.getByRole('spinbutton', { name: 'Challenge pause' })).toHaveValue(10);
+    expect(screen.getByRole('spinbutton', { name: 'Verification end' })).toHaveValue(12);
+
+    await user.click(screen.getByRole('button', { name: 'Save song' }));
+
+    const savedSong = onSave.mock.calls[0]?.[0] as Song;
+    expect(savedSong.challenges).toHaveLength(2);
+    const originalChallenge = savedSong.challenges[0]!;
+    const copiedChallenge = savedSong.challenges[1]!;
+    expect(savedSong.challenges[1]).toMatchObject({
+      id: 'challenge-copy',
+      difficulty: originalChallenge.difficulty,
+      playbackStartSeconds: originalChallenge.playbackStartSeconds,
+      verifyFromSeconds: originalChallenge.verifyFromSeconds,
+      pauseAtSeconds: originalChallenge.pauseAtSeconds,
+      verifyToSeconds: originalChallenge.verifyToSeconds,
+      expectedLyrics: originalChallenge.expectedLyrics,
+      hiddenWordIndexes: originalChallenge.hiddenWordIndexes,
+      missingWordCount: originalChallenge.missingWordCount,
+      hintText: originalChallenge.hintText,
+      enabled: originalChallenge.enabled,
+    });
+    expect(copiedChallenge.createdAt).not.toBe(originalChallenge.createdAt);
+    expect(copiedChallenge.updatedAt).toBe(copiedChallenge.createdAt);
+    expect(copiedChallenge.hiddenWordIndexes).not.toBe(originalChallenge.hiddenWordIndexes);
   });
 
   it('clears stale hidden indexes after lyric edits and saves independently selected words', async () => {

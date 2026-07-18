@@ -99,6 +99,21 @@ export function createChallengeDraft(
   };
 }
 
+export function duplicateChallenge(
+  source: Challenge,
+  challengeId: string,
+  duplicatedAt: string,
+): Challenge {
+  return {
+    ...source,
+    id: challengeId,
+    hiddenWordIndexes:
+      source.hiddenWordIndexes === undefined ? undefined : [...source.hiddenWordIndexes],
+    createdAt: duplicatedAt,
+    updatedAt: duplicatedAt,
+  };
+}
+
 export function duplicateSong(
   source: Song,
   songId: string,
