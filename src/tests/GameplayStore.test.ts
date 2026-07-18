@@ -107,6 +107,52 @@ describe('gameplay application store', () => {
     );
   });
 
+  it('does not reuse a played song when the song belongs to another category', () => {
+    const sourceSong = GAMEPLAY_CATALOG_INDEX.songById.get('song-90s-bollywood');
+    const romanticSong = GAMEPLAY_CATALOG_INDEX.songById.get('song-romantic');
+    if (!sourceSong || !romanticSong) throw new Error('Expected bundled test songs');
+
+    const sharedSong = {
+      ...sourceSong,
+      id: 'song-shared-across-categories',
+      categoryIds: ['90s-bollywood', 'romantic'],
+      challenges: sourceSong.challenges.map((challenge) => ({
+        ...challenge,
+        id: `shared-${challenge.id}`,
+      })),
+    };
+    updateRuntimeCatalog(GAMEPLAY_CATEGORIES, [
+      sharedSong,
+      {
+        ...romanticSong,
+        enabled: false,
+      },
+    ]);
+
+    const store = useGameplayStore.getState();
+    store.startSetup('Alpha', 'Beta');
+    useGameplayStore.getState().send({ type: 'VALIDATE_ROUND' });
+    useGameplayStore.getState().send({ type: 'START_GAME' });
+    useGameplayStore.getState().send({ type: 'BEGIN_TRIVIA' });
+    useGameplayStore.getState().send({ type: 'RECORD_TRIVIA_WINNER', teamId: 'team-a' });
+    useGameplayStore.getState().confirmTurnOrder('team-a');
+    useGameplayStore.getState().assignCategory('romantic', 'SELF_SELECTED');
+
+    const session = useGameplayStore.getState().session;
+    if (!session) throw new Error('Expected an active gameplay session');
+    useGameplayStore.setState({
+      session: {
+        ...session,
+        playedSongIds: [sharedSong.id],
+      },
+    });
+
+    useGameplayStore.getState().selectChallenge();
+
+    expect(useGameplayStore.getState().session?.activeChallenge).toBeUndefined();
+    expect(useGameplayStore.getState().failure).toContain('previously played songs');
+  });
+
   it('keeps an active challenge detached from later Admin catalog edits', () => {
     const store = useGameplayStore.getState();
     store.startSetup('Alpha', 'Beta');

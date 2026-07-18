@@ -360,6 +360,12 @@ export function confirmChallenge(session: GameSession, input: ConfirmChallengeIn
   if (session.playedChallengeIds.includes(reference.challengeId)) {
     throw new GameRuleError('CHALLENGE_ALREADY_PLAYED', 'The challenge was already played');
   }
+  if (session.roundConfig.preventSongReuse && session.playedSongIds.includes(reference.songId)) {
+    throw new GameRuleError(
+      'SONG_ALREADY_PLAYED',
+      'This song was already played during the current game',
+    );
+  }
 
   return {
     ...session,

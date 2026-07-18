@@ -8,7 +8,10 @@ import type { GameCommand } from '../domain/stateMachine/commands';
 import type { DomainEvent } from '../domain/stateMachine/events';
 import { processGameCommand } from '../domain/stateMachine';
 import { GAMEPLAY_ROUND_CONFIG } from '../features/game/gameplayCatalog';
-import { getRuntimeCatalogIndex } from '../features/game/runtimeCatalog';
+import {
+  buildRuntimeChallengeSelectionRequest,
+  getRuntimeCatalogIndex,
+} from '../features/game/runtimeCatalog';
 import { LocalStorageGameSessionRepository, type GameSessionRepository } from '../repositories';
 import type { CompletedGameSummary } from '../schemas';
 
@@ -333,19 +336,7 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
     }
     const result = selectChallenge(
       getRuntimeCatalogIndex(),
-      {
-        categoryId: turn.categoryId,
-        difficulty: turn.difficulty,
-        songSelectionMode: session.roundConfig.songSelectionMode,
-        approvedChallengeIds: session.roundConfig.manualChallengePools.find(
-          (pool) => pool.categoryId === turn.categoryId,
-        )?.approvedChallengeIdsByDifficulty[turn.difficulty],
-        excludedChallengeIds: [
-          ...new Set([...session.playedChallengeIds, ...session.rejectedChallengeIds]),
-        ],
-        excludedSongIds: session.playedSongIds,
-        allowSongReuseFallback: true,
-      },
+      buildRuntimeChallengeSelectionRequest(session, turn.categoryId),
       () => 0,
     );
     if (!result.ok) {

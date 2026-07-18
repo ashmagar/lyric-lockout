@@ -247,6 +247,36 @@ describe('game creation and category rules', () => {
     expect(error.code).toBe('CATEGORY_ALREADY_CONSUMED');
   });
 
+  it('rejects the same song for a different category when song reuse prevention is enabled', () => {
+    let session = beginExpectedTurn(beginLevel(createSession()));
+    const playedSongId = session.playedSongIds[0];
+    if (!playedSongId) throw new Error('Expected the first challenge to consume a song');
+
+    session = resolveAndCompleteTurn(session, 'PERFECT');
+    session = startPrimaryTurn(session, {
+      teamId: 'team-b',
+      turnId: 'turn-shared-song',
+      attemptId: 'primary-shared-song',
+      startedAt: TIMESTAMP,
+    });
+
+    const error = getRuleError(() =>
+      confirmChallenge(session, {
+        assignmentRecordId: 'assignment-shared-song',
+        assignmentMode: 'HOST_ASSIGNED',
+        challengeReference: {
+          songId: playedSongId,
+          challengeId: 'challenge-shared-song-different-category',
+          categoryId: CATEGORY_IDS[1]!,
+          difficulty: 1,
+        },
+        confirmedAt: TIMESTAMP,
+      }),
+    );
+
+    expect(error.code).toBe('SONG_ALREADY_PLAYED');
+  });
+
   it('does not consume a category for a steal attempt', () => {
     let session = beginExpectedTurn(beginLevel(createSession()));
     const categoryCount = session.consumedCategoryIds.length;

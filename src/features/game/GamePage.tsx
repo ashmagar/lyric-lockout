@@ -2,6 +2,7 @@ import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from
 import { useLocation } from 'react-router-dom';
 
 import { LyricPuzzle } from '../../components/LyricPuzzle/LyricPuzzle';
+import { selectChallenge } from '../../domain/catalog';
 import { getCategoryConsumptionRecord, getWinningTeams } from '../../domain/engine';
 import type { AnswerResult, CategoryAssignmentMode, LifelineType } from '../../domain/enums';
 import type { Category } from '../../domain/models/catalog';
@@ -12,6 +13,10 @@ import { useGameplayStore } from '../../store/gameplayStore';
 import { resolveCategoryIcon } from '../../utils/categoryIcon';
 import { GAMEPLAY_CATEGORIES } from './gameplayCatalog';
 import { GameplayVideoStage } from './GameplayVideoStage';
+import {
+  buildRuntimeChallengeSelectionRequest,
+  getRuntimeCatalogIndex,
+} from './runtimeCatalog';
 import styles from './GamePage.module.css';
 import { useGameplayRuntime } from './useGameplayRuntime';
 
@@ -51,6 +56,15 @@ export function CategoryAssignmentGrid({
     <div className={styles.categoryGrid}>
       {configuredCategories.map((category) => {
         const isConsumed = session.consumedCategoryIds.includes(category.id);
+        const availability = selectChallenge(
+          getRuntimeCatalogIndex(),
+          buildRuntimeChallengeSelectionRequest(session, category.id),
+          () => 0,
+        );
+        const isAvailable = category.enabled && availability.ok;
+        const onlyPlayedSongsRemain =
+          !availability.ok &&
+          availability.diagnostics.some((diagnostic) => diagnostic.code === 'ALL_SONGS_EXCLUDED');
         const consumption = getCategoryConsumptionRecord(session, category.id);
         const consumingTeam = session.teams.find((team) => team.id === consumption?.teamId);
         const isCurrent = !isConsumed && session.activeTurn?.categoryId === category.id;
@@ -58,7 +72,7 @@ export function CategoryAssignmentGrid({
           ? 'CONSUMED'
           : isCurrent
             ? 'CURRENT'
-            : category.enabled
+            : isAvailable
               ? 'AVAILABLE'
               : 'DISABLED';
         return (
@@ -71,7 +85,7 @@ export function CategoryAssignmentGrid({
               .filter(Boolean)
               .join(' ')}
             data-category-state={state}
-            disabled={isConsumed || !category.enabled}
+            disabled={isConsumed || !isAvailable}
             key={category.id}
             onClick={() => onAssign(category.id, assignmentMode)}
             type="button"
@@ -83,8 +97,10 @@ export function CategoryAssignmentGrid({
                 <span aria-hidden="true">✓</span> Used by {consumingTeam?.name ?? 'unknown team'}
               </small>
             )}
-            {!isConsumed && !category.enabled && (
-              <small className={styles.categoryStatus}>Unavailable</small>
+            {!isConsumed && !isAvailable && (
+              <small className={styles.categoryStatus}>
+                {onlyPlayedSongsRemain ? 'No unused songs left' : 'Unavailable'}
+              </small>
             )}
           </button>
         );
