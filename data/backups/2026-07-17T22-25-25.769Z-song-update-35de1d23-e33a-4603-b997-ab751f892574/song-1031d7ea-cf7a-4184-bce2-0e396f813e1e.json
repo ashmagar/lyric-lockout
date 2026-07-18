@@ -1,0 +1,32 @@
+{
+  "id": "song-1031d7ea-cf7a-4184-bce2-0e396f813e1e",
+  "schemaVersion": 1,
+  "title": "Pyar Diwana Hota Hai Lyrical",
+  "artist": "Kishore Kumar",
+  "youtubeVideoId": "gKyUhjoto9o",
+  "videoType": "LYRIC",
+  "categoryIds": [
+    "romantic"
+  ],
+  "language": "Hindi",
+  "releaseYear": 1971,
+  "enabled": false,
+  "challenges": [
+    {
+      "id": "challenge-94146a2a-3e55-4686-8cf4-c22647a13b2e",
+      "difficulty": 1,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 95.2,
+      "verifyFromSeconds": 80,
+      "verifyToSeconds": 127,
+      "expectedLyrics": "Woh nahin sunta usko jal jana hota hai. Har Khushi se har gham se begaana hota hai.",
+      "missingWordCount": 1,
+      "hintText": "Woh nahin sunta usko _ _ _ _",
+      "enabled": false,
+      "createdAt": "2026-07-17T22:01:55.773Z",
+      "updatedAt": "2026-07-17T22:20:26.488Z"
+    }
+  ],
+  "createdAt": "2026-07-17T22:00:23.077Z",
+  "updatedAt": "2026-07-17T22:20:26.488Z"
+}

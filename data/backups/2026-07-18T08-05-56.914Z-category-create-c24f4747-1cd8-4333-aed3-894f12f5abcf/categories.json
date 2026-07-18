@@ -1,0 +1,132 @@
+[
+  {
+    "id": "90s-bollywood",
+    "schemaVersion": 1,
+    "name": "90s Bollywood",
+    "description": "Hindi film favorites from the 1990s.",
+    "icon": "cassette",
+    "displayOrder": 1,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "romantic",
+    "schemaVersion": 1,
+    "name": "Romantic",
+    "description": "Love songs and memorable duets.",
+    "icon": "heart",
+    "displayOrder": 2,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "party-songs",
+    "schemaVersion": 1,
+    "name": "Party Songs",
+    "description": "Crowd-pleasers made for a packed dance floor.",
+    "icon": "confetti",
+    "displayOrder": 3,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "female-vocals",
+    "schemaVersion": 1,
+    "name": "Female Vocals",
+    "description": "Songs led by unforgettable female voices.",
+    "icon": "microphone",
+    "displayOrder": 4,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "sad-songs",
+    "schemaVersion": 1,
+    "name": "Sad Songs",
+    "description": "Big feelings, heartbreak, and bittersweet favorites.",
+    "icon": "rain-cloud",
+    "displayOrder": 5,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "dance-hits",
+    "schemaVersion": 1,
+    "name": "Dance Hits",
+    "description": "High-energy tracks with instantly recognizable hooks.",
+    "icon": "disco-ball",
+    "displayOrder": 6,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "classic-rock",
+    "schemaVersion": 1,
+    "name": "Classic Rock",
+    "description": "Anthems, riffs, and sing-along rock staples.",
+    "icon": "guitar",
+    "displayOrder": 7,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "disney",
+    "schemaVersion": 1,
+    "name": "Disney",
+    "description": "Animated favorites for players of every age.",
+    "icon": "castle",
+    "displayOrder": 8,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "tamil",
+    "schemaVersion": 1,
+    "name": "Tamil",
+    "description": "Popular Tamil-language film and independent songs.",
+    "icon": "music-note",
+    "displayOrder": 9,
+    "enabled": false,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-18T04:48:55.630Z"
+  },
+  {
+    "id": "marathi",
+    "schemaVersion": 1,
+    "name": "Marathi",
+    "description": "Popular Marathi-language film and independent songs.",
+    "icon": "music-notes",
+    "displayOrder": 10,
+    "enabled": true,
+    "createdAt": "2026-07-15T00:00:00.000Z",
+    "updatedAt": "2026-07-15T00:00:00.000Z"
+  },
+  {
+    "id": "category-c1d57821-e58f-4bcf-958a-7aa75731c932",
+    "schemaVersion": 1,
+    "name": "2010s",
+    "description": "Songs released in decade of 2010.",
+    "displayOrder": 11,
+    "enabled": true,
+    "createdAt": "2026-07-18T08:04:22.444Z",
+    "updatedAt": "2026-07-18T08:05:05.977Z"
+  },
+  {
+    "id": "category-caa3736f-1137-4dc5-b9d6-7e63a6c15ab7",
+    "schemaVersion": 1,
+    "name": "SRK",
+    "description": "Shah Rukh Khan Songs",
+    "displayOrder": 12,
+    "enabled": true,
+    "createdAt": "2026-07-18T08:05:29.797Z",
+    "updatedAt": "2026-07-18T08:05:43.373Z"
+  }
+]

@@ -1,0 +1,59 @@
+{
+  "id": "song-bff92822-d73b-4521-befb-6226e545d47c",
+  "schemaVersion": 1,
+  "title": "Main Rahoon Ya Na Rahoon",
+  "artist": "Armaan Malik",
+  "youtubeVideoId": "mVu6kdY3KIk",
+  "videoType": "LYRIC",
+  "categoryIds": [
+    "romantic",
+    "sad-songs",
+    "category-c1d57821-e58f-4bcf-958a-7aa75731c932",
+    "category-d17b52b6-1d33-4378-9d90-beaff020ae98"
+  ],
+  "language": "Hindo",
+  "releaseYear": 2015,
+  "enabled": true,
+  "challenges": [
+    {
+      "id": "challenge-aa9ef7f5-95f0-47e2-ab92-45713aff487d",
+      "difficulty": 2,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 105,
+      "verifyFromSeconds": 100,
+      "verifyToSeconds": 120,
+      "expectedLyrics": "Samajh lena boondon mein main hoon",
+      "hiddenWordIndexes": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "missingWordCount": 4,
+      "hintText": "What comes from Baarish?",
+      "enabled": true,
+      "createdAt": "2026-07-18T08:12:07.076Z",
+      "updatedAt": "2026-07-18T08:21:22.013Z"
+    },
+    {
+      "id": "challenge-b63826d5-c270-4208-80d2-5a668737556c",
+      "difficulty": 1,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 39.9,
+      "verifyFromSeconds": 35,
+      "verifyToSeconds": 55,
+      "expectedLyrics": "Tum khwabon mein aate rehna",
+      "hiddenWordIndexes": [
+        1,
+        2
+      ],
+      "missingWordCount": 2,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T08:19:03.367Z",
+      "updatedAt": "2026-07-18T08:21:32.236Z"
+    }
+  ],
+  "createdAt": "2026-07-18T08:02:55.218Z",
+  "updatedAt": "2026-07-18T08:21:32.236Z"
+}

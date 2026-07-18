@@ -1,0 +1,129 @@
+{
+  "id": "song-78faffd1-7cbf-478c-897e-bcde2a7087a6",
+  "schemaVersion": 1,
+  "title": "Chhaiya Chhaiya",
+  "artist": "AR Rahman",
+  "youtubeVideoId": "i9A9NuTHUag",
+  "videoType": "LYRIC",
+  "categoryIds": [
+    "90s-bollywood",
+    "party-songs",
+    "dance-hits",
+    "category-8e428161-cd37-4b6c-bf99-56aee59240f8",
+    "category-caa3736f-1137-4dc5-b9d6-7e63a6c15ab7"
+  ],
+  "language": "Hindi",
+  "releaseYear": 1998,
+  "enabled": false,
+  "challenges": [
+    {
+      "id": "challenge-0822e70b-2d72-4212-ac3a-7734c79f89b3",
+      "difficulty": 5,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 173,
+      "verifyFromSeconds": 160,
+      "verifyToSeconds": 185,
+      "expectedLyrics": "Gulfosh Kabhi Itraaye Kahin\nMehke To Nazar Aa Jaaye Kahin\nTaaveez Banaake Pehnoon Usay\nAyat Ki Tarah Mil Jaaye Kahin",
+      "hiddenWordIndexes": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "missingWordCount": 10,
+      "hintText": "Enter a helpful hint",
+      "enabled": false,
+      "createdAt": "2026-07-18T17:14:56.804Z",
+      "updatedAt": "2026-07-18T17:19:19.088Z"
+    },
+    {
+      "id": "challenge-5e776366-e785-4043-91a1-96f85fbf08b6",
+      "difficulty": 4,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 173,
+      "verifyFromSeconds": 160,
+      "verifyToSeconds": 185,
+      "expectedLyrics": "Gulfosh Kabhi Itraaye Kahin\nMehke To Nazar Aa Jaaye Kahin\nTaaveez Banaake Pehnoon Usay\nAyat Ki Tarah Mil Jaaye Kahin",
+      "hiddenWordIndexes": [
+        10,
+        11,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "missingWordCount": 7,
+      "hintText": "Enter a helpful hint",
+      "enabled": false,
+      "createdAt": "2026-07-18T17:19:20.975Z",
+      "updatedAt": "2026-07-18T17:21:16.384Z"
+    },
+    {
+      "id": "challenge-bc1e9303-c08f-40eb-babb-c9221f6eaf18",
+      "difficulty": 3,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 173,
+      "verifyFromSeconds": 160,
+      "verifyToSeconds": 185,
+      "expectedLyrics": "Gulfosh Kabhi Itraaye Kahin\nMehke To Nazar Aa Jaaye Kahin\nTaaveez Banaake Pehnoon Usay\nAyat Ki Tarah Mil Jaaye Kahin",
+      "hiddenWordIndexes": [
+        10,
+        11,
+        14,
+        15,
+        16
+      ],
+      "missingWordCount": 5,
+      "hintText": "Enter a helpful hint",
+      "enabled": false,
+      "createdAt": "2026-07-18T17:19:58.208Z",
+      "updatedAt": "2026-07-18T17:21:02.975Z"
+    },
+    {
+      "id": "challenge-fd854834-feaa-4e9a-b4c0-e2121939d288",
+      "difficulty": 2,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 173,
+      "verifyFromSeconds": 160,
+      "verifyToSeconds": 185,
+      "expectedLyrics": "Gulfosh Kabhi Itraaye Kahin\nMehke To Nazar Aa Jaaye Kahin\nTaaveez Banaake Pehnoon Usay\nAyat Ki Tarah Mil Jaaye Kahin",
+      "hiddenWordIndexes": [
+        10,
+        11,
+        14
+      ],
+      "missingWordCount": 3,
+      "hintText": "Enter a helpful hint",
+      "enabled": false,
+      "createdAt": "2026-07-18T17:20:26.284Z",
+      "updatedAt": "2026-07-18T17:20:52.342Z"
+    },
+    {
+      "id": "challenge-bb93bfa7-ddcf-4aee-95f6-b4e013f9e50a",
+      "difficulty": 1,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 173,
+      "verifyFromSeconds": 160,
+      "verifyToSeconds": 185,
+      "expectedLyrics": "Gulfosh Kabhi Itraaye Kahin\nMehke To Nazar Aa Jaaye Kahin\nTaaveez Banaake Pehnoon Usay\nAyat Ki Tarah Mil Jaaye Kahin",
+      "hiddenWordIndexes": [
+        10,
+        14
+      ],
+      "missingWordCount": 2,
+      "hintText": "Enter a helpful hint",
+      "enabled": false,
+      "createdAt": "2026-07-18T17:20:34.551Z",
+      "updatedAt": "2026-07-18T17:20:45.550Z"
+    }
+  ],
+  "createdAt": "2026-07-18T17:14:10.763Z",
+  "updatedAt": "2026-07-18T17:21:16.384Z"
+}
