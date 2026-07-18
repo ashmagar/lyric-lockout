@@ -5,10 +5,13 @@
   "artist": "Lyric Lockout Demo Ensemble",
   "youtubeVideoId": "sample00001",
   "videoType": "LYRIC",
-  "categoryIds": ["party-songs", "dance-hits"],
+  "categoryIds": [
+    "party-songs",
+    "dance-hits"
+  ],
   "language": "English",
   "releaseYear": 2026,
-  "enabled": true,
+  "enabled": false,
   "notes": "Fictional metadata and placeholder video ID for schema tests.",
   "challenges": [
     {
@@ -27,5 +30,5 @@
     }
   ],
   "createdAt": "2026-07-15T00:00:00.000Z",
-  "updatedAt": "2026-07-15T00:00:00.000Z"
+  "updatedAt": "2026-07-17T22:27:00.293Z"
 }

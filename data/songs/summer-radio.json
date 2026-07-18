@@ -5,10 +5,13 @@
   "artist": "Lyric Lockout Demo Ensemble",
   "youtubeVideoId": "sample00002",
   "videoType": "KARAOKE",
-  "categoryIds": ["romantic", "female-vocals"],
+  "categoryIds": [
+    "romantic",
+    "female-vocals"
+  ],
   "language": "English",
   "releaseYear": 2026,
-  "enabled": true,
+  "enabled": false,
   "notes": "Fictional metadata and placeholder video ID for schema tests.",
   "challenges": [
     {
@@ -27,5 +30,5 @@
     }
   ],
   "createdAt": "2026-07-15T00:00:00.000Z",
-  "updatedAt": "2026-07-15T00:00:00.000Z"
+  "updatedAt": "2026-07-17T22:27:01.009Z"
 }

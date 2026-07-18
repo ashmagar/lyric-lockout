@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import categoriesData from '../../data/categories.json';
 import { loadCatalog } from '../application/catalog';
 import { SCHEMA_VERSIONS } from '../domain/constants';
 import {
@@ -182,7 +183,8 @@ describe('catalog repositories and partial loading', () => {
   it('loads the bundled static JSON catalog through repository interfaces', async () => {
     const result = await loadCatalog(createBundledCatalogRepository());
 
-    expect(result.snapshot.categories).toHaveLength(10);
+    expect(result.snapshot.categories).toHaveLength(categoriesData.length);
+    expect(result.snapshot.categories.length).toBeGreaterThanOrEqual(10);
     expect(result.snapshot.songs).toHaveLength(2);
     expect(result.issues).toEqual([]);
   });

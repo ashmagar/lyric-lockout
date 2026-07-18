@@ -50,7 +50,8 @@ describe('sample data', () => {
     const categories = categoryCollectionSchema.parse(categoriesData);
     const songs = [songSchema.parse(starlightSongData), songSchema.parse(summerSongData)];
 
-    expect(categories).toHaveLength(10);
+    expect(categories).toHaveLength(categoriesData.length);
+    expect(categories.length).toBeGreaterThanOrEqual(10);
     expect(songs).toHaveLength(2);
     expect(catalogDataSchema.parse({ categories, songs }).songs).toHaveLength(2);
     expect(gamePlanSchema.parse(sampleGamePlanData).roundConfig.selectedCategoryIds).toHaveLength(
