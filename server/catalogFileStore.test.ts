@@ -129,6 +129,32 @@ describe('Admin atomic file writes and backups', () => {
     });
   });
 
+  it('persists and reloads hidden-word selections without stripping them', async () => {
+    const { root, store } = await fixture();
+    const song = validSong();
+    song.challenges[0]!.hiddenWordIndexes = [1];
+    song.challenges[0]!.missingWordCount = 1;
+
+    const saved = await store.saveSong(song);
+    const file = JSON.parse(
+      await readFile(path.join(root, 'songs', 'song-one.json'), 'utf8'),
+    ) as ServerSong;
+    const reloaded = await store.loadCatalog();
+
+    expect(saved.song.challenges[0]?.hiddenWordIndexes).toEqual([1]);
+    expect(file.challenges[0]?.hiddenWordIndexes).toEqual([1]);
+    expect(reloaded.songs[0]?.challenges[0]?.hiddenWordIndexes).toEqual([1]);
+  });
+
+  it('rejects malformed hidden-word selections at the Admin write boundary', async () => {
+    const { store } = await fixture();
+    const song = validSong();
+    song.challenges[0]!.hiddenWordIndexes = [0, 0, 99];
+    song.challenges[0]!.missingWordCount = 3;
+
+    await expect(store.saveSong(song)).rejects.toThrow('Song validation failed');
+  });
+
   it('creates a backup before update and before delete', async () => {
     const { root, store } = await fixture();
     await store.saveSong(validSong());

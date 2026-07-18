@@ -3,7 +3,11 @@ import type { Category, Challenge, Song } from '../models/catalog';
 import type { CatalogIndex, CatalogSnapshot, ChallengeCandidate, IndexedChallenge } from './types';
 
 function cloneChallenge(challenge: Challenge): Challenge {
-  return { ...challenge };
+  return {
+    ...challenge,
+    hiddenWordIndexes:
+      challenge.hiddenWordIndexes === undefined ? undefined : [...challenge.hiddenWordIndexes],
+  };
 }
 
 function cloneSong(song: Song): Song {

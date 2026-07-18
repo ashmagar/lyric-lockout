@@ -1,6 +1,7 @@
 import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { LyricPuzzle } from '../../components/LyricPuzzle/LyricPuzzle';
 import { getCategoryConsumptionRecord, getWinningTeams } from '../../domain/engine';
 import type { AnswerResult, CategoryAssignmentMode, LifelineType } from '../../domain/enums';
 import type { Category } from '../../domain/models/catalog';
@@ -771,6 +772,14 @@ function PhaseStage(props: PhaseStageProps) {
           title="Continue the lyrics."
           description="The host listens, then records the result. Timer expiry never decides it."
         >
+          {challenge && (
+            <div className={styles.lyricPuzzle}>
+              <LyricPuzzle
+                expectedLyrics={challenge.challenge.expectedLyrics}
+                hiddenWordIndexes={challenge.challenge.hiddenWordIndexes}
+              />
+            </div>
+          )}
           <TimerPanel adjustTimer={adjustTimer} send={send} snapshot={timerSnapshot} />
           <LifelineButtons
             session={session}
@@ -825,6 +834,14 @@ function PhaseStage(props: PhaseStageProps) {
           title="Give the missing lyrics."
           description="The host records the steal result. Only Perfect will score."
         >
+          {challenge && (
+            <div className={styles.lyricPuzzle}>
+              <LyricPuzzle
+                expectedLyrics={challenge.challenge.expectedLyrics}
+                hiddenWordIndexes={challenge.challenge.hiddenWordIndexes}
+              />
+            </div>
+          )}
           <TimerPanel adjustTimer={adjustTimer} send={send} snapshot={timerSnapshot} />
           <AnswerButtons
             includeDeclined

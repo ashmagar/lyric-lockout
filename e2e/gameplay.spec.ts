@@ -19,6 +19,8 @@ async function playMedia(page: Page) {
   await page.getByRole('button', { name: 'Play challenge' }).click();
   await page.getByRole('button', { name: 'Simulate challenge pause' }).click();
   await expect(page.getByRole('heading', { name: 'Continue the lyrics.' })).toBeVisible();
+  await expect(page.getByLabel('Lyrics to complete')).toBeVisible();
+  await expect(page.getByLabel(/Missing word \d+/).first()).toBeVisible();
   await expect(page.getByText(/carry the melody into the night/)).toHaveCount(0);
 }
 
@@ -37,6 +39,7 @@ async function resolveAnswer(page: Page, path: TurnPath) {
     .click();
   await page.getByRole('button', { name: 'Confirm primary result' }).click();
   await page.getByRole('button', { name: 'Accept steal' }).click();
+  await expect(page.getByLabel('Lyrics to complete')).toBeVisible();
   await page.getByRole('button', { name: 'Perfect', exact: true }).click();
   await page.getByRole('button', { name: 'Confirm steal result' }).click();
 }

@@ -2,16 +2,28 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react
 
 import {
   DIFFICULTY_LEVELS,
+  allLyricWordIndexes,
   createChallengeDraft,
+  isLyricWordToken,
   parseYouTubeVideoId,
+  tokenizeLyrics,
+  withExplicitHiddenWordSelection,
   type Category,
   type Challenge,
   type DifficultyLevel,
   type Song,
 } from '../../domain';
+import { LyricPuzzle } from '../../components/LyricPuzzle/LyricPuzzle';
 import { songSchema } from '../../schemas';
 import { AdminChallengePreview } from './AdminChallengePreview';
 import styles from './AdminPage.module.css';
+
+function normalizeSongLyrics(song: Song): Song {
+  return {
+    ...song,
+    challenges: song.challenges.map(withExplicitHiddenWordSelection),
+  };
+}
 
 interface SongEditorProps {
   initialSong: Song;
@@ -71,6 +83,28 @@ interface ChallengeEditorProps {
 function ChallengeEditor({ challenge, currentTime, onChange, onDelete }: ChallengeEditorProps) {
   const set = <K extends keyof Challenge>(key: K, value: Challenge[K]) =>
     onChange({ ...challenge, [key]: value, updatedAt: new Date().toISOString() });
+  const lyricTokens = tokenizeLyrics(challenge.expectedLyrics);
+  const hiddenWordIndexes = challenge.hiddenWordIndexes ?? [];
+  const hiddenWords = new Set(hiddenWordIndexes);
+
+  const setHiddenWordIndexes = (indexes: number[]) => {
+    const sortedIndexes = [...indexes].sort((left, right) => left - right);
+    onChange({
+      ...challenge,
+      hiddenWordIndexes: sortedIndexes,
+      missingWordCount: sortedIndexes.length,
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
+  const toggleHiddenWord = (wordIndex: number) => {
+    setHiddenWordIndexes(
+      hiddenWords.has(wordIndex)
+        ? hiddenWordIndexes.filter((index) => index !== wordIndex)
+        : [...hiddenWordIndexes, wordIndex],
+    );
+  };
+
   return (
     <details className={styles.challengeCard} open>
       <summary>
@@ -123,23 +157,80 @@ function ChallengeEditor({ challenge, currentTime, onChange, onDelete }: Challen
         />
       </div>
       <label>
-        Expected lyrics
+        Acceptable lyrics
         <textarea
-          onChange={(event) => set('expectedLyrics', event.target.value)}
+          onChange={(event) =>
+            onChange({
+              ...challenge,
+              expectedLyrics: event.target.value,
+              hiddenWordIndexes: [],
+              missingWordCount: 0,
+              updatedAt: new Date().toISOString(),
+            })
+          }
           rows={3}
           value={challenge.expectedLyrics}
         />
       </label>
-      <div className={styles.twoColumns}>
-        <label>
-          Missing word count
-          <input
-            min="1"
-            onChange={(event) => set('missingWordCount', Number(event.target.value))}
-            type="number"
-            value={challenge.missingWordCount}
+      <fieldset className={styles.lyricSelection}>
+        <legend>Hidden words</legend>
+        <p>
+          Select each word players must supply. Word numbers shown here are for authoring only;
+          stored indexes are zero-based.
+        </p>
+        <div className={styles.lyricSelectionActions}>
+          <button
+            onClick={() => setHiddenWordIndexes(allLyricWordIndexes(challenge.expectedLyrics))}
+            type="button"
+          >
+            Select all words
+          </button>
+          <button onClick={() => setHiddenWordIndexes([])} type="button">
+            Clear hidden words
+          </button>
+          <output aria-label="Hidden word count">
+            {hiddenWordIndexes.length} hidden {hiddenWordIndexes.length === 1 ? 'word' : 'words'}
+          </output>
+        </div>
+        <div aria-label="Selectable lyric words" className={styles.lyricTokens}>
+          {lyricTokens.map((token, tokenIndex) =>
+            isLyricWordToken(token) ? (
+              <button
+                aria-label={`Word ${token.wordIndex + 1}: ${token.prefix}${token.text}${token.suffix}`}
+                aria-pressed={hiddenWords.has(token.wordIndex)}
+                className={hiddenWords.has(token.wordIndex) ? styles.hiddenLyricToken : undefined}
+                key={`word-${token.wordIndex}`}
+                onClick={() => toggleHiddenWord(token.wordIndex)}
+                type="button"
+              >
+                <small>{token.wordIndex + 1}</small>
+                {token.prefix}
+                {token.text}
+                {token.suffix}
+              </button>
+            ) : (
+              <span className={styles.punctuationToken} key={`punctuation-${tokenIndex}`}>
+                {token.text}
+              </span>
+            ),
+          )}
+        </div>
+        {hiddenWordIndexes.length === 0 && (
+          <p className={styles.fieldError} role="alert">
+            Select at least one hidden word before saving. Lyric edits clear the previous selection
+            so indexes cannot silently move to different words.
+          </p>
+        )}
+        <div className={styles.lyricPreview}>
+          <strong>Gameplay preview</strong>
+          <LyricPuzzle
+            expectedLyrics={challenge.expectedLyrics}
+            hiddenWordIndexes={hiddenWordIndexes}
+            label="Lyric puzzle display"
           />
-        </label>
+        </div>
+      </fieldset>
+      <div className={styles.twoColumns}>
         <label>
           Hint
           <input
@@ -173,7 +264,7 @@ export function SongEditor({
   onClose,
   nextId,
 }: SongEditorProps) {
-  const [draft, setDraft] = useState(initialSong);
+  const [draft, setDraft] = useState(() => normalizeSongLyrics(initialSong));
   const [youtubeInput, setYoutubeInput] = useState(initialSong.youtubeVideoId);
   const [youtubeError, setYoutubeError] = useState<string | undefined>();
   const [dirty, setDirty] = useState(false);
@@ -184,7 +275,7 @@ export function SongEditor({
   const [confirmClose, setConfirmClose] = useState(false);
 
   useEffect(() => {
-    setDraft(initialSong);
+    setDraft(normalizeSongLyrics(initialSong));
     setYoutubeInput(initialSong.youtubeVideoId);
     setDirty(false);
     setLocalIssues([]);

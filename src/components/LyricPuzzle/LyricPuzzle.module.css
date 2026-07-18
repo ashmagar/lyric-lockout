@@ -1,0 +1,24 @@
+.puzzle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55em 0.4em;
+  align-items: baseline;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.4;
+}
+
+.token {
+  white-space: nowrap;
+}
+
+.blank {
+  display: inline-block;
+  min-width: 3.5em;
+  padding: 0 0.15em;
+  color: var(--color-text-muted);
+  border-bottom: 0.14em solid currentcolor;
+  text-align: center;
+  letter-spacing: 0.08em;
+}

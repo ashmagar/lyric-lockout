@@ -226,6 +226,12 @@ and use a semantically disabled button so they cannot be selected again. Attribu
 the existing persisted category history, so saved games require no migration and retain the same
 information after recovery.
 
+Milestone 11.5 Part 3 adds word-level lyric puzzles. Challenge authors enter the complete acceptable
+lyrics, select any individual words to hide, see an exact gameplay preview, and save the selection as
+zero-based `hiddenWordIndexes`. Editing the lyric text clears the old selection for explicit review.
+Older challenges without this field intentionally render with every lyric word hidden and are
+migrated to that explicit selection when reopened and saved in Admin.
+
 Coverage and validation views expose catalog gaps and file/schema issues. Import validates the
 entire candidate set before replacing files; export can download either the whole catalog or a
 single song. Save, update, delete, and import writes use temporary files or directories and atomic
@@ -260,6 +266,18 @@ Node API that owns those operations. Its data root defaults to `data` and can be
 5. Confirm every remaining category is still selectable.
 6. Refresh during the active game, resume, and continue to category selection; confirm the same
    consumed state and team attribution remain.
+
+### Manual hidden-lyrics test
+
+1. In Admin, open a song challenge and replace **Acceptable lyrics** with a line containing repeated
+   words, punctuation, and an apostrophe.
+2. Select several non-adjacent word chips. Confirm the hidden count and gameplay preview update, then
+   use **Select all words** and **Clear hidden words**.
+3. Confirm clearing prevents save, select at least one word, save, reopen the song, and verify the
+   same chips remain selected.
+4. Start a fake-media game using the challenge. After the video pauses, confirm visible lyric words
+   and one fixed-width blank per selected hidden word appear in both primary and steal answering.
+5. Complete the answer decisions and confirm verification reveals the full acceptable lyrics.
 
 ## Theme foundation
 

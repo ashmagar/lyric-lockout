@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { SCHEMA_VERSIONS } from '../domain/constants';
+import { countLyricWords } from '../domain/catalog/lyrics';
 import type { CatalogData, Category, Challenge, Song } from '../domain/models/catalog';
 import {
   difficultyLevelSchema,
@@ -20,6 +21,7 @@ export const challengeSchema: z.ZodType<Challenge> = z
     verifyFromSeconds: z.number().nonnegative(),
     verifyToSeconds: z.number().nonnegative().optional(),
     expectedLyrics: nonBlankStringSchema,
+    hiddenWordIndexes: z.array(z.number().int().nonnegative()).min(1).optional(),
     missingWordCount: z.number().int().positive(),
     hintText: nonBlankStringSchema,
     enabled: z.boolean(),
@@ -28,6 +30,44 @@ export const challengeSchema: z.ZodType<Challenge> = z
     updatedAt: timestampSchema,
   })
   .superRefine((challenge, context) => {
+    const lyricWordCount = countLyricWords(challenge.expectedLyrics);
+    if (lyricWordCount === 0) {
+      context.addIssue({
+        code: 'custom',
+        path: ['expectedLyrics'],
+        message: 'Expected lyrics must contain at least one word',
+      });
+    }
+
+    if (challenge.hiddenWordIndexes !== undefined) {
+      const uniqueIndexes = new Set(challenge.hiddenWordIndexes);
+      if (uniqueIndexes.size !== challenge.hiddenWordIndexes.length) {
+        context.addIssue({
+          code: 'custom',
+          path: ['hiddenWordIndexes'],
+          message: 'Hidden word selection cannot contain duplicate indexes',
+        });
+      }
+
+      challenge.hiddenWordIndexes.forEach((index, selectionIndex) => {
+        if (index >= lyricWordCount) {
+          context.addIssue({
+            code: 'custom',
+            path: ['hiddenWordIndexes', selectionIndex],
+            message: `Hidden word index ${index} is outside the expected lyrics`,
+          });
+        }
+      });
+
+      if (challenge.missingWordCount !== challenge.hiddenWordIndexes.length) {
+        context.addIssue({
+          code: 'custom',
+          path: ['missingWordCount'],
+          message: 'Missing word count must match the hidden word selection',
+        });
+      }
+    }
+
     if (challenge.pauseAtSeconds <= challenge.playbackStartSeconds) {
       context.addIssue({
         code: 'custom',

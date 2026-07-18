@@ -125,6 +125,46 @@ describe('challenge validation', () => {
     expect(result.error?.issues.some((issue) => issue.path.includes('expectedLyrics'))).toBe(true);
   });
 
+  it.each([
+    ['an empty selection', []],
+    ['a duplicate selection', [1, 1]],
+    ['an out-of-range selection', [99]],
+  ])('rejects %s of hidden words', (_scenario, hiddenWordIndexes) => {
+    const result = challengeSchema.safeParse({
+      ...demoChallengeData,
+      hiddenWordIndexes,
+      missingWordCount: hiddenWordIndexes.length,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.some((issue) => issue.path.includes('hiddenWordIndexes'))).toBe(
+      true,
+    );
+  });
+
+  it('rejects hidden selections that disagree with the derived missing word count', () => {
+    const result = challengeSchema.safeParse({
+      ...demoChallengeData,
+      hiddenWordIndexes: [0, 2],
+      missingWordCount: 1,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.some((issue) => issue.path.includes('missingWordCount'))).toBe(
+      true,
+    );
+  });
+
+  it('rejects lyrics made only from punctuation', () => {
+    const result = challengeSchema.safeParse({
+      ...demoChallengeData,
+      expectedLyrics: '... !!!',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.some((issue) => issue.path.includes('expectedLyrics'))).toBe(true);
+  });
+
   it('rejects an invalid difficulty', () => {
     const result = challengeSchema.safeParse({
       ...demoChallengeData,

@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -234,6 +234,50 @@ describe('Admin authoring domain and editor', () => {
     expect(onSave).toHaveBeenCalled();
     expect(title).toHaveValue('Retained Draft Title');
     expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+  });
+
+  it('clears stale hidden indexes after lyric edits and saves independently selected words', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn().mockResolvedValue(true);
+    render(
+      <SongEditor
+        categories={[CATEGORY]}
+        fakeMedia
+        initialSong={validSong()}
+        nextId={(prefix) => `${prefix}-new`}
+        onClose={vi.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    const lyrics = screen.getByRole('textbox', { name: 'Acceptable lyrics' });
+    await user.clear(lyrics);
+    await user.type(lyrics, "Maybe this time I'll be lucky!");
+
+    expect(screen.getByLabelText('Hidden word count')).toHaveTextContent('0 hidden words');
+    expect(screen.getByRole('alert')).toHaveTextContent('Select at least one hidden word');
+
+    await user.click(screen.getByRole('button', { name: 'Word 2: this' }));
+    await user.click(screen.getByRole('button', { name: 'Word 6: lucky!' }));
+
+    expect(screen.getByLabelText('Hidden word count')).toHaveTextContent('2 hidden words');
+    expect(within(screen.getByLabelText('Lyric puzzle display')).getAllByText('____')).toHaveLength(
+      2,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Save song' }));
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        challenges: [
+          expect.objectContaining({
+            expectedLyrics: "Maybe this time I'll be lucky!",
+            hiddenWordIndexes: [1, 5],
+            missingWordCount: 2,
+          }),
+        ],
+      }),
+    );
   });
 
   it('runs preview through the real playback lifecycle and reports pause deviation', async () => {

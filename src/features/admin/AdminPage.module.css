@@ -273,7 +273,9 @@
 .rowActions,
 .editorActions,
 .previewControls,
-.challengeTabs {
+.challengeTabs,
+.lyricSelectionActions,
+.lyricTokens {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -286,6 +288,61 @@
   min-height: 2.1rem;
   padding: 0.38rem 0.55rem;
   font-size: 0.7rem;
+}
+
+.lyricSelection {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+}
+
+.lyricSelection > p,
+.lyricPreview {
+  margin: 0;
+}
+
+.lyricSelectionActions output {
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.lyricTokens button {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.7rem;
+  background: var(--color-surface-raised);
+}
+
+.lyricTokens button small {
+  color: var(--color-text-muted);
+}
+
+.lyricTokens .hiddenLyricToken {
+  color: white;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.lyricTokens .hiddenLyricToken small {
+  color: inherit;
+}
+
+.punctuationToken {
+  color: var(--color-text-muted);
+}
+
+.lyricPreview {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-surface-raised);
+  border-radius: 0.75rem;
 }
 
 .scrollSentinel {

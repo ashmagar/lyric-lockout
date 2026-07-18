@@ -8,6 +8,7 @@ export interface Challenge {
   verifyFromSeconds: number;
   verifyToSeconds?: number | undefined;
   expectedLyrics: string;
+  hiddenWordIndexes?: number[] | undefined;
   missingWordCount: number;
   hintText: string;
   enabled: boolean;
