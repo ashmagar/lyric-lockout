@@ -43,6 +43,24 @@ export interface CreateSongDraftInput {
   createdAt: string;
 }
 
+export interface CreateCategoryDraftInput {
+  id: string;
+  displayOrder: number;
+  createdAt: string;
+}
+
+export function createCategoryDraft(input: CreateCategoryDraftInput): Category {
+  return {
+    id: input.id,
+    schemaVersion: SCHEMA_VERSIONS.category,
+    name: '',
+    displayOrder: input.displayOrder,
+    enabled: true,
+    createdAt: input.createdAt,
+    updatedAt: input.createdAt,
+  };
+}
+
 export function createSongDraft(input: CreateSongDraftInput): Song {
   return {
     id: input.id,

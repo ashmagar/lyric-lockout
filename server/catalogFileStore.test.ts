@@ -64,6 +64,57 @@ async function fixture() {
 }
 
 describe('Admin atomic file writes and backups', () => {
+  it('creates and reloads a validated category with an atomic collection write', async () => {
+    const { root, store } = await fixture();
+    const category: ServerCategory = {
+      ...CATEGORY,
+      id: 'new-category',
+      name: 'New Category',
+      displayOrder: 2,
+    };
+
+    await store.createCategory(category);
+
+    const snapshot = await store.loadCatalog();
+    expect(snapshot.categories).toContainEqual(category);
+    expect((await readdir(root)).some((file) => file.endsWith('.tmp'))).toBe(false);
+    expect(JSON.parse(await readFile(path.join(root, 'categories.json'), 'utf8'))).toContainEqual(
+      category,
+    );
+  });
+
+  it('edits a category name without changing stable song references', async () => {
+    const { root, store } = await fixture();
+    await store.saveSong(validSong('referenced-song'));
+    const edited = { ...CATEGORY, name: 'Celebration Songs', updatedAt: TIMESTAMP };
+
+    const result = await store.updateCategory(CATEGORY.id, edited);
+
+    expect(result.category.id).toBe(CATEGORY.id);
+    expect(result.backupPath).toContain('category-update');
+    const snapshot = await store.loadCatalog();
+    expect(snapshot.categories[0]?.name).toBe('Celebration Songs');
+    expect(snapshot.songs[0]?.categoryIds).toEqual([CATEGORY.id]);
+    expect(await readFile(result.backupPath, 'utf8')).toContain('Party Songs');
+    expect(await readFile(path.join(root, 'songs', 'referenced-song.json'), 'utf8')).toContain(
+      `"${CATEGORY.id}"`,
+    );
+  });
+
+  it('rejects blank, duplicate, and changed category IDs without persisting them', async () => {
+    const { root, store } = await fixture();
+    const original = await readFile(path.join(root, 'categories.json'), 'utf8');
+
+    await expect(store.createCategory({ ...CATEGORY, id: '   ' })).rejects.toThrow(
+      'Category validation failed',
+    );
+    await expect(store.createCategory(CATEGORY)).rejects.toThrow('already in use');
+    await expect(
+      store.updateCategory(CATEGORY.id, { ...CATEGORY, id: 'changed-id' }),
+    ).rejects.toThrow('cannot be changed');
+    expect(await readFile(path.join(root, 'categories.json'), 'utf8')).toBe(original);
+  });
+
   it('creates a disabled song draft through a validated atomic write', async () => {
     const { root, store } = await fixture();
 

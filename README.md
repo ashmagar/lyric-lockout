@@ -215,6 +215,11 @@ YouTube URL forms, keeps stable song IDs, validates metadata and challenge time 
 manual/capture/nudge timestamp controls, and previews against the same playback coordinator used by
 Game Mode.
 
+Milestone 11.5 Part 1 adds validated category creation and editing. Category IDs are generated once
+and remain read-only so renaming a category cannot break song, Game Plan, or session references.
+Category changes are saved through the local Admin API with a backup and atomic replacement of
+`data/categories.json`; unsafe category deletion remains intentionally unavailable.
+
 Coverage and validation views expose catalog gaps and file/schema issues. Import validates the
 entire candidate set before replacing files; export can download either the whole catalog or a
 single song. Save, update, delete, and import writes use temporary files or directories and atomic
@@ -235,7 +240,9 @@ Node API that owns those operations. Its data root defaults to `data` and can be
 5. Disable and re-enable the song, then duplicate it. Confirm the copies remain independently
    editable.
 6. Delete the duplicate through the confirmation step and confirm a backup notice appears.
-7. Stop the Admin API and refresh. Confirm the authoring workspace reports it is offline while
+7. Open **Categories**, create a category, then edit its display name. Confirm its displayed ID does
+   not change and that the category remains after refreshing Admin.
+8. Stop the Admin API and refresh. Confirm the authoring workspace reports it is offline while
    `/game` remains available.
 
 ## Theme foundation

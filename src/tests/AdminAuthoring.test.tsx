@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  createCategoryDraft,
   createChallengeDraft,
   createSongDraft,
   parseYouTubeVideoId,
@@ -10,6 +11,7 @@ import {
   type Song,
 } from '../domain';
 import { AdminChallengePreview } from '../features/admin/AdminChallengePreview';
+import { CategoryEditor } from '../features/admin/CategoryEditor';
 import { SongEditor } from '../features/admin/SongEditor';
 import {
   ADMIN_ADDITIONAL_BATCH_SIZE,
@@ -18,6 +20,7 @@ import {
 } from '../features/admin/useContinuousList';
 import { songSchema } from '../schemas';
 import { FakeVideoPlayerService, type PollingScheduler } from '../services/video';
+import { resolveCategoryIcon } from '../utils/categoryIcon';
 
 const TIMESTAMP = '2026-07-17T08:00:00.000Z';
 const CATEGORY: Category = {
@@ -96,6 +99,90 @@ afterEach(() => {
 });
 
 describe('Admin authoring domain and editor', () => {
+  it('resolves catalog icon keys while preserving custom emoji', () => {
+    expect(resolveCategoryIcon('cassette')).toBe('📼');
+    expect(resolveCategoryIcon('microphone')).toBe('🎤');
+    expect(resolveCategoryIcon('🛣️')).toBe('🛣️');
+    expect(resolveCategoryIcon(undefined)).toBe('♪');
+  });
+
+  it('creates a category draft with a stable generated identity', () => {
+    expect(
+      createCategoryDraft({
+        id: 'category-stable-id',
+        displayOrder: 11,
+        createdAt: TIMESTAMP,
+      }),
+    ).toMatchObject({
+      id: 'category-stable-id',
+      name: '',
+      displayOrder: 11,
+      enabled: true,
+    });
+  });
+
+  it('validates category fields before calling the save boundary', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn().mockResolvedValue(true);
+    render(
+      <CategoryEditor
+        categories={[CATEGORY]}
+        initialCategory={createCategoryDraft({
+          id: 'new-category',
+          displayOrder: 2,
+          createdAt: TIMESTAMP,
+        })}
+        isNew
+        onCancel={vi.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Save category' }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Value must not be blank');
+  });
+
+  it('saves category edits with the original ID and cancel discards local changes', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn().mockResolvedValue(true);
+    const onCancel = vi.fn();
+    const { rerender } = render(
+      <CategoryEditor
+        categories={[CATEGORY]}
+        initialCategory={CATEGORY}
+        isNew={false}
+        onCancel={onCancel}
+        onSave={onSave}
+      />,
+    );
+
+    const name = screen.getByRole('textbox', { name: 'Display name' });
+    await user.clear(name);
+    await user.type(name, 'Celebration Songs');
+    await user.click(screen.getByRole('button', { name: 'Save category' }));
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ id: CATEGORY.id, name: 'Celebration Songs' }),
+      false,
+    );
+    expect(CATEGORY.name).toBe('Party Songs');
+
+    rerender(
+      <CategoryEditor
+        categories={[CATEGORY]}
+        initialCategory={CATEGORY}
+        isNew={false}
+        onCancel={onCancel}
+        onSave={onSave}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onCancel).toHaveBeenCalled();
+    expect(CATEGORY.name).toBe('Party Songs');
+  });
+
   it.each([
     ['M7lc1UVf-VE', 'M7lc1UVf-VE'],
     ['https://www.youtube.com/watch?v=M7lc1UVf-VE', 'M7lc1UVf-VE'],

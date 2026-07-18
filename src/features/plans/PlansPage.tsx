@@ -5,6 +5,7 @@ import { getCatalogCandidates } from '../../domain/catalog';
 import { DIFFICULTY_LEVELS, type DifficultyLevel, type GamePlan } from '../../domain';
 import { GAMEPLAY_CATALOG_INDEX, GAMEPLAY_CATEGORIES } from '../game/gameplayCatalog';
 import { useGamePlanStore } from '../../store/gamePlanStore';
+import { resolveCategoryIcon } from '../../utils/categoryIcon';
 import { useGameplayStore } from '../../store/gameplayStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import styles from './PlansPage.module.css';
@@ -241,7 +242,7 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
                   onChange={() => toggleCategory(category.id)}
                   type="checkbox"
                 />
-                <span aria-hidden="true">{category.icon}</span>
+                <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
                 {category.name}
               </label>
             ))}

@@ -17,6 +17,10 @@ function renderRoute(path = '/') {
 const EMPTY_ADMIN_GATEWAY: AdminGateway = {
   health: () => Promise.resolve(),
   loadCatalog: () => Promise.resolve({ categories: [], songs: [], issues: [] }),
+  createCategory: (category) =>
+    Promise.resolve({ category, issues: [], backupPath: 'test-backup' }),
+  updateCategory: (category) =>
+    Promise.resolve({ category, issues: [], backupPath: 'test-backup' }),
   saveSong: (song) => Promise.resolve({ song, issues: [] }),
   deleteSong: () => Promise.resolve({ backupPath: 'test-backup' }),
   exportCatalog: () => Promise.resolve({ categories: [], songs: [] }),

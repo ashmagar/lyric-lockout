@@ -7,6 +7,7 @@ import type { GameSession } from '../../domain/models/game';
 import type { ScoreBreakdown } from '../../domain/models/score';
 import type { TimerSnapshot } from '../../services/timer';
 import { useGameplayStore } from '../../store/gameplayStore';
+import { resolveCategoryIcon } from '../../utils/categoryIcon';
 import { GAMEPLAY_CATEGORIES } from './gameplayCatalog';
 import { GameplayVideoStage } from './GameplayVideoStage';
 import styles from './GamePage.module.css';
@@ -502,7 +503,7 @@ function PhaseStage(props: PhaseStageProps) {
           <div className={styles.categoryGrid}>
             {GAMEPLAY_CATEGORIES.map((category) => (
               <article className={styles.categoryCard} key={category.id}>
-                <span aria-hidden="true">{category.icon}</span>
+                <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
                 <strong>{category.name}</strong>
               </article>
             ))}
@@ -621,7 +622,7 @@ function PhaseStage(props: PhaseStageProps) {
                 onClick={() => assignCategory(category.id, assignmentMode)}
                 type="button"
               >
-                <span aria-hidden="true">{category.icon}</span>
+                <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
                 {category.name}
               </button>
             ))}

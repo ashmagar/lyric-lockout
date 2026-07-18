@@ -92,6 +92,7 @@ export class CatalogFileStore {
         severity: 'ERROR',
         message: 'Categories must be stored as an array.',
         path: 'categories.json',
+        source: 'categories.json',
       });
     }
     categoryValues.forEach((value) => {
@@ -133,6 +134,74 @@ export class CatalogFileStore {
           JSON.parse(await readFile(path.join(this.#plansDirectory, file), 'utf8')) as unknown,
       ),
     );
+  }
+
+  async createCategory(value: unknown): Promise<{
+    category: ServerCategory;
+    issues: ServerValidationIssue[];
+    backupPath: string;
+  }> {
+    const category = this.parseCategory(value);
+    const snapshot = await this.loadCatalog();
+    this.assertCategoryCollectionWritable(snapshot);
+    if (snapshot.categories.some((candidate) => candidate.id === category.id)) {
+      throw new CatalogWriteError(409, `Category ID "${category.id}" is already in use.`, [
+        {
+          code: 'DUPLICATE_CATEGORY_ID',
+          severity: 'ERROR',
+          message: `Category ID "${category.id}" is already in use.`,
+          entityId: category.id,
+          path: 'id',
+        },
+      ]);
+    }
+
+    const categories = [...snapshot.categories, category];
+    const issues = this.validateReferences(categories, snapshot.songs);
+    if (issues.some((issue) => issue.severity === 'ERROR')) {
+      throw new CatalogWriteError(400, 'Category validation failed.', issues);
+    }
+    const backupPath = await this.backupPath(this.#categoriesFile, 'category-create');
+    await this.atomicWriteJson(this.#categoriesFile, categories);
+    return { category, issues, backupPath };
+  }
+
+  async updateCategory(
+    categoryId: string,
+    value: unknown,
+  ): Promise<{
+    category: ServerCategory;
+    issues: ServerValidationIssue[];
+    backupPath: string;
+  }> {
+    const category = this.parseCategory(value);
+    if (category.id !== categoryId) {
+      throw new CatalogWriteError(400, 'A category ID cannot be changed after creation.', [
+        {
+          code: 'CATEGORY_ID_IMMUTABLE',
+          severity: 'ERROR',
+          message: 'A category ID cannot be changed after creation.',
+          entityId: categoryId,
+          path: 'id',
+        },
+      ]);
+    }
+    const snapshot = await this.loadCatalog();
+    this.assertCategoryCollectionWritable(snapshot);
+    if (!snapshot.categories.some((candidate) => candidate.id === categoryId)) {
+      throw new CatalogWriteError(404, `Category "${categoryId}" was not found.`);
+    }
+
+    const categories = snapshot.categories.map((candidate) =>
+      candidate.id === categoryId ? category : candidate,
+    );
+    const issues = this.validateReferences(categories, snapshot.songs);
+    if (issues.some((issue) => issue.severity === 'ERROR')) {
+      throw new CatalogWriteError(400, 'Category validation failed.', issues);
+    }
+    const backupPath = await this.backupPath(this.#categoriesFile, 'category-update');
+    await this.atomicWriteJson(this.#categoriesFile, categories);
+    return { category, issues, backupPath };
   }
 
   async saveSong(value: unknown): Promise<{ song: ServerSong; issues: ServerValidationIssue[] }> {
@@ -228,12 +297,53 @@ export class CatalogFileStore {
     );
   }
 
+  private parseCategory(value: unknown): ServerCategory {
+    const parsed = categorySchema.safeParse(value);
+    if (!parsed.success) {
+      throw new CatalogWriteError(
+        400,
+        'Category validation failed.',
+        schemaIssues('request', undefined, parsed.error.issues),
+      );
+    }
+    return parsed.data;
+  }
+
+  private assertCategoryCollectionWritable(snapshot: CatalogFileSnapshot): void {
+    const blockingIssues = snapshot.issues.filter(
+      (issue) =>
+        issue.source === 'categories.json' ||
+        issue.code === 'INVALID_CATEGORY_COLLECTION' ||
+        issue.code === 'DUPLICATE_CATEGORY_ID',
+    );
+    if (blockingIssues.length > 0) {
+      throw new CatalogWriteError(
+        409,
+        'Repair the existing category collection before saving category changes.',
+        blockingIssues,
+      );
+    }
+  }
+
   private validateReferences(
     categories: readonly ServerCategory[],
     songs: readonly ServerSong[],
   ): ServerValidationIssue[] {
     const issues: ServerValidationIssue[] = [];
-    const categoryIds = new Set(categories.map((category) => category.id));
+    const categoryIds = new Set<string>();
+    for (const category of categories) {
+      if (categoryIds.has(category.id)) {
+        issues.push({
+          code: 'DUPLICATE_CATEGORY_ID',
+          severity: 'ERROR',
+          message: `Duplicate category ID "${category.id}".`,
+          entityId: category.id,
+          path: 'id',
+          source: 'categories.json',
+        });
+      }
+      categoryIds.add(category.id);
+    }
     const songIds = new Set<string>();
     const challengeIds = new Set<string>();
     for (const song of songs) {

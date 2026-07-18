@@ -11,9 +11,17 @@ export interface AdminDeleteResult {
   backupPath: string;
 }
 
+export interface AdminCategorySaveResult {
+  category: Category;
+  issues: CatalogValidationIssue[];
+  backupPath: string;
+}
+
 export interface AdminGateway {
   health(): Promise<void>;
   loadCatalog(): Promise<AdminCatalogSnapshot>;
+  createCategory(category: Category): Promise<AdminCategorySaveResult>;
+  updateCategory(category: Category): Promise<AdminCategorySaveResult>;
   saveSong(song: Song): Promise<{ song: Song; issues: CatalogValidationIssue[] }>;
   deleteSong(songId: string): Promise<AdminDeleteResult>;
   exportCatalog(songId?: string): Promise<unknown>;
@@ -84,6 +92,26 @@ export class HttpAdminGateway implements AdminGateway {
       songs: songResult.songs,
       issues,
     };
+  }
+
+  async createCategory(category: Category): Promise<AdminCategorySaveResult> {
+    return (await responseJson(
+      await fetch(`${this.baseUrl}/api/categories`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(category),
+      }),
+    )) as AdminCategorySaveResult;
+  }
+
+  async updateCategory(category: Category): Promise<AdminCategorySaveResult> {
+    return (await responseJson(
+      await fetch(`${this.baseUrl}/api/categories/${encodeURIComponent(category.id)}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(category),
+      }),
+    )) as AdminCategorySaveResult;
   }
 
   async saveSong(song: Song) {

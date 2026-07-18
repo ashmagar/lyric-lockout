@@ -14,6 +14,8 @@ interface AdminState {
   lastBackupPath?: string | undefined;
   initialize: () => Promise<void>;
   reload: () => Promise<boolean>;
+  createCategory: (category: Category) => Promise<boolean>;
+  updateCategory: (category: Category) => Promise<boolean>;
   saveSong: (song: Song) => Promise<boolean>;
   deleteSong: (songId: string) => Promise<boolean>;
   toggleSong: (songId: string) => Promise<boolean>;
@@ -74,6 +76,32 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   async saveSong(song) {
     try {
       await gateway().saveSong(song);
+      return get().reload();
+    } catch (error) {
+      set({
+        error: errorMessage(error),
+        issues: error instanceof AdminGatewayError ? error.issues : get().issues,
+      });
+      return false;
+    }
+  },
+
+  async createCategory(category) {
+    try {
+      await gateway().createCategory(category);
+      return get().reload();
+    } catch (error) {
+      set({
+        error: errorMessage(error),
+        issues: error instanceof AdminGatewayError ? error.issues : get().issues,
+      });
+      return false;
+    }
+  },
+
+  async updateCategory(category) {
+    try {
+      await gateway().updateCategory(category);
       return get().reload();
     } catch (error) {
       set({

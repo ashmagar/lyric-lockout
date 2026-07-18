@@ -110,7 +110,8 @@
 }
 
 .view,
-.songEditor {
+.songEditor,
+.categoryEditor {
   display: grid;
   align-content: start;
   gap: var(--space-5);
@@ -298,6 +299,34 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
+}
+
+.categoryGrid article {
+  align-content: start;
+}
+
+.categoryIdentity {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.categoryIdentity > span {
+  font-size: 1.7rem;
+}
+
+.categoryIdentity > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.categoryIdentity small,
+.categoryGrid article > small {
+  color: var(--color-text-muted);
+}
+
+.categoryGrid article > button {
+  justify-self: start;
 }
 
 .coverageGrid {

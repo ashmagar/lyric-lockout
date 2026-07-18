@@ -6,8 +6,17 @@ import {
   buildCatalogIndex,
   createCatalogSnapshot,
 } from '../../domain/catalog';
-import { createSongDraft, duplicateSong, type DifficultyLevel, type Song } from '../../domain';
+import {
+  createCategoryDraft,
+  createSongDraft,
+  duplicateSong,
+  type Category,
+  type DifficultyLevel,
+  type Song,
+} from '../../domain';
 import { useAdminStore } from '../../store/adminStore';
+import { resolveCategoryIcon } from '../../utils/categoryIcon';
+import { CategoryEditor } from './CategoryEditor';
 import { SongEditor } from './SongEditor';
 import { useContinuousList } from './useContinuousList';
 import styles from './AdminPage.module.css';
@@ -291,20 +300,41 @@ function SongLibrary({ onEdit, onNew }: SongLibraryProps) {
   );
 }
 
-function CategoriesView() {
-  const categories = useAdminStore((state) => state.categories);
+interface CategoriesViewProps {
+  onEdit: (category: Category) => void;
+  onNew: () => void;
+}
+
+function CategoriesView({ onEdit, onNew }: CategoriesViewProps) {
+  const categories = [...useAdminStore((state) => state.categories)].sort(
+    (left, right) => left.displayOrder - right.displayOrder,
+  );
   return (
     <section className={styles.view}>
       <header className={styles.viewHeader}>
-        <p className={styles.eyebrow}>Categories</p>
-        <h2>Round taxonomy</h2>
+        <div>
+          <p className={styles.eyebrow}>Categories</p>
+          <h2>Round taxonomy</h2>
+        </div>
+        <button className={styles.primaryButton} onClick={onNew} type="button">
+          Add category
+        </button>
       </header>
       <div className={styles.categoryGrid}>
         {categories.map((category) => (
           <article key={category.id}>
-            <strong>{category.name}</strong>
+            <div className={styles.categoryIdentity}>
+              <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
+              <div>
+                <strong>{category.name}</strong>
+                <small>{category.id}</small>
+              </div>
+            </div>
             <span>{category.enabled ? 'Enabled' : 'Disabled'}</span>
-            <small>{category.description}</small>
+            <small>{category.description ?? 'No description provided.'}</small>
+            <button onClick={() => onEdit(category)} type="button">
+              Edit
+            </button>
           </article>
         ))}
       </div>
@@ -455,10 +485,23 @@ function ImportExportView() {
 export function AdminPage() {
   const location = useLocation();
   const fakeMedia = new URLSearchParams(location.search).get('media') === 'fake';
-  const { status, categories, error, lastBackupPath, initialize, reload, saveSong, clearError } =
-    useAdminStore();
+  const {
+    status,
+    categories,
+    error,
+    lastBackupPath,
+    initialize,
+    reload,
+    createCategory,
+    updateCategory,
+    saveSong,
+    clearError,
+  } = useAdminStore();
   const [view, setView] = useState<AdminView>('DASHBOARD');
   const [editorSong, setEditorSong] = useState<Song | undefined>();
+  const [editorCategory, setEditorCategory] = useState<
+    { category: Category; isNew: boolean } | undefined
+  >();
 
   useEffect(() => {
     void initialize();
@@ -476,11 +519,28 @@ export function AdminPage() {
     );
   };
 
+  const createNewCategory = () => {
+    setEditorCategory({
+      category: createCategoryDraft({
+        id: nextId('category'),
+        displayOrder: Math.max(-1, ...categories.map((category) => category.displayOrder)) + 1,
+        createdAt: new Date().toISOString(),
+      }),
+      isNew: true,
+    });
+  };
+
   const saveEditorSong = async (song: Song) => {
     const saved = await saveSong(song);
     if (saved) {
       setEditorSong(useAdminStore.getState().songs.find((candidate) => candidate.id === song.id));
     }
+    return saved;
+  };
+
+  const saveEditorCategory = async (category: Category, isNew: boolean) => {
+    const saved = isNew ? await createCategory(category) : await updateCategory(category);
+    if (saved) setEditorCategory(undefined);
     return saved;
   };
 
@@ -506,6 +566,7 @@ export function AdminPage() {
               onClick={() => {
                 setView(value as AdminView);
                 setEditorSong(undefined);
+                setEditorCategory(undefined);
               }}
               type="button"
             >
@@ -544,7 +605,7 @@ export function AdminPage() {
               Destructive change backed up to {lastBackupPath}.
             </p>
           )}
-          {status === 'READY' && editorSong && (
+          {status === 'READY' && editorSong && !editorCategory && (
             <SongEditor
               categories={categories}
               fakeMedia={fakeMedia}
@@ -554,14 +615,36 @@ export function AdminPage() {
               onSave={saveEditorSong}
             />
           )}
-          {status === 'READY' && !editorSong && view === 'DASHBOARD' && <Dashboard />}
-          {status === 'READY' && !editorSong && view === 'SONGS' && (
+          {status === 'READY' && editorCategory && !editorSong && (
+            <CategoryEditor
+              categories={categories}
+              initialCategory={editorCategory.category}
+              isNew={editorCategory.isNew}
+              onCancel={() => setEditorCategory(undefined)}
+              onSave={saveEditorCategory}
+            />
+          )}
+          {status === 'READY' && !editorSong && !editorCategory && view === 'DASHBOARD' && (
+            <Dashboard />
+          )}
+          {status === 'READY' && !editorSong && !editorCategory && view === 'SONGS' && (
             <SongLibrary fakeMedia={fakeMedia} onEdit={setEditorSong} onNew={createNew} />
           )}
-          {status === 'READY' && !editorSong && view === 'CATEGORIES' && <CategoriesView />}
-          {status === 'READY' && !editorSong && view === 'COVERAGE' && <CoverageView />}
-          {status === 'READY' && !editorSong && view === 'VALIDATION' && <ValidationView />}
-          {status === 'READY' && !editorSong && view === 'IMPORT_EXPORT' && <ImportExportView />}
+          {status === 'READY' && !editorSong && !editorCategory && view === 'CATEGORIES' && (
+            <CategoriesView
+              onEdit={(category) => setEditorCategory({ category, isNew: false })}
+              onNew={createNewCategory}
+            />
+          )}
+          {status === 'READY' && !editorSong && !editorCategory && view === 'COVERAGE' && (
+            <CoverageView />
+          )}
+          {status === 'READY' && !editorSong && !editorCategory && view === 'VALIDATION' && (
+            <ValidationView />
+          )}
+          {status === 'READY' && !editorSong && !editorCategory && view === 'IMPORT_EXPORT' && (
+            <ImportExportView />
+          )}
         </main>
       </div>
     </section>

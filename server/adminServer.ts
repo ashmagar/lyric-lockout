@@ -42,6 +42,15 @@ async function handleRequest(
       send(response, 200, { categories: catalog.categories, issues: catalog.issues });
       return;
     }
+    if (request.method === 'POST' && url.pathname === '/api/categories') {
+      send(response, 201, await store.createCategory(await readJson(request)));
+      return;
+    }
+    if (request.method === 'PUT' && url.pathname.startsWith('/api/categories/')) {
+      const categoryId = decodeURIComponent(url.pathname.slice('/api/categories/'.length));
+      send(response, 200, await store.updateCategory(categoryId, await readJson(request)));
+      return;
+    }
     if (request.method === 'GET' && url.pathname === '/api/songs') {
       const catalog = await store.loadCatalog();
       send(response, 200, { songs: catalog.songs, issues: catalog.issues });

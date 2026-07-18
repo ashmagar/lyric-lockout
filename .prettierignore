@@ -4,5 +4,8 @@ node_modules
 playwright-report
 test-results
 package-lock.json
+data/backups
+data/categories.json
+data/songs
 docs
 prompts/00_Master_Prompt.md
