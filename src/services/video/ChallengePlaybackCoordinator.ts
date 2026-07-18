@@ -12,7 +12,9 @@ export const PLAYBACK_COORDINATOR_STATES = [
   'IDLE',
   'INITIALIZING',
   'READY',
+  'SEEKING_CHALLENGE_PREVIEW',
   'PLAYING_CHALLENGE',
+  'PAUSED_BY_HOST',
   'PAUSED_AT_CHALLENGE',
   'PLAYING_VERIFICATION',
   'VERIFICATION_COMPLETE',
@@ -42,6 +44,7 @@ export interface PlaybackSnapshot {
   playerState: VideoPlayerState;
   currentTimeSeconds: number;
   durationSeconds: number;
+  requestedStartTimeSeconds?: number | undefined;
   actualPauseTimeSeconds?: number | undefined;
   error?: VideoPlayerError | undefined;
 }
@@ -50,6 +53,23 @@ export type PlaybackSnapshotListener = (snapshot: PlaybackSnapshot) => void;
 
 const POLL_INTERVAL_MILLISECONDS = 100;
 const PAUSE_TOLERANCE_SECONDS = 0.15;
+export const CHALLENGE_PREVIEW_LEAD_SECONDS = 5;
+
+export function calculateChallengePreviewStartSeconds(
+  pauseAtSeconds: number,
+  leadSeconds = CHALLENGE_PREVIEW_LEAD_SECONDS,
+): number {
+  if (
+    !Number.isFinite(pauseAtSeconds) ||
+    pauseAtSeconds < 0 ||
+    !Number.isFinite(leadSeconds) ||
+    leadSeconds < 0
+  ) {
+    throw new Error('Challenge preview timestamps must be finite nonnegative numbers');
+  }
+
+  return Math.max(0, pauseAtSeconds - leadSeconds);
+}
 
 function unexpectedError(error: unknown): VideoPlayerError {
   return {
@@ -83,6 +103,7 @@ export class ChallengePlaybackCoordinator {
   #status: PlaybackCoordinatorState = 'IDLE';
   #currentTimeSeconds = 0;
   #durationSeconds = 0;
+  #requestedStartTimeSeconds?: number | undefined;
   #actualPauseTimeSeconds?: number | undefined;
   #error?: VideoPlayerError | undefined;
   #cancelPolling?: (() => void) | undefined;
@@ -108,6 +129,7 @@ export class ChallengePlaybackCoordinator {
       playerState: this.#player.getState(),
       currentTimeSeconds: this.#currentTimeSeconds,
       durationSeconds: this.#durationSeconds,
+      requestedStartTimeSeconds: this.#requestedStartTimeSeconds,
       actualPauseTimeSeconds: this.#actualPauseTimeSeconds,
       error: this.#error,
     };
@@ -144,18 +166,64 @@ export class ChallengePlaybackCoordinator {
 
   playChallenge(): void {
     const config = this.requireConfig();
+    this.startChallengeAt(config.playbackStartSeconds, false);
+  }
+
+  playChallengePreview(): void {
+    const config = this.#config;
+    if (!config || !this.#playerInitialized || this.#status === 'INITIALIZING') {
+      this.fail({
+        code: 'NOT_INITIALIZED',
+        message: 'The preview video is still loading. Wait for Ready, then try again.',
+        recoverable: true,
+      });
+      return;
+    }
+
+    const durationSeconds = this.#player.getDuration();
+    if (durationSeconds > 0 && config.pauseAtSeconds > durationSeconds) {
+      this.fail({
+        code: 'INVALID_PARAMETER',
+        message: `Challenge pause ${config.pauseAtSeconds.toFixed(2)}s is beyond the ${durationSeconds.toFixed(2)}s video duration.`,
+        recoverable: true,
+      });
+      return;
+    }
+
+    this.startChallengeAt(calculateChallengePreviewStartSeconds(config.pauseAtSeconds), true);
+  }
+
+  pauseChallengePreview(): void {
+    if (this.#status !== 'PLAYING_CHALLENGE') return;
+    try {
+      this.#player.pause();
+      this.stopPolling();
+      this.#currentTimeSeconds = this.#player.getCurrentTime();
+      this.#status = 'PAUSED_BY_HOST';
+      this.notify();
+    } catch (error) {
+      this.fail(unexpectedError(error));
+    }
+  }
+
+  private startChallengeAt(startSeconds: number, announceSeeking: boolean): void {
     try {
       this.stopPolling();
       this.stopAnsweringSequence();
       this.#challengePauseTriggered = false;
       this.#verificationEndTriggered = false;
       this.#actualPauseTimeSeconds = undefined;
+      this.#requestedStartTimeSeconds = startSeconds;
       this.#error = undefined;
-      this.#player.seek(config.playbackStartSeconds);
-      this.#player.play();
+      if (announceSeeking) {
+        this.#status = 'SEEKING_CHALLENGE_PREVIEW';
+        this.notify();
+      }
+      this.#player.seek(startSeconds);
       this.#status = 'PLAYING_CHALLENGE';
-      this.#currentTimeSeconds = config.playbackStartSeconds;
+      this.#currentTimeSeconds = startSeconds;
       this.startPolling();
+      this.#player.play();
       this.notify();
     } catch (error) {
       this.fail(unexpectedError(error));

@@ -81,8 +81,18 @@ export function AdminChallengePreview({
         {fakeMedia && <span>Deterministic preview player</span>}
       </div>
       <div className={styles.previewControls}>
+        <button onClick={() => coordinatorRef.current?.playChallengePreview()} type="button">
+          Jump to challenge (-5s)
+        </button>
         <button onClick={() => coordinatorRef.current?.playChallenge()} type="button">
           Play challenge preview
+        </button>
+        <button
+          disabled={snapshot.status !== 'PLAYING_CHALLENGE'}
+          onClick={() => coordinatorRef.current?.pauseChallengePreview()}
+          type="button"
+        >
+          Pause preview
         </button>
         <button onClick={() => coordinatorRef.current?.playVerification()} type="button">
           Play verification preview
@@ -93,6 +103,11 @@ export function AdminChallengePreview({
         <button onClick={() => coordinatorRef.current?.restart()} type="button">
           Restart preview
         </button>
+        {snapshot.error?.recoverable && (
+          <button onClick={() => void coordinatorRef.current?.retry()} type="button">
+            Retry preview
+          </button>
+        )}
         {fakeMedia && (
           <button
             onClick={() => fakePlayerRef.current?.setCurrentTime(challenge.pauseAtSeconds)}
@@ -105,11 +120,25 @@ export function AdminChallengePreview({
       <dl className={styles.previewDiagnostics}>
         <div>
           <dt>Lifecycle</dt>
-          <dd>{snapshot.status}</dd>
+          <dd aria-live="polite">{snapshot.status}</dd>
         </div>
         <div>
           <dt>Current</dt>
           <dd>{snapshot.currentTimeSeconds.toFixed(2)}s</dd>
+        </div>
+        <div>
+          <dt>Requested start</dt>
+          <dd>
+            {snapshot.requestedStartTimeSeconds === undefined
+              ? 'Not requested'
+              : `${snapshot.requestedStartTimeSeconds.toFixed(2)}s`}
+          </dd>
+        </div>
+        <div>
+          <dt>Duration</dt>
+          <dd>
+            {snapshot.durationSeconds > 0 ? `${snapshot.durationSeconds.toFixed(2)}s` : 'Unknown'}
+          </dd>
         </div>
         <div>
           <dt>Actual pause</dt>

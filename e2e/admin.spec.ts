@@ -63,6 +63,10 @@ test('a host authors, previews, saves, and deletes a disabled song draft', async
   await page.getByRole('button', { name: 'Add challenge' }).click();
 
   await expect(page.getByLabel('Challenge preview')).toBeVisible();
+  await page.getByRole('button', { name: 'Jump to challenge (-5s)' }).click();
+  await expect(page.getByText('PLAYING_CHALLENGE')).toBeVisible();
+  await page.getByRole('button', { name: 'Pause preview' }).click();
+  await expect(page.getByText('PAUSED_BY_HOST')).toBeVisible();
   await page.getByRole('button', { name: 'Play challenge preview' }).click();
   await expect(page.getByText('PLAYING_CHALLENGE')).toBeVisible();
 

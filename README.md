@@ -232,6 +232,12 @@ zero-based `hiddenWordIndexes`. Editing the lyric text clears the old selection 
 Older challenges without this field intentionally render with every lyric word hidden and are
 migrated to that explicit selection when reopened and saved in Admin.
 
+Milestone 11.5 Part 4 adds **Jump to challenge (-5s)** to the isolated Admin preview. The playback
+coordinator calculates the clamped seek target, starts normal challenge playback, and uses the same
+polling path to pause at the configured timestamp. Preview diagnostics show the requested start,
+duration, lifecycle, actual pause, and deviation; readiness, duration, seeking, playback, and
+autoplay errors remain visible and recoverable without changing game-session state.
+
 Coverage and validation views expose catalog gaps and file/schema issues. Import validates the
 entire candidate set before replacing files; export can download either the whole catalog or a
 single song. Save, update, delete, and import writes use temporary files or directories and atomic
@@ -278,6 +284,16 @@ Node API that owns those operations. Its data root defaults to `data` and can be
 4. Start a fake-media game using the challenge. After the video pauses, confirm visible lyric words
    and one fixed-width blank per selected hidden word appear in both primary and steal answering.
 5. Complete the answer decisions and confirm verification reveals the full acceptable lyrics.
+
+### Manual jump-to-challenge test
+
+1. Restart `npm run admin`, open a song challenge, and set its pause timestamp to at least 10 seconds.
+2. Wait for the preview lifecycle to show **READY**, then click **Jump to challenge (-5s)**.
+3. Confirm **Requested start** is five seconds before the pause timestamp and playback begins there.
+4. Confirm playback automatically reaches **PAUSED_AT_CHALLENGE** and records its timing deviation.
+5. Set the pause timestamp below five seconds and confirm the requested start is `0.00s`.
+6. Use **Pause preview**, normal challenge playback, verification playback, restart, and retry to
+   confirm the existing preview workflow remains available and isolated from an active game.
 
 ## Theme foundation
 

@@ -280,11 +280,13 @@ describe('Admin authoring domain and editor', () => {
     );
   });
 
-  it('runs preview through the real playback lifecycle and reports pause deviation', async () => {
+  it('jumps five seconds before the challenge through the real pause lifecycle', async () => {
     const player = new FakeVideoPlayerService();
     const scheduler = new ManualScheduler();
     const user = userEvent.setup();
     const song = validSong();
+    song.challenges[0]!.pauseAtSeconds = 65;
+    song.challenges[0]!.verifyToSeconds = 67;
     render(
       <AdminChallengePreview
         challenge={song.challenges[0]!}
@@ -294,15 +296,46 @@ describe('Admin authoring domain and editor', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Play challenge preview' }));
+    await user.click(screen.getByRole('button', { name: 'Jump to challenge (-5s)' }));
+
+    expect(player.seekRequests).toEqual([60]);
+    expect(
+      within(screen.getByText('Requested start').parentElement!).getByText('60.00s'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('PLAYING_CHALLENGE')).toBeInTheDocument();
+
     act(() => {
-      player.setCurrentTime(10.05);
+      player.setCurrentTime(65.05);
       scheduler.run();
     });
 
     expect(player.pauseCallCount).toBe(1);
     expect(screen.getByText('PAUSED_AT_CHALLENGE')).toBeInTheDocument();
     expect(screen.getByText('0.05s')).toBeInTheDocument();
+  });
+
+  it('shows a useful error when the challenge pause is beyond the video duration', async () => {
+    const player = new FakeVideoPlayerService();
+    player.duration = 50;
+    const user = userEvent.setup();
+    const song = validSong();
+    song.challenges[0]!.pauseAtSeconds = 65;
+    song.challenges[0]!.verifyToSeconds = 67;
+    render(
+      <AdminChallengePreview
+        challenge={song.challenges[0]!}
+        createPlayer={() => player}
+        scheduler={new ManualScheduler()}
+        song={song}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Jump to challenge (-5s)' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Challenge pause 65.00s is beyond the 50.00s video duration.',
+    );
+    expect(screen.getByRole('button', { name: 'Retry preview' })).toBeVisible();
   });
 });
 
