@@ -4,6 +4,7 @@ import sampleGamePlanData from '../../data/game-plans/sample-game-plan.json';
 import { DEFAULT_GAME_CONFIG } from '../domain/constants';
 import {
   applyTurnScore,
+  assignCategory,
   calculateTurnScore,
   classifyPrimaryAnswer,
   classifyStealAnswer,
@@ -11,6 +12,7 @@ import {
   confirmChallenge,
   createGame,
   GameRuleError,
+  getCategoryConsumptionRecord,
   overrideTurnScore,
   recommendTurnScore,
   recordLevelOrder,
@@ -181,6 +183,40 @@ describe('game creation and category rules', () => {
       expect(session.consumedCategoryIds).toEqual([CATEGORY_IDS[0]]);
     },
   );
+
+  it('derives team attribution only after the assigned category is committed', () => {
+    let session = startPrimaryTurn(beginLevel(createSession()), {
+      teamId: 'team-a',
+      turnId: 'turn-consumption',
+      attemptId: 'attempt-consumption',
+      startedAt: TIMESTAMP,
+    });
+    session = assignCategory(session, {
+      assignmentRecordId: 'assignment-consumption',
+      assignmentMode: 'SELF_SELECTED',
+      categoryId: CATEGORY_IDS[0]!,
+      assignedAt: TIMESTAMP,
+    });
+
+    expect(getCategoryConsumptionRecord(session, CATEGORY_IDS[0]!)).toBeUndefined();
+
+    session = confirmChallenge(session, {
+      assignmentRecordId: 'assignment-consumption',
+      assignmentMode: 'SELF_SELECTED',
+      challengeReference: {
+        songId: 'song-consumption',
+        challengeId: 'challenge-consumption',
+        categoryId: CATEGORY_IDS[0]!,
+        difficulty: 1,
+      },
+      confirmedAt: TIMESTAMP,
+    });
+
+    expect(getCategoryConsumptionRecord(session, CATEGORY_IDS[0]!)).toMatchObject({
+      categoryId: CATEGORY_IDS[0],
+      teamId: 'team-a',
+    });
+  });
 
   it('never resets consumed categories between levels and rejects reuse', () => {
     let session = playPerfectLevel(createSession());

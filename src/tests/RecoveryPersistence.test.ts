@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { getCategoryConsumptionRecord } from '../domain';
 import { LocalStorageGameSessionRepository, type GameSessionRepository } from '../repositories';
 import { configureGameplayRepository, useGameplayStore } from '../store/gameplayStore';
 
@@ -135,6 +136,21 @@ describe('gameplay refresh recovery', () => {
     expect(repository.loadActiveSession()).toMatchObject({
       status: 'VALID',
       session: { id: savedId },
+    });
+  });
+
+  it('restores committed category consumption with its team attribution', () => {
+    reachPlayback();
+
+    const restored = simulateReloadAndResume();
+    const consumption = restored
+      ? getCategoryConsumptionRecord(restored, '90s-bollywood')
+      : undefined;
+
+    expect(restored?.consumedCategoryIds).toContain('90s-bollywood');
+    expect(consumption).toMatchObject({
+      categoryId: '90s-bollywood',
+      teamId: 'team-a',
     });
   });
 });

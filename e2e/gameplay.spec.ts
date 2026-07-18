@@ -150,6 +150,15 @@ test('a host completes all five levels with fake media and every critical branch
             : 'PERFECT';
       await resolveAnswer(page, path);
       await finishTurn(page, level === 2 && turn === 0 ? 200 : undefined);
+
+      if (level === 1 && turn === 0) {
+        await expect(page.locator('[data-category-state]')).toHaveCount(10);
+        const consumed = page.locator('[data-category-state="CONSUMED"]');
+        await expect(consumed).toHaveCount(1);
+        await expect(consumed).toBeDisabled();
+        await expect(consumed).toContainText('90s Bollywood');
+        await expect(consumed).toContainText('Used by Alpha');
+      }
     }
 
     if (level < 5) {

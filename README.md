@@ -220,6 +220,12 @@ and remain read-only so renaming a category cannot break song, Game Plan, or ses
 Category changes are saved through the local Admin API with a backup and atomic replacement of
 `data/categories.json`; unsafe category deletion remains intentionally unavailable.
 
+Milestone 11.5 Part 2 keeps every configured category visible throughout category selection.
+Committed categories remain in their original round order, show a checkmark and the consuming team,
+and use a semantically disabled button so they cannot be selected again. Attribution is derived from
+the existing persisted category history, so saved games require no migration and retain the same
+information after recovery.
+
 Coverage and validation views expose catalog gaps and file/schema issues. Import validates the
 entire candidate set before replacing files; export can download either the whole catalog or a
 single song. Save, update, delete, and import writes use temporary files or directories and atomic
@@ -244,6 +250,16 @@ Node API that owns those operations. Its data root defaults to `data` and can be
    not change and that the category remains after refreshing Admin.
 8. Stop the Admin API and refresh. Confirm the authoring workspace reports it is offline while
    `/game` remains available.
+
+### Manual consumed-category test
+
+1. Start a fake-media game and select the first category for Alpha.
+2. Lock and complete the challenge through the turn summary.
+3. On the second category selection, confirm all ten categories are still shown in the same order.
+4. Confirm the first category says **Used by Alpha**, displays a checkmark, and cannot be clicked.
+5. Confirm every remaining category is still selectable.
+6. Refresh during the active game, resume, and continue to category selection; confirm the same
+   consumed state and team attribution remain.
 
 ## Theme foundation
 

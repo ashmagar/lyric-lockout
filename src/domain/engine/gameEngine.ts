@@ -3,6 +3,7 @@ import type { AnswerResult, CategoryAssignmentMode, DifficultyLevel } from '../e
 import type { AnswerAttempt } from '../models/attempt';
 import type {
   ActiveTurn,
+  CategorySelectionRecord,
   ChallengeReference,
   GameConfig,
   GameSession,
@@ -292,6 +293,18 @@ export function selectRandomAvailableCategory(session: GameSession, random: Rand
     (categoryId) => !session.consumedCategoryIds.includes(categoryId),
   );
   return selectRandomItem(available, random);
+}
+
+export function getCategoryConsumptionRecord(
+  session: GameSession,
+  categoryId: string,
+): CategorySelectionRecord | undefined {
+  if (!session.consumedCategoryIds.includes(categoryId)) return undefined;
+  for (let index = session.categoryHistory.length - 1; index >= 0; index -= 1) {
+    const record = session.categoryHistory[index];
+    if (record?.categoryId === categoryId) return record;
+  }
+  return undefined;
 }
 
 export function assignCategory(session: GameSession, input: AssignCategoryInput): GameSession {

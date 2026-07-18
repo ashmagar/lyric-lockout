@@ -330,8 +330,8 @@ button:disabled {
   border-radius: 1rem;
 }
 
-.categoryCard span,
-.categoryButton span {
+.categoryCard > span,
+.categoryButton > span {
   font-size: 1.5rem;
 }
 
@@ -339,6 +339,34 @@ button:disabled {
   color: var(--color-text);
   cursor: pointer;
   font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.categoryButton strong {
+  font-size: 0.82rem;
+}
+
+.categoryButton:disabled {
+  opacity: 0.68;
+}
+
+.consumedCategory {
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  border-style: dashed;
+  filter: grayscale(0.72);
+}
+
+.currentCategory {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+.categoryStatus {
+  display: inline-flex;
+  justify-content: center;
+  gap: var(--space-1);
+  font-size: 0.68rem;
   font-weight: 850;
 }
 

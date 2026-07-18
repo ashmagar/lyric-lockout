@@ -1,8 +1,9 @@
 import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { getWinningTeams } from '../../domain/engine';
+import { getCategoryConsumptionRecord, getWinningTeams } from '../../domain/engine';
 import type { AnswerResult, CategoryAssignmentMode, LifelineType } from '../../domain/enums';
+import type { Category } from '../../domain/models/catalog';
 import type { GameSession } from '../../domain/models/game';
 import type { ScoreBreakdown } from '../../domain/models/score';
 import type { TimerSnapshot } from '../../services/timer';
@@ -25,6 +26,71 @@ const ASSIGNMENT_LABELS: Record<CategoryAssignmentMode, string> = {
   OPPONENT_ASSIGNED: 'Opponent assigns',
   HOST_ASSIGNED: 'Host assigns',
 };
+
+interface CategoryAssignmentGridProps {
+  assignmentMode: CategoryAssignmentMode;
+  categories: readonly Category[];
+  onAssign: (categoryId: string, assignmentMode: CategoryAssignmentMode) => void;
+  session: GameSession;
+}
+
+export function CategoryAssignmentGrid({
+  assignmentMode,
+  categories,
+  onAssign,
+  session,
+}: CategoryAssignmentGridProps) {
+  const categoriesById = new Map(categories.map((category) => [category.id, category]));
+  const configuredCategories = session.roundConfig.selectedCategoryIds.flatMap((categoryId) => {
+    const category = categoriesById.get(categoryId);
+    return category ? [category] : [];
+  });
+
+  return (
+    <div className={styles.categoryGrid}>
+      {configuredCategories.map((category) => {
+        const isConsumed = session.consumedCategoryIds.includes(category.id);
+        const consumption = getCategoryConsumptionRecord(session, category.id);
+        const consumingTeam = session.teams.find((team) => team.id === consumption?.teamId);
+        const isCurrent = !isConsumed && session.activeTurn?.categoryId === category.id;
+        const state = isConsumed
+          ? 'CONSUMED'
+          : isCurrent
+            ? 'CURRENT'
+            : category.enabled
+              ? 'AVAILABLE'
+              : 'DISABLED';
+        return (
+          <button
+            className={[
+              styles.categoryButton,
+              isConsumed ? styles.consumedCategory : '',
+              isCurrent ? styles.currentCategory : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            data-category-state={state}
+            disabled={isConsumed || !category.enabled}
+            key={category.id}
+            onClick={() => onAssign(category.id, assignmentMode)}
+            type="button"
+          >
+            <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
+            <strong>{category.name}</strong>
+            {isConsumed && (
+              <small className={styles.categoryStatus}>
+                <span aria-hidden="true">✓</span> Used by {consumingTeam?.name ?? 'unknown team'}
+              </small>
+            )}
+            {!isConsumed && !category.enabled && (
+              <small className={styles.categoryStatus}>Unavailable</small>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function downloadRecoveryData(data: string) {
   const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
@@ -592,9 +658,6 @@ function PhaseStage(props: PhaseStageProps) {
         </Stage>
       );
     case 'CATEGORY_ASSIGNMENT': {
-      const availableCategories = GAMEPLAY_CATEGORIES.filter(
-        (category) => !session.consumedCategoryIds.includes(category.id),
-      );
       return (
         <Stage
           eyebrow={`${activeTeam?.name ?? 'Team'} · category`}
@@ -614,19 +677,12 @@ function PhaseStage(props: PhaseStageProps) {
               ))}
             </select>
           </label>
-          <div className={styles.categoryGrid}>
-            {availableCategories.map((category) => (
-              <button
-                className={styles.categoryButton}
-                key={category.id}
-                onClick={() => assignCategory(category.id, assignmentMode)}
-                type="button"
-              >
-                <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
-                {category.name}
-              </button>
-            ))}
-          </div>
+          <CategoryAssignmentGrid
+            assignmentMode={assignmentMode}
+            categories={GAMEPLAY_CATEGORIES}
+            onAssign={assignCategory}
+            session={session}
+          />
         </Stage>
       );
     }
