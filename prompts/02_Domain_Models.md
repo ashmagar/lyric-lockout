@@ -10,7 +10,7 @@ Read `docs/01_Game_Design_Document.md`, Engineering Specification sections 13–
 
 Implement pure TypeScript enumerations and authoritative data models for Song, Category, Challenge, TeamState, GameConfig, RoundCreationConfig, ManualChallengePool, GamePlan, GameSession, AnswerAttempt, timer state, score models, lifelines, challenge references, and HostOverride. Add independent schema-version constants and Zod schemas for persisted/catalog boundaries. Add ten sample categories, sample songs, one sample Game Plan, and one isolated demo challenge.
 
-Encode Day Party as the default with optional Game Night; exact timers `30/45/60/90/120`; exact full points `100/200/300/400/500`; one free Hint and Ask a Friend per team; and a 25-point additional-use penalty.
+Encode Day Party as the default with optional Game Night; exact timers `30/45/60/90/120`; exact full points `100/200/300/400/500`; one free Hint and Team Huddle per team; and a 25-point additional-use penalty.
 
 Do not implement progression, scoring functions, command processing, the state machine, or new UI.
 

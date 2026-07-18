@@ -408,16 +408,16 @@ function LifelineButtons({
   const team = session.teams.find((candidate) => candidate.id === teamId);
   if (!team) return null;
   const label = (type: LifelineType) => {
-    const count = type === 'HINT' ? team.lifelines.hintUseCount : team.lifelines.askFriendUseCount;
-    return `${type === 'HINT' ? 'Hint' : 'Ask a Friend'} · ${count === 0 ? 'Free' : '−25'}`;
+    const count = type === 'HINT' ? team.lifelines.hintUseCount : team.lifelines.teamHuddleUseCount;
+    return `${type === 'HINT' ? 'Hint' : 'Team Huddle'} · ${count === 0 ? 'Free' : '−25'}`;
   };
   return (
     <div className={styles.lifelineRow} aria-label="Contextual lifelines">
       <button onClick={() => activateLifeline(teamId, 'HINT')} type="button">
         {label('HINT')}
       </button>
-      <button onClick={() => activateLifeline(teamId, 'ASK_FRIEND')} type="button">
-        {label('ASK_FRIEND')}
+      <button onClick={() => activateLifeline(teamId, 'TEAM_HUDDLE')} type="button">
+        {label('TEAM_HUDDLE')}
       </button>
     </div>
   );
@@ -779,8 +779,8 @@ function PhaseStage(props: PhaseStageProps) {
       );
     case 'PRIMARY_ANSWERING': {
       const hintUsed = turn?.primaryAttempt?.lifelinesUsed.some((usage) => usage.type === 'HINT');
-      const askFriendUsed = turn?.primaryAttempt?.lifelinesUsed.some(
-        (usage) => usage.type === 'ASK_FRIEND',
+      const teamHuddleUsed = turn?.primaryAttempt?.lifelinesUsed.some(
+        (usage) => usage.type === 'TEAM_HUDDLE',
       );
       return (
         <Stage
@@ -803,8 +803,8 @@ function PhaseStage(props: PhaseStageProps) {
             activateLifeline={activateLifeline}
           />
           {hintUsed && <p className={styles.reveal}>Hint: {challenge?.challenge.hintText}</p>}
-          {askFriendUsed && (
-            <p className={styles.reveal}>Ask a Friend is active — invite one helper now.</p>
+          {teamHuddleUsed && (
+            <p className={styles.reveal}>Team Huddle is active — confer with your teammates now.</p>
           )}
           <AnswerButtons onClassify={(result) => send({ type: 'CLASSIFY_PRIMARY', result })} />
         </Stage>

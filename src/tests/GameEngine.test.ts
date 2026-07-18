@@ -383,7 +383,7 @@ describe('scoring matrix', () => {
 });
 
 describe('lifelines', () => {
-  it('keeps Hint and Ask a Friend counters separate with free then paid uses', () => {
+  it('keeps Hint and Team Huddle counters separate with free then paid uses', () => {
     let session = beginExpectedTurn(beginLevel(createSession()));
 
     const firstHint = useLifeline(session, {
@@ -425,33 +425,33 @@ describe('lifelines', () => {
     session = thirdHint.session;
     expect(thirdHint.usage).toMatchObject({ usageNumber: 3, wasFree: false, penaltyPoints: 25 });
 
-    const firstFriend = useLifeline(session, {
+    const firstHuddle = useLifeline(session, {
       teamId: 'team-a',
-      type: 'ASK_FRIEND',
-      usageId: 'friend-1',
+      type: 'TEAM_HUDDLE',
+      usageId: 'huddle-1',
       usedAt: TIMESTAMP,
     });
-    session = firstFriend.session;
-    expect(firstFriend.usage).toMatchObject({ usageNumber: 1, wasFree: true, penaltyPoints: 0 });
-    expect(session.teams[0].lifelines).toEqual({ hintUseCount: 3, askFriendUseCount: 1 });
+    session = firstHuddle.session;
+    expect(firstHuddle.usage).toMatchObject({ usageNumber: 1, wasFree: true, penaltyPoints: 0 });
+    expect(session.teams[0].lifelines).toEqual({ hintUseCount: 3, teamHuddleUseCount: 1 });
 
-    const secondFriend = useLifeline(session, {
+    const secondHuddle = useLifeline(session, {
       teamId: 'team-a',
-      type: 'ASK_FRIEND',
-      usageId: 'friend-2',
+      type: 'TEAM_HUDDLE',
+      usageId: 'huddle-2',
       usedAt: TIMESTAMP,
       confirmPaidUse: true,
     });
-    expect(secondFriend.usage.penaltyPoints).toBe(25);
+    expect(secondHuddle.usage.penaltyPoints).toBe(25);
 
-    const thirdFriend = useLifeline(secondFriend.session, {
+    const thirdHuddle = useLifeline(secondHuddle.session, {
       teamId: 'team-a',
-      type: 'ASK_FRIEND',
-      usageId: 'friend-3',
+      type: 'TEAM_HUDDLE',
+      usageId: 'huddle-3',
       usedAt: TIMESTAMP,
       confirmPaidUse: true,
     });
-    expect(thirdFriend.usage).toMatchObject({ usageNumber: 3, wasFree: false, penaltyPoints: 25 });
+    expect(thirdHuddle.usage).toMatchObject({ usageNumber: 3, wasFree: false, penaltyPoints: 25 });
   });
 
   it('applies paid lifeline penalties to the current score recommendation', () => {

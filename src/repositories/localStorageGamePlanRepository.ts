@@ -2,7 +2,8 @@ import type { GamePlan } from '../domain';
 import { GAME_PLANS_ENVELOPE_VERSION, gamePlanSchema, gamePlansEnvelopeSchema } from '../schemas';
 import type { GamePlanLoadResult, GamePlanRepository } from './gamePlanRepository';
 
-export const GAME_PLANS_STORAGE_KEY = 'lyric-lockout.game-plans';
+export const LEGACY_GAME_PLANS_STORAGE_KEY = 'lyric-lockout.game-plans';
+export const GAME_PLANS_STORAGE_KEY = 'lyric-lockout.v2.game-plans';
 
 function readVersion(value: unknown): number | undefined {
   if (
@@ -23,6 +24,7 @@ export class LocalStorageGamePlanRepository implements GamePlanRepository {
   ) {}
 
   loadPlans(): GamePlanLoadResult {
+    this.storage.removeItem(LEGACY_GAME_PLANS_STORAGE_KEY);
     const raw = this.storage.getItem(GAME_PLANS_STORAGE_KEY);
     if (raw === null) return { status: 'EMPTY', plans: [] };
 

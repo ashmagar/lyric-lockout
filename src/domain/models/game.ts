@@ -16,7 +16,7 @@ import type { TeamState } from './team';
 
 export interface GameConfig {
   freeHintUsesPerTeam: number;
-  freeAskFriendUsesPerTeam: number;
+  freeTeamHuddleUsesPerTeam: number;
   additionalLifelinePenaltyPoints: number;
   fullPointsByDifficulty: Record<DifficultyLevel, number>;
   answerSecondsByDifficulty: Record<DifficultyLevel, number>;

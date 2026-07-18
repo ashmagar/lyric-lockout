@@ -97,7 +97,7 @@ function createTeam(identity: TeamIdentity): TeamState {
     score: 0,
     lifelines: {
       hintUseCount: 0,
-      askFriendUseCount: 0,
+      teamHuddleUseCount: 0,
     },
     primaryChallengeCount: 0,
     stealAttemptCount: 0,

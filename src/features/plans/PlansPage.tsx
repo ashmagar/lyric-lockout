@@ -320,7 +320,7 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
             />
           </label>
           <label>
-            Free Ask a Friend uses
+            Free Team Huddle uses
             <input
               min="0"
               onChange={(event) =>
@@ -328,12 +328,12 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
                   ...current,
                   gameConfig: {
                     ...current.gameConfig,
-                    freeAskFriendUsesPerTeam: Number(event.target.value),
+                    freeTeamHuddleUsesPerTeam: Number(event.target.value),
                   },
                 }))
               }
               type="number"
-              value={draft.gameConfig.freeAskFriendUsesPerTeam}
+              value={draft.gameConfig.freeTeamHuddleUsesPerTeam}
             />
           </label>
           <label>

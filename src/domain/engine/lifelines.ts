@@ -49,11 +49,11 @@ export function useLifeline(session: GameSession, input: UseLifelineInput): UseL
 
   const team = getTeam(session, input.teamId);
   const currentUseCount =
-    input.type === 'HINT' ? team.lifelines.hintUseCount : team.lifelines.askFriendUseCount;
+    input.type === 'HINT' ? team.lifelines.hintUseCount : team.lifelines.teamHuddleUseCount;
   const freeUseCount =
     input.type === 'HINT'
       ? session.gameConfig.freeHintUsesPerTeam
-      : session.gameConfig.freeAskFriendUsesPerTeam;
+      : session.gameConfig.freeTeamHuddleUsesPerTeam;
   const usageNumber = currentUseCount + 1;
   const wasFree = usageNumber <= freeUseCount;
 
@@ -81,7 +81,7 @@ export function useLifeline(session: GameSession, input: UseLifelineInput): UseL
       ...currentTeam.lifelines,
       ...(input.type === 'HINT'
         ? { hintUseCount: usageNumber }
-        : { askFriendUseCount: usageNumber }),
+        : { teamHuddleUseCount: usageNumber }),
     },
   }));
 

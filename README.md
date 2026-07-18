@@ -174,6 +174,10 @@ answer timers restore paused with their calculated remaining time, and suspense 
 media never autoplay after refresh. If browser storage fails, gameplay continues in memory and the
 host can export the current session as JSON.
 
+The Team Huddle internal rename advances active games and completed summaries to version 2 Local
+Storage keys. On first load, the repositories remove the old version 1 testing keys instead of
+migrating them; song and category catalog files are unaffected.
+
 ### Manual refresh recovery test
 
 1. Run `npm run dev` and open `http://localhost:5173/game?media=fake`.
@@ -196,6 +200,9 @@ Starting a plan validates it against the current catalog and creates a new detac
 Invalid plans cannot start. Plans with warnings require explicit host acceptance. Later plan edits
 cannot alter an active game, and each reuse creates fresh teams, scores, category history, and stable
 session identity.
+
+Game Plans also use a version 2 Local Storage key after the Team Huddle rename. Version 1 testing
+plans are removed on first load and are intentionally not migrated.
 
 ### Manual Saved Game Plan test
 

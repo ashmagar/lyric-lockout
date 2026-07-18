@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "plan-sample-day-party",
   "name": "Sample Day Party",
   "description": "A ten-category starter plan for validating the Milestone 2 data contract.",
@@ -29,7 +29,7 @@
   },
   "gameConfig": {
     "freeHintUsesPerTeam": 1,
-    "freeAskFriendUsesPerTeam": 1,
+    "freeTeamHuddleUsesPerTeam": 1,
     "additionalLifelinePenaltyPoints": 25,
     "fullPointsByDifficulty": {
       "1": 100,

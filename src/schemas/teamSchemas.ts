@@ -5,7 +5,7 @@ import { idSchema, nonBlankStringSchema, nonNegativeIntegerSchema } from './comm
 
 export const teamLifelineStateSchema: z.ZodType<TeamLifelineState> = z.object({
   hintUseCount: nonNegativeIntegerSchema,
-  askFriendUseCount: nonNegativeIntegerSchema,
+  teamHuddleUseCount: nonNegativeIntegerSchema,
 });
 
 export const teamStateSchema: z.ZodType<TeamState> = z.object({

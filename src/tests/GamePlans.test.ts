@@ -10,7 +10,11 @@ import {
 } from '../domain';
 import { getCatalogCandidates } from '../domain/catalog';
 import { GAMEPLAY_CATALOG_INDEX } from '../features/game/gameplayCatalog';
-import { GAME_PLANS_STORAGE_KEY, LocalStorageGamePlanRepository } from '../repositories';
+import {
+  GAME_PLANS_STORAGE_KEY,
+  LEGACY_GAME_PLANS_STORAGE_KEY,
+  LocalStorageGamePlanRepository,
+} from '../repositories';
 import { configureGamePlanRepository, useGamePlanStore } from '../store/gamePlanStore';
 
 const TIMESTAMP = '2026-07-16T20:00:00.000Z';
@@ -202,6 +206,13 @@ describe('Saved Game Plan repository and store', () => {
       repository.loadPlans().plans.find((candidate) => candidate.id === curated.id)?.roundConfig
         .manualChallengePools[0]?.approvedChallengeIdsByDifficulty[1],
     ).toHaveLength(2);
+  });
+
+  it('clears version 1 Game Plan storage on first load', () => {
+    storage.setItem(LEGACY_GAME_PLANS_STORAGE_KEY, '{"legacy":"plans"}');
+
+    expect(repository.loadPlans()).toEqual({ status: 'EMPTY', plans: [] });
+    expect(storage.getItem(LEGACY_GAME_PLANS_STORAGE_KEY)).toBeNull();
   });
 
   it('store duplication persists a new plan ID', () => {

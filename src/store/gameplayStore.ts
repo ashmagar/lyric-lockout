@@ -95,7 +95,7 @@ function getRepository(): GameSessionRepository {
 
 function completedSummary(session: GameSession): CompletedGameSummary {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     gameId: session.id,
     completedAt: session.completedAt ?? session.updatedAt,
     teams: session.teams.map(({ id, name, score }) => ({ id, name, score })),

@@ -138,6 +138,8 @@ test('a host completes all five levels with fake media and every critical branch
       if (level === 1 && turn === 0) {
         await page.getByRole('button', { name: /Hint.*Free/ }).click();
         await expect(page.getByText(/Hint: The final word rhymes with light/)).toBeVisible();
+        await page.getByRole('button', { name: /Team Huddle.*Free/ }).click();
+        await expect(page.getByText(/Team Huddle is active/)).toBeVisible();
       }
       if (level === 2 && turn === 0) {
         await page.getByRole('button', { name: /Hint.*25/ }).click();

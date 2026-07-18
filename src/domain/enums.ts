@@ -38,7 +38,7 @@ export type AnswerResult = (typeof ANSWER_RESULTS)[number];
 export const ATTEMPT_TYPES = ['PRIMARY', 'STEAL'] as const;
 export type AttemptType = (typeof ATTEMPT_TYPES)[number];
 
-export const LIFELINE_TYPES = ['HINT', 'ASK_FRIEND'] as const;
+export const LIFELINE_TYPES = ['HINT', 'TEAM_HUDDLE'] as const;
 export type LifelineType = (typeof LIFELINE_TYPES)[number];
 
 export const SELECTION_MODES = ['RANDOM', 'MANUAL'] as const;

@@ -46,7 +46,7 @@ const difficultyValueMapSchema = z.object({
 
 export const gameConfigSchema: z.ZodType<GameConfig> = z.object({
   freeHintUsesPerTeam: nonNegativeIntegerSchema,
-  freeAskFriendUsesPerTeam: nonNegativeIntegerSchema,
+  freeTeamHuddleUsesPerTeam: nonNegativeIntegerSchema,
   additionalLifelinePenaltyPoints: nonNegativeIntegerSchema,
   fullPointsByDifficulty: difficultyValueMapSchema,
   answerSecondsByDifficulty: difficultyValueMapSchema,

@@ -137,7 +137,7 @@ Host may override any score.
 Each team receives:
 
 - 1 free Hint
-- 1 free Ask a Friend
+- 1 free Team Huddle
 
 After that:
 
@@ -313,7 +313,7 @@ Authoritative rules:
 - Ten categories
 - Categories consumed permanently
 - One free Hint
-- One free Ask a Friend
+- One free Team Huddle
 - Unlimited paid lifelines (-25)
 - Perfect blocks steal
 - Mostly Correct and Wrong allow steal

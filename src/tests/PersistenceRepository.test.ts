@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { createGame } from '../domain';
-import { ACTIVE_GAME_STORAGE_KEY, LocalStorageGameSessionRepository } from '../repositories';
+import {
+  ACTIVE_GAME_STORAGE_KEY,
+  LEGACY_ACTIVE_GAME_STORAGE_KEY,
+  LEGACY_COMPLETED_GAMES_STORAGE_KEY,
+  LocalStorageGameSessionRepository,
+} from '../repositories';
 import { GAMEPLAY_ROUND_CONFIG } from '../features/game/gameplayCatalog';
 
 class MemoryStorage implements Storage {
@@ -62,9 +67,20 @@ describe('LocalStorageGameSessionRepository', () => {
       session: { id: 'game-one', phase: 'GAME_SETUP' },
     });
     expect(JSON.parse(storage.getItem(ACTIVE_GAME_STORAGE_KEY) ?? '{}')).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       type: 'GAME_SESSION',
     });
+  });
+
+  it('clears version 1 active and completed game storage on first load', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(LEGACY_ACTIVE_GAME_STORAGE_KEY, '{"legacy":"active"}');
+    storage.setItem(LEGACY_COMPLETED_GAMES_STORAGE_KEY, '{"legacy":"completed"}');
+    const repository = new LocalStorageGameSessionRepository(storage);
+
+    expect(repository.loadActiveSession()).toEqual({ status: 'EMPTY' });
+    expect(storage.getItem(LEGACY_ACTIVE_GAME_STORAGE_KEY)).toBeNull();
+    expect(storage.getItem(LEGACY_COMPLETED_GAMES_STORAGE_KEY)).toBeNull();
   });
 
   it('preserves and reports corrupt and unsupported active data', () => {
@@ -105,7 +121,7 @@ describe('LocalStorageGameSessionRepository', () => {
     const storage = new MemoryStorage();
     const repository = new LocalStorageGameSessionRepository(storage);
     const summary = {
-      schemaVersion: 1 as const,
+      schemaVersion: 2 as const,
       gameId: 'game-one',
       completedAt: '2026-07-16T19:00:00.000Z',
       teams: [

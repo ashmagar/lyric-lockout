@@ -140,8 +140,8 @@ Test every matrix branch at all five levels.
 
 - first Hint free;
 - second and later Hint cost 25;
-- first Ask a Friend free;
-- second and later Ask a Friend cost 25;
+- first Team Huddle free;
+- second and later Team Huddle uses cost 25;
 - counters separate;
 - uses persist across levels.
 

@@ -10,7 +10,7 @@ import {
   DEFAULT_GAME_CONFIG,
   DEFAULT_THEME,
   DIFFICULTY_CONFIG,
-  FREE_ASK_FRIEND_USES_PER_TEAM,
+  FREE_TEAM_HUDDLE_USES_PER_TEAM,
   FREE_HINT_USES_PER_TEAM,
   SCHEMA_VERSIONS,
 } from '../domain/constants';
@@ -34,7 +34,7 @@ function createTeam(id: string, name: string): TeamState {
     score: 0,
     lifelines: {
       hintUseCount: 0,
-      askFriendUseCount: 0,
+      teamHuddleUseCount: 0,
     },
     primaryChallengeCount: 0,
     stealAttemptCount: 0,
@@ -249,10 +249,10 @@ describe('frozen defaults', () => {
     expect(DEFAULT_THEME).toBe('DAY_PARTY');
     expect(THEME_NAMES).toEqual(['DAY_PARTY', 'GAME_NIGHT']);
     expect(FREE_HINT_USES_PER_TEAM).toBe(1);
-    expect(FREE_ASK_FRIEND_USES_PER_TEAM).toBe(1);
+    expect(FREE_TEAM_HUDDLE_USES_PER_TEAM).toBe(1);
     expect(ADDITIONAL_LIFELINE_PENALTY_POINTS).toBe(25);
     expect(DEFAULT_GAME_CONFIG.freeHintUsesPerTeam).toBe(1);
-    expect(DEFAULT_GAME_CONFIG.freeAskFriendUsesPerTeam).toBe(1);
+    expect(DEFAULT_GAME_CONFIG.freeTeamHuddleUsesPerTeam).toBe(1);
     expect(DEFAULT_GAME_CONFIG.additionalLifelinePenaltyPoints).toBe(25);
   });
 
@@ -260,8 +260,8 @@ describe('frozen defaults', () => {
     expect(SCHEMA_VERSIONS).toEqual({
       category: 1,
       song: 1,
-      gamePlan: 1,
-      gameSession: 1,
+      gamePlan: 2,
+      gameSession: 2,
       settings: 1,
     });
   });

@@ -1,6 +1,6 @@
 export interface TeamLifelineState {
   hintUseCount: number;
-  askFriendUseCount: number;
+  teamHuddleUseCount: number;
 }
 
 export interface TeamState {

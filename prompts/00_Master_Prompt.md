@@ -55,7 +55,7 @@ Do not change or reinterpret these rules.
 - Primary timers are 30, 45, 60, 90, and 120 seconds for Levels 1–5.
 - The host can pause, resume, restart, extend, shorten, disable, or end the timer.
 - Timer expiry does not automatically mark an answer Wrong.
-- Each team gets one free Hint and one free Ask a Friend per game.
+- Each team gets one free Hint and one free Team Huddle per game.
 - Additional uses remain unlimited and cost 25 points each.
 - Perfect primary answer: no steal.
 - Mostly Correct or Wrong primary answer: opposing team gets one steal opportunity.

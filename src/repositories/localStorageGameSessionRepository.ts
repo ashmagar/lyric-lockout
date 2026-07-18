@@ -8,8 +8,10 @@ import {
 } from '../schemas';
 import type { ActiveSessionLoadResult, GameSessionRepository } from './gameSessionRepository';
 
-export const ACTIVE_GAME_STORAGE_KEY = 'lyric-lockout.active-game';
-export const COMPLETED_GAMES_STORAGE_KEY = 'lyric-lockout.completed-games';
+export const LEGACY_ACTIVE_GAME_STORAGE_KEY = 'lyric-lockout.active-game';
+export const LEGACY_COMPLETED_GAMES_STORAGE_KEY = 'lyric-lockout.completed-games';
+export const ACTIVE_GAME_STORAGE_KEY = 'lyric-lockout.v2.active-game';
+export const COMPLETED_GAMES_STORAGE_KEY = 'lyric-lockout.v2.completed-games';
 
 function readEnvelopeVersion(value: unknown): number | undefined {
   if (
@@ -31,6 +33,7 @@ export class LocalStorageGameSessionRepository implements GameSessionRepository 
   ) {}
 
   loadActiveSession(): ActiveSessionLoadResult {
+    this.clearLegacyStorage();
     const raw = this.storage.getItem(ACTIVE_GAME_STORAGE_KEY);
     if (raw === null) {
       return { status: 'EMPTY' };
@@ -77,6 +80,7 @@ export class LocalStorageGameSessionRepository implements GameSessionRepository 
   }
 
   saveActiveSession(session: GameSession): void {
+    this.clearLegacyStorage();
     const envelope = activeGameEnvelopeSchema.parse({
       schemaVersion: ACTIVE_GAME_ENVELOPE_VERSION,
       type: 'GAME_SESSION',
@@ -88,10 +92,12 @@ export class LocalStorageGameSessionRepository implements GameSessionRepository 
   }
 
   clearActiveSession(): void {
+    this.clearLegacyStorage();
     this.storage.removeItem(ACTIVE_GAME_STORAGE_KEY);
   }
 
   loadCompletedSummaries(): CompletedGameSummary[] {
+    this.clearLegacyStorage();
     const raw = this.storage.getItem(COMPLETED_GAMES_STORAGE_KEY);
     if (raw === null) {
       return [];
@@ -111,6 +117,7 @@ export class LocalStorageGameSessionRepository implements GameSessionRepository 
   }
 
   saveCompletedSummary(summary: CompletedGameSummary): void {
+    this.clearLegacyStorage();
     const existing = this.loadCompletedSummaries();
     const summaries = [
       summary,
@@ -124,5 +131,10 @@ export class LocalStorageGameSessionRepository implements GameSessionRepository 
     });
 
     this.storage.setItem(COMPLETED_GAMES_STORAGE_KEY, JSON.stringify(envelope));
+  }
+
+  private clearLegacyStorage(): void {
+    this.storage.removeItem(LEGACY_ACTIVE_GAME_STORAGE_KEY);
+    this.storage.removeItem(LEGACY_COMPLETED_GAMES_STORAGE_KEY);
   }
 }

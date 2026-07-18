@@ -4,8 +4,8 @@ import type { GameConfig } from './models/game';
 export const SCHEMA_VERSIONS = {
   category: 1,
   song: 1,
-  gamePlan: 1,
-  gameSession: 1,
+  gamePlan: 2,
+  gameSession: 2,
   settings: 1,
 } as const;
 
@@ -22,12 +22,12 @@ export const DIFFICULTY_CONFIG: Readonly<
 };
 
 export const FREE_HINT_USES_PER_TEAM = 1;
-export const FREE_ASK_FRIEND_USES_PER_TEAM = 1;
+export const FREE_TEAM_HUDDLE_USES_PER_TEAM = 1;
 export const ADDITIONAL_LIFELINE_PENALTY_POINTS = 25;
 
 export const DEFAULT_GAME_CONFIG: Readonly<GameConfig> = {
   freeHintUsesPerTeam: FREE_HINT_USES_PER_TEAM,
-  freeAskFriendUsesPerTeam: FREE_ASK_FRIEND_USES_PER_TEAM,
+  freeTeamHuddleUsesPerTeam: FREE_TEAM_HUDDLE_USES_PER_TEAM,
   additionalLifelinePenaltyPoints: ADDITIONAL_LIFELINE_PENALTY_POINTS,
   fullPointsByDifficulty: {
     1: DIFFICULTY_CONFIG[1].fullPoints,

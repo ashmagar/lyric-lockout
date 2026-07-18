@@ -172,7 +172,7 @@ The MVP includes:
 - automatic pause at a configured timestamp;
 - suspense audio;
 - answer timers;
-- Hint and Ask a Friend lifelines;
+- Hint and Team Huddle lifelines;
 - paid lifeline penalties;
 - primary-answer classification;
 - steal opportunities;
@@ -567,7 +567,7 @@ type AnswerResult =
   | "DECLINED";
 
 type AttemptType = "PRIMARY" | "STEAL";
-type LifelineType = "HINT" | "ASK_FRIEND";
+type LifelineType = "HINT" | "TEAM_HUDDLE";
 type SelectionMode = "RANDOM" | "MANUAL";
 type ThemeName = "DAY_PARTY" | "GAME_NIGHT";
 ```
@@ -720,7 +720,7 @@ interface GameSession {
 ```typescript
 interface GameConfig {
   freeHintUsesPerTeam: number;
-  freeAskFriendUsesPerTeam: number;
+  freeTeamHuddleUsesPerTeam: number;
   additionalLifelinePenaltyPoints: number;
   fullPointsByDifficulty: Record<DifficultyLevel, number>;
   answerSecondsByDifficulty: Record<DifficultyLevel, number>;
@@ -796,14 +796,14 @@ A steal does not consume a category, primary turn, or later normal turn.
 ```typescript
 interface TeamLifelineState {
   hintUseCount: number;
-  askFriendUseCount: number;
+  teamHuddleUseCount: number;
 }
 
 interface LifelineUsage {
   id: string;
   teamId: string;
   attemptId: string;
-  type: "HINT" | "ASK_FRIEND";
+  type: "HINT" | "TEAM_HUDDLE";
   usageNumber: number;
   wasFree: boolean;
   penaltyPoints: number;
@@ -811,10 +811,13 @@ interface LifelineUsage {
 }
 ```
 
+Team Huddle uses the canonical `TEAM_HUDDLE`, `teamHuddleUseCount`, and
+`freeTeamHuddleUsesPerTeam` identifiers throughout the domain and persistence models.
+
 Rules:
 
 - first Hint free;
-- first Ask a Friend free;
+- first Team Huddle free;
 - later uses cost 25 points each;
 - no reset between levels;
 - steal usage counts against the same team;
@@ -1056,7 +1059,7 @@ Recommended score floor is zero; host may override.
 # 32. Lifeline Accounting Rules
 
 - one free Hint per team;
-- one free Ask a Friend per team;
+- one free Team Huddle per team;
 - unlimited paid uses;
 - every paid use costs 25;
 - no level reset;
