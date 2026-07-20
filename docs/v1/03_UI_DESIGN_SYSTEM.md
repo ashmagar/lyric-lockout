@@ -1,5 +1,7 @@
 # UI Design System
 
+Last updated: July 20, 2026
+
 ## Philosophy
 
 -   Minimalistic
@@ -7,28 +9,51 @@
 -   Consistent
 -   Premium dark theme
 
-## Global Shell
+## Shell Modes
 
--   Fixed-width Sidebar
--   Fixed-height Header
--   Flexible Main Content
--   Fixed-height Footer
+### Standard Application Shell
 
-## Sidebar
+-   Fixed-width navigation sidebar on desktop.
+-   Fixed-height header and footer.
+-   Flexible main content.
+-   Used outside active gameplay.
 
-Gameplay: - Teams - Scores - Lifelines - Context
+### Live-Game Shell
 
-Non-gameplay: - Navigation
+-   Full-width gameplay workspace.
+-   Fixed-height top action bar.
+-   Compact bottom status rail.
+-   Host control rail appears beside challenge content when needed.
+-   No duplicate score or host-control surfaces.
 
-Same dimensions on every screen.
+## Branding
+
+-   Lyric Lockout branding remains visible at the top left on every
+    screen.
+-   Use the shared lock icon in place of the second O in Lockout.
+-   The full wordmark may collapse to the brand mark on narrow screens.
+-   The brand links to Home.
+
+## Sidebar and Status Rail
+
+Standard pages: Navigation, resume status, and local-save context.
+
+Live gameplay: Teams, scores, lifelines, current phase, category,
+progress, and local-save state appear in the bottom status rail.
 
 ## Header
 
-Only screen context. Never changes height.
+Standard pages: Screen context and room theme.
+
+Live gameplay: Brand, level/phase context, New Game, and Finish Game.
+
+Keep the header height stable within each shell mode.
 
 ## Footer
 
-Left: status/context. Right: primary action.
+Standard pages: Local status/context.
+
+Live gameplay uses the bottom status rail instead of a separate footer.
 
 ## Visual Language
 
@@ -38,6 +63,8 @@ Left: status/context. Right: primary action.
 -   Rounded cards
 -   Large readable typography
 -   TV-friendly spacing
+-   Roomy display type; avoid narrow condensed headings.
+-   Preserve 16:9 media without cropping or artificial stretching.
 
 ## Reusable Components
 
@@ -48,6 +75,10 @@ Left: status/context. Right: primary action.
 -   Category Card
 -   Primary Button
 -   Dialogs
+-   Shared brand and lock icon
+-   Challenge surface and host-control rail
+-   Scoreboard overlay
+-   Bottom gameplay status rail
 
 ## Animations
 
@@ -61,3 +92,7 @@ Reveal: Fade in missing words, highlight briefly.
 
 Scoreboard: Blur background, slide overlay, animate scores
 independently.
+
+Winner: Trophy entrance and confetti.
+
+Always respect the reduced-motion preference.
