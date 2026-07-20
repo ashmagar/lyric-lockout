@@ -57,8 +57,15 @@ function Brand() {
         <span>♪</span>
       </span>
       <span className={styles.brandCopy}>
-        <strong>
-          <span>Lyric</span> Lockout
+        <strong aria-hidden="true">
+          <span className={styles.brandLyric}>Lyric</span>{' '}
+          <span className={styles.brandLockout}>
+            <span>Lock</span>
+            <i className={styles.brandLock}>
+              <i />
+            </i>
+            <span>ut</span>
+          </span>
         </strong>
         <small>Har Rag Mein Lyrics</small>
       </span>

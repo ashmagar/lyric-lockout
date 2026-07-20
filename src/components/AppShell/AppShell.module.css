@@ -157,8 +157,73 @@
   text-transform: uppercase;
 }
 
-.brandCopy strong span {
+.brandLyric {
   color: var(--color-highlight);
+}
+
+.brandLockout {
+  display: inline-flex;
+  align-items: flex-end;
+  color: var(--color-text);
+}
+
+.brandLock {
+  position: relative;
+  display: inline-block;
+  width: 0.72em;
+  height: 0.78em;
+  margin: 0 0.02em;
+  filter: drop-shadow(0 0 0.28em color-mix(in srgb, var(--color-highlight) 35%, transparent));
+}
+
+.brandLock::before {
+  position: absolute;
+  top: 0.02em;
+  left: 18%;
+  width: 64%;
+  height: 48%;
+  box-sizing: border-box;
+  content: '';
+  border: 0.1em solid #ffd76d;
+  border-bottom: 0;
+  border-radius: 0.35em 0.35em 0 0;
+}
+
+.brandLock::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 59%;
+  content: '';
+  background: linear-gradient(145deg, #ffd85e, #ffb018 68%, #ce7900);
+  border: 0.025em solid #ffe49a;
+  border-radius: 0.09em;
+  box-shadow: inset 0 -0.08em 0 rgb(119 65 0 / 38%);
+}
+
+.brandLock > i {
+  position: absolute;
+  z-index: 1;
+  top: 57%;
+  left: 50%;
+  width: 0.1em;
+  height: 0.18em;
+  background: #5d3500;
+  border-radius: 999px 999px 0.03em 0.03em;
+  transform: translateX(-50%);
+}
+
+.brandLock > i::before {
+  position: absolute;
+  top: -0.025em;
+  left: 50%;
+  width: 0.12em;
+  height: 0.12em;
+  content: '';
+  background: #5d3500;
+  border-radius: 50%;
+  transform: translateX(-50%);
 }
 
 .brandCopy small {
@@ -882,6 +947,7 @@
 }
 
 .appShell.liveGameLayout {
+  --live-brand-offset: 16.5rem;
   height: 100vh;
   height: 100svh;
   grid-template-columns: minmax(0, 1fr);
@@ -895,9 +961,40 @@
 }
 
 .liveGameLayout .header,
-.liveGameLayout .footer,
-.liveGameLayout .liveSidebarShell > .brand {
+.liveGameLayout .footer {
   display: none;
+}
+
+.liveGameLayout .liveSidebarShell > .brand {
+  position: fixed;
+  z-index: 20;
+  top: 0.65rem;
+  left: clamp(1rem, 2vw, 2rem);
+  display: inline-flex;
+}
+
+.liveGameLayout .liveSidebarShell > .brand::after {
+  width: 1px;
+  height: 2.25rem;
+  margin-left: 0.35rem;
+  content: '';
+  background: var(--color-border);
+}
+
+.liveGameLayout .liveSidebarShell > .brand .brandMark {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.55rem;
+  font-size: 1.1rem;
+}
+
+.liveGameLayout .liveSidebarShell > .brand .brandCopy strong {
+  font-size: 0.95rem;
+}
+
+.liveGameLayout .liveSidebarShell > .brand .brandCopy small {
+  margin-top: 0.18rem;
+  font-size: 0.58rem;
 }
 
 .liveGameLayout .liveSidebarShell {
@@ -991,6 +1088,15 @@
 }
 
 @media (max-width: 38rem) {
+  .appShell.liveGameLayout {
+    --live-brand-offset: 5rem;
+  }
+
+  .liveGameLayout .liveSidebarShell > .brand .brandCopy,
+  .liveGameLayout .liveSidebarShell > .brand::after {
+    display: none;
+  }
+
   .liveGameLayout .liveTeams > div {
     grid-template-columns: 1fr;
   }
