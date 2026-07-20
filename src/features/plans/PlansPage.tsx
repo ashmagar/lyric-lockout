@@ -569,7 +569,7 @@ function StartPlanDialog({ plan, onClose }: { plan: GamePlan; onClose: () => voi
     }
     setTheme(result.plan.preferredTheme);
     startSession(result.session);
-    void navigate('/game');
+    void navigate('/game/play');
   };
 
   return (

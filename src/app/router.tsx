@@ -4,6 +4,7 @@ import { AppShell } from '../components/AppShell/AppShell';
 import { AdminPage } from '../features/admin/AdminPage';
 import { GamePage } from '../features/game/GamePage';
 import { HomePage } from '../features/home/HomePage';
+import { NewGamePage } from '../features/new-game/NewGamePage';
 import { NotFoundPage } from '../features/not-found/NotFoundPage';
 import { PlaybackSpikePage } from '../features/playback-spike/PlaybackSpikePage';
 import { PlansPage } from '../features/plans/PlansPage';
@@ -14,7 +15,8 @@ export const appRoutes: RouteObject[] = [
     element: <AppShell />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'game', element: <GamePage /> },
+      { path: 'game', element: <NewGamePage /> },
+      { path: 'game/play', element: <GamePage /> },
       { path: 'plans', element: <PlansPage /> },
       { path: 'playback-spike', element: <PlaybackSpikePage /> },
       { path: 'admin', element: <AdminPage /> },

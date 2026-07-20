@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { selectChallenge } from '../domain/catalog';
 import { createGame, getWinningTeams } from '../domain/engine';
-import type { CategoryAssignmentMode, LifelineType } from '../domain/enums';
+import type { CategoryAssignmentMode, LifelineType, SelectionMode } from '../domain/enums';
 import type { ActiveChallenge, GameSession } from '../domain/models/game';
 import type { GameCommand } from '../domain/stateMachine/commands';
 import type { DomainEvent } from '../domain/stateMachine/events';
@@ -52,6 +52,7 @@ export interface GameplayState {
     teamOneName: string,
     teamTwoName: string,
     selectedCategoryIds?: readonly string[],
+    categorySelectionMode?: SelectionMode,
   ) => void;
   startSession: (session: GameSession) => void;
   send: (command: CommandInput) => boolean;
@@ -245,7 +246,7 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
     set({ persistenceError: undefined });
   },
 
-  startSetup(teamOneName, teamTwoName, selectedCategoryIds) {
+  startSetup(teamOneName, teamTwoName, selectedCategoryIds, categorySelectionMode = 'MANUAL') {
     const createdAt = timestamp();
     const categoryIds =
       selectedCategoryIds ??
@@ -262,6 +263,7 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
       ],
       roundConfig: {
         ...GAMEPLAY_ROUND_CONFIG,
+        categorySelectionMode,
         selectedCategoryIds: [...categoryIds],
       },
     });

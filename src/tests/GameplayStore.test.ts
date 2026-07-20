@@ -34,6 +34,19 @@ describe('gameplay application store', () => {
     expect(useGameplayStore.getState().session?.phase).toBe('LEVEL_INTRO');
   });
 
+  it('preserves random category selection mode when starting setup', () => {
+    useGameplayStore
+      .getState()
+      .startSetup(
+        'Alpha',
+        'Beta',
+        GAMEPLAY_CATEGORIES.map((category) => category.id),
+        'RANDOM',
+      );
+
+    expect(useGameplayStore.getState().session?.roundConfig.categorySelectionMode).toBe('RANDOM');
+  });
+
   it('replaces demo content with the authored runtime catalog', () => {
     const sourceCategory = GAMEPLAY_CATEGORIES[0]!;
     const sourceSong = GAMEPLAY_CATALOG_INDEX.songById.get('song-90s-bollywood');

@@ -3,12 +3,22 @@
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(17rem, 0.75fr);
   align-items: center;
-  gap: clamp(2rem, 7vw, 7rem);
-  padding: clamp(3rem, 8vw, 7rem);
+  gap: clamp(2rem, 6vw, 6rem);
+  min-height: 100%;
+  padding: clamp(3rem, 7vw, 6.5rem);
   overflow: hidden;
   background:
-    radial-gradient(circle at 85% 18%, var(--color-highlight-soft), transparent 28%),
-    linear-gradient(145deg, var(--color-surface) 35%, var(--color-surface-warm));
+    radial-gradient(
+      circle at 84% 18%,
+      color-mix(in srgb, var(--color-accent) 16%, transparent),
+      transparent 24rem
+    ),
+    radial-gradient(
+      circle at 72% 92%,
+      color-mix(in srgb, var(--color-info) 10%, transparent),
+      transparent 24rem
+    ),
+    linear-gradient(145deg, rgb(5 5 14 / 72%), rgb(12 4 20 / 72%));
 }
 
 .copy {
@@ -19,7 +29,7 @@
 
 .eyebrow {
   margin: 0 0 var(--space-3);
-  color: var(--color-accent);
+  color: var(--color-highlight);
   font-size: 0.8rem;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -27,12 +37,18 @@
 }
 
 .copy h1 {
-  max-width: 13ch;
+  max-width: 12ch;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 7vw, 6.4rem);
-  line-height: 0.93;
-  letter-spacing: -0.065em;
+  font-size: clamp(3.1rem, 7vw, 6.6rem);
+  font-weight: 500;
+  line-height: 0.91;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow:
+    0 0.15rem 0 rgb(0 0 0 / 65%),
+    0 0 2.5rem color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
 
 .description {
@@ -53,13 +69,14 @@
 .artwork {
   position: relative;
   aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 42%, transparent);
   border-radius: 50%;
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent),
+    repeating-radial-gradient(circle, transparent 0 1.2rem, rgb(255 255 255 / 4%) 1.24rem 1.3rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent),
     var(--color-surface-raised);
   box-shadow:
-    inset 0 0 0 1.25rem var(--color-surface),
+    inset 0 0 0 1.25rem rgb(0 0 0 / 38%),
     var(--shadow-artwork);
   transform: rotate(5deg);
 }
@@ -73,7 +90,8 @@
 
 .artwork::before {
   inset: 25%;
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary));
+  box-shadow: 0 0 2rem color-mix(in srgb, var(--color-accent) 45%, transparent);
 }
 
 .artwork::after {
@@ -124,6 +142,7 @@
   height: 3rem;
   color: var(--color-highlight);
   background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
   border-radius: 50%;
   font-size: 1.3rem;
 }

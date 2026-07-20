@@ -575,7 +575,7 @@ export function AdminPage() {
           ))}
           <Link to="/plans">Game Plans</Link>
           <Link to="/settings">Settings</Link>
-          <Link to="/game">Back to Game</Link>
+          <Link to="/game/play">Back to Game</Link>
         </aside>
 
         <main className={styles.adminContent}>

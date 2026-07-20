@@ -2,7 +2,7 @@ import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from
 import { useLocation } from 'react-router-dom';
 
 import { LyricPuzzle } from '../../components/LyricPuzzle/LyricPuzzle';
-import { analyzeCatalogCoverage, selectChallenge } from '../../domain/catalog';
+import { analyzeCatalogCoverage, buildRoundConfig, selectChallenge } from '../../domain/catalog';
 import { getCategoryConsumptionRecord, getWinningTeams } from '../../domain/engine';
 import type { AnswerResult, CategoryAssignmentMode, LifelineType } from '../../domain/enums';
 import type { Category } from '../../domain/models/catalog';
@@ -119,6 +119,9 @@ function downloadRecoveryData(data: string) {
 }
 
 function TeamSetup() {
+  const location = useLocation();
+  const setupMode =
+    new URLSearchParams(location.search).get('setup') === 'random' ? 'random' : 'custom';
   const startSetup = useGameplayStore((state) => state.startSetup);
   const completedSummaries = useGameplayStore((state) => state.completedSummaries);
   const persistenceError = useGameplayStore((state) => state.persistenceError);
@@ -132,12 +135,28 @@ function TeamSetup() {
   const categories = catalog.snapshot.categories;
   const [teamOne, setTeamOne] = useState('Team Sunset');
   const [teamTwo, setTeamTwo] = useState('Team Starlight');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() =>
-    categories
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() => {
+    if (setupMode === 'random') {
+      const result = buildRoundConfig(
+        {
+          categorySelectionMode: 'RANDOM',
+          songSelectionMode: 'FULL_CATALOG',
+          manualCategoryIds: [],
+          manualChallengePools: [],
+          preventChallengeReuse: true,
+          preventSongReuse: true,
+          allowRuntimeReroll: true,
+        },
+        catalog,
+        Math.random,
+      );
+      if (result.ok) return result.config.selectedCategoryIds;
+    }
+    return categories
       .filter((category) => category.enabled)
       .slice(0, 10)
-      .map((category) => category.id),
-  );
+      .map((category) => category.id);
+  });
   const [validation, setValidation] = useState<string | undefined>();
 
   const toggleCategory = (categoryId: string) => {
@@ -162,7 +181,12 @@ function TeamSetup() {
       setValidation('Select exactly ten enabled categories.');
       return;
     }
-    startSetup(teamOne.trim(), teamTwo.trim(), selectedCategoryIds);
+    startSetup(
+      teamOne.trim(),
+      teamTwo.trim(),
+      selectedCategoryIds,
+      setupMode === 'random' ? 'RANDOM' : 'MANUAL',
+    );
   };
 
   return (
@@ -171,8 +195,9 @@ function TeamSetup() {
         <p className={styles.eyebrow}>New game</p>
         <h1>Bring two teams to the stage.</h1>
         <p>
-          Ten categories, five levels, and one host who makes the final call. Active games are saved
-          in this browser after every meaningful host action.
+          {setupMode === 'random'
+            ? 'Ten eligible categories have been selected at random. Name the teams, then review the round.'
+            : 'Name two teams and choose exactly ten categories. Active games are saved after every meaningful host action.'}
         </p>
         {completedSummaries.length > 0 && (
           <div className={styles.recentGames}>
@@ -210,35 +235,42 @@ function TeamSetup() {
             value={teamTwo}
           />
         </label>
-        <fieldset className={styles.setupCategories}>
-          <legend>Categories · {selectedCategoryIds.length}/10 selected</legend>
-          <p>All saved categories appear here. Coverage labels show which need more challenges.</p>
-          <div className={styles.setupCategoryGrid}>
-            {categories.map((category) => {
-              const coverage = coverageByCategoryId.get(category.id);
-              const isReady = coverage?.isReady ?? false;
-              return (
-                <label className={styles.setupCategoryOption} key={category.id}>
-                  <input
-                    checked={selectedCategoryIds.includes(category.id)}
-                    disabled={!category.enabled}
-                    onChange={() => toggleCategory(category.id)}
-                    type="checkbox"
-                  />
-                  <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
-                  <strong>{category.name}</strong>
-                  <small>
-                    {category.enabled
-                      ? isReady
-                        ? 'Ready'
-                        : 'Needs challenges'
-                      : 'Disabled'}
-                  </small>
-                </label>
-              );
-            })}
+        {setupMode === 'custom' ? (
+          <fieldset className={styles.setupCategories}>
+            <legend>Categories · {selectedCategoryIds.length}/10 selected</legend>
+            <p>All saved categories appear here. Coverage labels show which need more challenges.</p>
+            <div className={styles.setupCategoryGrid}>
+              {categories.map((category) => {
+                const coverage = coverageByCategoryId.get(category.id);
+                const isReady = coverage?.isReady ?? false;
+                return (
+                  <label className={styles.setupCategoryOption} key={category.id}>
+                    <input
+                      checked={selectedCategoryIds.includes(category.id)}
+                      disabled={!category.enabled}
+                      onChange={() => toggleCategory(category.id)}
+                      type="checkbox"
+                    />
+                    <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
+                    <strong>{category.name}</strong>
+                    <small>
+                      {category.enabled
+                        ? isReady
+                          ? 'Ready'
+                          : 'Needs challenges'
+                        : 'Disabled'}
+                    </small>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : (
+          <div className={styles.setupCategories}>
+            <strong>Random category mix ready</strong>
+            <p>{selectedCategoryIds.length} eligible categories selected for this game.</p>
           </div>
-        </fieldset>
+        )}
         {validation && <p className={styles.formError}>{validation}</p>}
         {gameplayFailure && (
           <div className={styles.inlineError} role="alert">
