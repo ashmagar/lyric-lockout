@@ -10,6 +10,7 @@ html {
   min-width: 20rem;
   background: var(--color-canvas);
   font-family: var(--font-body);
+  font-size: 18px;
   color: var(--color-text);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -95,4 +96,13 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }

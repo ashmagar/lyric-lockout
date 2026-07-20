@@ -121,66 +121,88 @@ export function GameplayVideoStage({
 
   return (
     <div className={styles.videoLayout}>
-      <div className={styles.videoFrame}>
-        {fakeMedia ? (
-          <div className={styles.fakeMedia} data-testid="fake-media-stage">
-            <span aria-hidden="true">▶</span>
-            <strong>Fake media</strong>
-            <small>Deterministic host controls are active.</small>
-          </div>
-        ) : (
-          <div
-            aria-label="Gameplay YouTube player"
-            className={styles.youtubeMount}
-            ref={containerRef}
-          />
-        )}
-      </div>
-
-      <div className={styles.mediaStatus}>
-        <span>{fakeMedia ? 'FAKE' : (snapshot?.playerState ?? 'LOADING')}</span>
-        <span>{revealSong ? activeChallenge.song.title : 'Mystery song'}</span>
-      </div>
-
-      {session.phase === 'VIDEO_LOADING' && <p>Loading the challenge without autoplay…</p>}
-      {session.phase === 'VIDEO_READY' && (
-        <button className={styles.primaryButton} onClick={playChallenge} type="button">
-          Play challenge
-        </button>
-      )}
-      {session.phase === 'VIDEO_PLAYING' && fakeMedia && (
-        <button className={styles.primaryButton} onClick={onPaused} type="button">
-          Simulate challenge pause
-        </button>
-      )}
-      {session.phase === 'VIDEO_PLAYING' && !fakeMedia && (
-        <p>Playing from the configured timestamp. The video will pause automatically.</p>
-      )}
-      {verification && (
-        <div className={styles.actionRow}>
-          {!fakeMedia && (
-            <button
-              className={styles.secondaryButton}
-              disabled={snapshot?.status !== 'READY' || verificationStarted}
-              onClick={playVerification}
-              type="button"
-            >
-              Play verification
-            </button>
+      <div className={styles.playbackViewport}>
+        <div className={styles.videoFrame}>
+          {fakeMedia ? (
+            <div className={styles.fakeMedia} data-testid="fake-media-stage">
+              <span aria-hidden="true">▶</span>
+              <strong>Challenge media</strong>
+              <small>Deterministic host controls are active.</small>
+            </div>
+          ) : (
+            <div
+              aria-label="Gameplay YouTube player"
+              className={styles.youtubeMount}
+              ref={containerRef}
+            />
           )}
-          <button className={styles.primaryButton} onClick={completeVerification} type="button">
-            Complete verification
-          </button>
         </div>
-      )}
-      {snapshot?.error && (
-        <div className={styles.notice} role="alert">
-          <strong>Media needs attention.</strong> {snapshot.error.message}
-          <button onClick={() => void coordinatorRef.current?.retry()} type="button">
-            Retry media
-          </button>
+
+        <div className={styles.mediaStatus}>
+          <span>{fakeMedia ? 'FAKE' : (snapshot?.playerState ?? 'LOADING')}</span>
+          <span>{revealSong ? activeChallenge.song.title : 'Mystery song'}</span>
         </div>
-      )}
+      </div>
+
+      <aside className={styles.playbackControlPanel} aria-label="Host playback controls">
+        <header>
+          <span aria-hidden="true">▶</span>
+          <div>
+            <small>Game master</small>
+            <h2>{verification ? 'Verification playback' : 'Playback controls'}</h2>
+          </div>
+        </header>
+        {session.phase === 'VIDEO_LOADING' && (
+          <p>Loading the challenge without autoplay. Playback begins only when the host starts it.</p>
+        )}
+        {session.phase === 'VIDEO_READY' && (
+          <>
+            <p>The clip is cued at the configured start time.</p>
+            <button className={styles.primaryButton} onClick={playChallenge} type="button">
+              Play challenge
+            </button>
+          </>
+        )}
+        {session.phase === 'VIDEO_PLAYING' && fakeMedia && (
+          <>
+            <p>Advance the fake player to the lyric lockout point.</p>
+            <button className={styles.primaryButton} onClick={onPaused} type="button">
+              Simulate challenge pause
+            </button>
+          </>
+        )}
+        {session.phase === 'VIDEO_PLAYING' && !fakeMedia && (
+          <p>Playing from the configured timestamp. The video will pause automatically.</p>
+        )}
+        {verification && (
+          <>
+            <p>Replay the answer window if needed, then complete the reveal.</p>
+            <div className={styles.challengeActionStack}>
+              {!fakeMedia && (
+                <button
+                  className={styles.secondaryButton}
+                  disabled={snapshot?.status !== 'READY' || verificationStarted}
+                  onClick={playVerification}
+                  type="button"
+                >
+                  Play verification
+                </button>
+              )}
+              <button className={styles.primaryButton} onClick={completeVerification} type="button">
+                Complete verification
+              </button>
+            </div>
+          </>
+        )}
+        {snapshot?.error && (
+          <div className={styles.notice} role="alert">
+            <strong>Media needs attention.</strong> {snapshot.error.message}
+            <button onClick={() => void coordinatorRef.current?.retry()} type="button">
+              Retry media
+            </button>
+          </div>
+        )}
+      </aside>
     </div>
   );
 }

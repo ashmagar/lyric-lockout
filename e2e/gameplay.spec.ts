@@ -88,7 +88,7 @@ test('refresh requires an explicit safe resume and keeps media and timers paused
   await expect(page.getByRole('heading', { name: 'Resume Alpha vs Beta?' })).toBeVisible();
   await page.getByRole('button', { name: 'Resume saved game' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Listen for the lockout.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Listen. Lock in.' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Play challenge' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Simulate challenge pause' })).toHaveCount(0);
 

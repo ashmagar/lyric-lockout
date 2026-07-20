@@ -56,21 +56,23 @@ export function HomePage() {
 
   return (
     <section className={styles.homePage}>
-      <div aria-hidden="true" className={styles.stageLights}>
-        <i />
-        <i />
-        <i />
-        <i />
-      </div>
-
       <header className={styles.hero}>
         <p className={styles.eyebrow}>
           <span aria-hidden="true">♛</span>
           The ultimate lyrics challenge
         </p>
-        <h1>
-          <span className={styles.titlePrimary}>Lyric</span>
-          <span className={styles.titleSecondary}>Lockout</span>
+        <h1 aria-label="Lyric Lockout">
+          <span aria-hidden="true" className={styles.titlePrimary}>
+            Lyric
+            <span className={styles.titleCrown}>♛</span>
+          </span>
+          <span aria-hidden="true" className={styles.titleSecondary}>
+            <span>Lock</span>
+            <span className={styles.titleLock}>
+              <i />
+            </span>
+            <span>ut</span>
+          </span>
         </h1>
         <p className={styles.tagline}>
           <span aria-hidden="true" />
@@ -136,13 +138,6 @@ export function HomePage() {
         <strong>Tip:</strong>
         <p>Create custom games, play, and save your favorite combinations as Game Plans.</p>
       </aside>
-
-      <div aria-hidden="true" className={styles.microphone}>
-        <span className={styles.microphoneHead} />
-        <span className={styles.microphoneCollar} />
-        <span className={styles.microphoneHandle} />
-        <span className={styles.microphoneBase} />
-      </div>
     </section>
   );
 }

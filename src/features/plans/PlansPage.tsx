@@ -629,16 +629,18 @@ export function PlansPage() {
     createPlan,
     validatePlan,
     duplicatePlan,
-    renamePlan,
     deletePlan,
     clearError,
   } = useGamePlanStore();
   const [newName, setNewName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
-  const [renamingId, setRenamingId] = useState<string | undefined>();
-  const [renameValue, setRenameValue] = useState('');
+  const [openMenuId, setOpenMenuId] = useState<string | undefined>();
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [startId, setStartId] = useState<string | undefined>();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectionFilter, setSelectionFilter] = useState<'ALL' | 'MANUAL' | 'RANDOM'>('ALL');
+  const [sortMode, setSortMode] = useState<'RECENT' | 'OLDEST' | 'NAME'>('RECENT');
   const initializeGameplayPersistence = useGameplayStore((state) => state.initializePersistence);
   const catalogStatus = useAdminStore((state) => state.status);
   const initializeCatalog = useAdminStore((state) => state.initialize);
@@ -657,49 +659,68 @@ export function PlansPage() {
     [editingId, plans],
   );
   const startPlan = plans.find((plan) => plan.id === startId);
+  const deletePlanTarget = plans.find((plan) => plan.id === deleteId);
+  const visiblePlans = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+    return plans
+      .filter((plan) => {
+        if (
+          selectionFilter !== 'ALL' &&
+          plan.roundConfig.categorySelectionMode !== selectionFilter
+        ) {
+          return false;
+        }
+        if (!normalizedQuery) return true;
+        const categoryNames = plan.roundConfig.selectedCategoryIds
+          .map(
+            (categoryId) => categories.find((category) => category.id === categoryId)?.name ?? '',
+          )
+          .join(' ');
+        return `${plan.name} ${plan.description ?? ''} ${categoryNames}`
+          .toLocaleLowerCase()
+          .includes(normalizedQuery);
+      })
+      .sort((first, second) => {
+        if (sortMode === 'NAME') return first.name.localeCompare(second.name);
+        const direction = sortMode === 'RECENT' ? -1 : 1;
+        return direction * first.updatedAt.localeCompare(second.updatedAt);
+      });
+  }, [categories, plans, searchQuery, selectionFilter, sortMode]);
 
   const submitNew = (event: FormEvent) => {
     event.preventDefault();
     const plan = createPlan(newName);
     if (plan) {
       setNewName('');
+      setIsCreating(false);
       setEditingId(plan.id);
     }
   };
 
-  if (
-    status !== 'READY' ||
-    catalogStatus === 'UNINITIALIZED' ||
-    catalogStatus === 'LOADING'
-  ) {
+  if (status !== 'READY' || catalogStatus === 'UNINITIALIZED' || catalogStatus === 'LOADING') {
     return <p className={styles.loading}>Loading Saved Game Plans and catalog…</p>;
   }
 
   return (
     <section className={styles.plansPage}>
-      <header className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>Saved Game Plans</p>
-          <h1>Prepare the party before it starts.</h1>
-          <p>
-            Save multiple reusable setups, validate their catalog coverage, then create a fresh
-            independent game whenever guests arrive.
-          </p>
+      <header className={styles.pageHeader}>
+        <div className={styles.titleLockup}>
+          <span aria-hidden="true" className={styles.titleNote}>
+            ♫
+          </span>
+          <div>
+            <p className={styles.eyebrow}>Game Setup</p>
+            <h1>Saved Game Plans</h1>
+            <p>Your reusable game setups. Pick one and start playing.</p>
+          </div>
+          <span aria-hidden="true" className={styles.titleSpark}>
+            ♪
+          </span>
         </div>
-        <form className={styles.newPlan} onSubmit={submitNew}>
-          <label>
-            New plan name
-            <input
-              maxLength={60}
-              onChange={(event) => setNewName(event.target.value)}
-              placeholder="Friday karaoke crowd"
-              value={newName}
-            />
-          </label>
-          <button className={styles.primaryButton} type="submit">
-            Create plan
-          </button>
-        </form>
+        <button className={styles.createButton} onClick={() => setIsCreating(true)} type="button">
+          <span aria-hidden="true">＋</span>
+          Create new plan
+        </button>
       </header>
 
       {storageIssue && (
@@ -717,103 +738,323 @@ export function PlansPage() {
         </div>
       )}
 
-      <div className={styles.workspace}>
-        <aside className={styles.planList} aria-label="Saved plans">
-          <header>
-            <h2>Your plans</h2>
-            <span>{plans.length}</span>
-          </header>
-          {plans.length === 0 && <p>No plans yet. Create one to begin.</p>}
-          {plans.map((plan) => (
-            <article
-              className={editingId === plan.id ? styles.selectedCard : undefined}
-              key={plan.id}
+      <div className={styles.controls}>
+        <label className={styles.searchField}>
+          <span aria-hidden="true">⌕</span>
+          <span className={styles.visuallyHidden}>Search game plans</span>
+          <input
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search game plans…"
+            type="search"
+            value={searchQuery}
+          />
+        </label>
+        <label className={styles.selectField}>
+          <span className={styles.visuallyHidden}>Filter by category selection</span>
+          <select
+            onChange={(event) =>
+              setSelectionFilter(event.target.value as 'ALL' | 'MANUAL' | 'RANDOM')
+            }
+            value={selectionFilter}
+          >
+            <option value="ALL">All plan types</option>
+            <option value="MANUAL">Custom categories</option>
+            <option value="RANDOM">Random categories</option>
+          </select>
+        </label>
+        <label className={styles.selectField}>
+          <span className={styles.visuallyHidden}>Sort game plans</span>
+          <select
+            onChange={(event) => setSortMode(event.target.value as 'RECENT' | 'OLDEST' | 'NAME')}
+            value={sortMode}
+          >
+            <option value="RECENT">Sort: Recently updated</option>
+            <option value="OLDEST">Sort: Oldest updated</option>
+            <option value="NAME">Sort: Name</option>
+          </select>
+        </label>
+      </div>
+
+      <div className={styles.planList} aria-label="Saved plans">
+        {plans.length === 0 && (
+          <div className={styles.emptyState}>
+            <span aria-hidden="true">♫</span>
+            <h2>Your first game plan starts here.</h2>
+            <p>Save a reusable set of categories, songs, and game rules for faster setup.</p>
+            <button
+              className={styles.createButton}
+              onClick={() => setIsCreating(true)}
+              type="button"
             >
-              <div>
-                {renamingId === plan.id ? (
-                  <form
-                    className={styles.renameForm}
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      if (renamePlan(plan.id, renameValue)) setRenamingId(undefined);
-                    }}
-                  >
-                    <input
-                      aria-label={`Rename ${plan.name}`}
-                      onChange={(event) => setRenameValue(event.target.value)}
-                      value={renameValue}
-                    />
-                    <button type="submit">Save name</button>
-                  </form>
-                ) : (
-                  <>
-                    <strong>{plan.name}</strong>
-                    <PlanStatus plan={plan} />
-                  </>
-                )}
+              Create new plan
+            </button>
+          </div>
+        )}
+
+        {plans.length > 0 && visiblePlans.length === 0 && (
+          <div className={styles.emptyState}>
+            <span aria-hidden="true">⌕</span>
+            <h2>No matching plans.</h2>
+            <p>Try a different name or plan type.</p>
+            <button
+              className={styles.secondaryButton}
+              onClick={() => {
+                setSearchQuery('');
+                setSelectionFilter('ALL');
+              }}
+              type="button"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+
+        {visiblePlans.map((plan, index) => {
+          const selectedCategories = plan.roundConfig.selectedCategoryIds
+            .map((categoryId) => categories.find((category) => category.id === categoryId))
+            .filter((category): category is Category => Boolean(category));
+          const icon = selectedCategories[0]
+            ? resolveCategoryIcon(selectedCategories[0].icon)
+            : plan.roundConfig.categorySelectionMode === 'RANDOM'
+              ? '🎲'
+              : '♫';
+          const categoryLabels =
+            plan.roundConfig.categorySelectionMode === 'RANDOM'
+              ? ['Random categories']
+              : selectedCategories.slice(0, 3).map((category) => category.name);
+          const remainingCategories = Math.max(
+            0,
+            selectedCategories.length - categoryLabels.length,
+          );
+
+          return (
+            <article className={styles.planCard} key={plan.id}>
+              <div className={`${styles.planArtwork} ${styles[`artwork${(index % 4) + 1}`]}`}>
+                <span aria-hidden="true">{icon}</span>
+              </div>
+
+              <div className={styles.planSummary}>
+                <div className={styles.planNameRow}>
+                  <h2>{plan.name}</h2>
+                  <PlanStatus plan={plan} />
+                </div>
+                <div className={styles.categoryTags}>
+                  {categoryLabels.map((label) => (
+                    <span key={label}>{label}</span>
+                  ))}
+                  {remainingCategories > 0 && <span>+{remainingCategories}</span>}
+                </div>
+                <div className={styles.planFacts}>
+                  <span>
+                    <b aria-hidden="true">♫</b>{' '}
+                    {plan.roundConfig.songSelectionMode === 'FULL_CATALOG'
+                      ? 'Full catalog'
+                      : 'Curated songs'}
+                  </span>
+                  <span>
+                    <b aria-hidden="true">▦</b> {plan.roundConfig.categoryCount} categories
+                  </span>
+                  <span>
+                    <b aria-hidden="true">◈</b>{' '}
+                    {plan.preferredTheme === 'DAY_PARTY' ? 'Day Party' : 'Game Night'}
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.planDate}>
+                <span>Updated</span>
+                <strong>
+                  {new Intl.DateTimeFormat(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  }).format(new Date(plan.updatedAt))}
+                </strong>
                 <small>
-                  {plan.roundConfig.categorySelectionMode.toLowerCase()} categories ·{' '}
-                  {plan.roundConfig.songSelectionMode === 'FULL_CATALOG'
-                    ? 'full catalog'
-                    : 'curated pools'}
+                  Created{' '}
+                  {new Intl.DateTimeFormat(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                  }).format(new Date(plan.createdAt))}
                 </small>
               </div>
-              <div className={styles.cardActions}>
-                <button onClick={() => setEditingId(plan.id)} type="button">
-                  Edit
-                </button>
-                <button onClick={() => validatePlan(plan.id)} type="button">
-                  Validate
-                </button>
-                <button onClick={() => setStartId(plan.id)} type="button">
-                  Play
-                </button>
-                <button onClick={() => duplicatePlan(plan.id)} type="button">
-                  Duplicate
-                </button>
+
+              <div className={styles.planActions}>
                 <button
-                  onClick={() => {
-                    setRenamingId(plan.id);
-                    setRenameValue(plan.name);
-                  }}
+                  className={styles.startButton}
+                  onClick={() => setStartId(plan.id)}
                   type="button"
                 >
-                  Rename
+                  <span aria-hidden="true">▶</span>
+                  Start
                 </button>
-                <button
-                  onClick={() => {
-                    if (deleteId === plan.id) {
-                      deletePlan(plan.id);
-                      setDeleteId(undefined);
-                      if (editingId === plan.id) setEditingId(undefined);
-                    } else {
-                      setDeleteId(plan.id);
+                <div className={styles.menuContainer}>
+                  <button
+                    aria-expanded={openMenuId === plan.id}
+                    aria-haspopup="menu"
+                    aria-label={`Actions for ${plan.name}`}
+                    className={styles.menuButton}
+                    onClick={() =>
+                      setOpenMenuId((current) => (current === plan.id ? undefined : plan.id))
                     }
-                  }}
-                  type="button"
-                >
-                  {deleteId === plan.id ? 'Confirm delete' : 'Delete'}
-                </button>
+                    type="button"
+                  >
+                    ⋮
+                  </button>
+                  {openMenuId === plan.id && (
+                    <div
+                      aria-label={`${plan.name} actions`}
+                      className={styles.planMenu}
+                      role="menu"
+                    >
+                      <button
+                        onClick={() => {
+                          setEditingId(plan.id);
+                          setOpenMenuId(undefined);
+                        }}
+                        role="menuitem"
+                        type="button"
+                      >
+                        <span aria-hidden="true">✎</span> Edit plan
+                      </button>
+                      <button
+                        onClick={() => {
+                          validatePlan(plan.id);
+                          setOpenMenuId(undefined);
+                        }}
+                        role="menuitem"
+                        type="button"
+                      >
+                        <span aria-hidden="true">✓</span> Validate
+                      </button>
+                      <button
+                        onClick={() => {
+                          duplicatePlan(plan.id);
+                          setOpenMenuId(undefined);
+                        }}
+                        role="menuitem"
+                        type="button"
+                      >
+                        <span aria-hidden="true">▣</span> Duplicate
+                      </button>
+                      <button
+                        className={styles.deleteAction}
+                        onClick={() => {
+                          setDeleteId(plan.id);
+                          setOpenMenuId(undefined);
+                        }}
+                        role="menuitem"
+                        type="button"
+                      >
+                        <span aria-hidden="true">♲</span> Delete plan
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </article>
-          ))}
-        </aside>
+          );
+        })}
+      </div>
 
-        {editingPlan ? (
+      <aside className={styles.tip}>
+        <span aria-hidden="true">💡</span>
+        <p>
+          <strong>Tip:</strong> Create custom game plans with your favorite categories and songs for
+          quick setup.
+        </p>
+      </aside>
+
+      {isCreating && (
+        <div
+          aria-labelledby="create-plan-title"
+          aria-modal="true"
+          className={styles.modalBackdrop}
+          role="dialog"
+        >
+          <form className={styles.modal} onSubmit={submitNew}>
+            <p className={styles.eyebrow}>New game plan</p>
+            <h2 id="create-plan-title">Name your plan.</h2>
+            <p>You can choose categories, songs, and rules in the next step.</p>
+            <label>
+              Plan name
+              <input
+                autoFocus
+                maxLength={60}
+                onChange={(event) => setNewName(event.target.value)}
+                placeholder="Friday karaoke crowd"
+                value={newName}
+              />
+            </label>
+            <div className={styles.actions}>
+              <button
+                className={styles.secondaryButton}
+                onClick={() => {
+                  setIsCreating(false);
+                  setNewName('');
+                }}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button className={styles.primaryButton} type="submit">
+                Create and edit
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {editingPlan && (
+        <div
+          aria-label={`Edit ${editingPlan.name}`}
+          aria-modal="true"
+          className={styles.editorBackdrop}
+          role="dialog"
+        >
           <PlanEditor
             catalog={catalog}
             categories={categories}
             plan={editingPlan}
             onClose={() => setEditingId(undefined)}
           />
-        ) : (
-          <div className={styles.emptyEditor}>
-            <span aria-hidden="true">♫</span>
-            <h2>Select a plan to edit.</h2>
-            <p>Each saved plan can be reused without sharing game state or scores.</p>
+        </div>
+      )}
+
+      {deletePlanTarget && (
+        <div
+          aria-labelledby="delete-plan-title"
+          aria-modal="true"
+          className={styles.modalBackdrop}
+          role="alertdialog"
+        >
+          <div className={styles.modal}>
+            <p className={styles.eyebrow}>Delete game plan</p>
+            <h2 id="delete-plan-title">Delete “{deletePlanTarget.name}”?</h2>
+            <p>This removes the saved setup from this device. Active games are not affected.</p>
+            <div className={styles.actions}>
+              <button
+                className={styles.secondaryButton}
+                onClick={() => setDeleteId(undefined)}
+                type="button"
+              >
+                Keep plan
+              </button>
+              <button
+                className={styles.dangerButton}
+                onClick={() => {
+                  deletePlan(deletePlanTarget.id);
+                  setDeleteId(undefined);
+                  if (editingId === deletePlanTarget.id) setEditingId(undefined);
+                }}
+                type="button"
+              >
+                Delete plan
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {startPlan && <StartPlanDialog onClose={() => setStartId(undefined)} plan={startPlan} />}
     </section>

@@ -1,224 +1,550 @@
 .plansPage {
   display: grid;
+  align-content: start;
+  gap: 1.15rem;
   min-height: 100%;
-  background: var(--color-surface);
+  padding: clamp(1.35rem, 2.8vw, 2.5rem);
+  background:
+    radial-gradient(circle at 55% -8%, rgb(198 60 255 / 10%), transparent 28rem),
+    linear-gradient(180deg, rgb(9 7 20 / 96%), rgb(3 4 12 / 99%));
 }
 
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
-  gap: clamp(2rem, 6vw, 6rem);
-  align-items: end;
-  padding: clamp(2rem, 5vw, 4.5rem);
-  background:
-    radial-gradient(circle at 90% 15%, var(--color-highlight-soft), transparent 25rem),
-    var(--color-surface-warm);
+.pageHeader {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.15rem 0 1.25rem;
   border-bottom: 1px solid var(--color-border);
 }
 
-.eyebrow {
-  margin: 0 0 var(--space-2);
-  color: var(--color-accent);
-  font-size: 0.75rem;
-  font-weight: 900;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+.titleLockup {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-.hero h1,
+.titleLockup h1,
 .editor h2,
-.emptyEditor h2,
-.modal h2 {
+.modal h2,
+.emptyState h2 {
   margin: 0;
   font-family: var(--font-display);
 }
 
-.hero h1 {
-  max-width: 16ch;
-  font-size: clamp(2.4rem, 5vw, 4.7rem);
+.titleLockup h1 {
+  font-size: clamp(2.1rem, 4vw, 3.65rem);
   line-height: 0.96;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 0 1.5rem rgb(255 255 255 / 10%);
 }
 
-.hero p:not(.eyebrow) {
-  max-width: 42rem;
+.titleLockup p:last-child {
+  margin: 0.6rem 0 0;
   color: var(--color-text-muted);
-  line-height: 1.7;
+  font-size: clamp(0.9rem, 1.4vw, 1.08rem);
 }
 
-.newPlan,
-.modal {
-  display: grid;
-  gap: var(--space-4);
-  padding: var(--space-5);
+.titleNote,
+.titleSpark {
+  color: var(--color-accent-secondary);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  filter: drop-shadow(0 0 0.8rem rgb(255 60 119 / 55%));
+  transform: rotate(-10deg);
+}
+
+.titleSpark {
+  color: var(--color-info);
+  font-size: clamp(1.45rem, 3vw, 2.4rem);
+  filter: drop-shadow(0 0 0.8rem rgb(57 200 255 / 55%));
+  transform: rotate(10deg);
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--color-highlight);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.createButton,
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.startButton,
+.menuButton,
+.plansPage button {
+  min-height: 2.75rem;
+  padding: 0.66rem 1rem;
+  color: var(--color-text);
   background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: 1.2rem;
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.65rem;
+  cursor: pointer;
+  font-weight: 850;
+  transition:
+    border-color var(--motion-fast) ease,
+    background var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
 }
 
-.plansPage label,
-.newPlan label,
-.modal label {
+.createButton,
+.primaryButton {
+  color: #fff;
+  background: linear-gradient(135deg, rgb(97 23 135 / 78%), rgb(54 10 78 / 94%));
+  border-color: var(--color-accent);
+  box-shadow:
+    inset 0 0 1.2rem rgb(198 60 255 / 12%),
+    0 0 1.4rem rgb(198 60 255 / 15%);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.createButton:hover,
+.primaryButton:hover,
+.startButton:hover {
+  border-color: #e37dff;
+  box-shadow: 0 0 1.8rem rgb(198 60 255 / 30%);
+  transform: translateY(-1px);
+}
+
+.dangerButton {
+  color: #fff;
+  background: rgb(155 28 62 / 80%);
+  border-color: var(--color-danger);
+}
+
+.controls {
   display: grid;
-  gap: var(--space-2);
+  grid-template-columns: minmax(15rem, 1fr) minmax(10rem, 0.3fr) minmax(12rem, 0.36fr);
+  gap: 0.85rem;
+}
+
+.searchField,
+.selectField {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchField > span:first-child {
+  position: absolute;
+  left: 0.9rem;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
-  font-weight: 800;
+  font-size: 1.55rem;
+  pointer-events: none;
 }
 
 .plansPage input,
 .plansPage select,
 .plansPage textarea {
   width: 100%;
-  min-height: 2.65rem;
-  padding: 0.65rem 0.78rem;
+  min-height: 3.15rem;
+  padding: 0.72rem 0.9rem;
   color: var(--color-text);
-  background: var(--color-surface);
+  background: rgb(7 8 18 / 92%);
   border: 1px solid var(--color-border-strong);
-  border-radius: 0.7rem;
+  border-radius: 0.65rem;
 }
 
-.primaryButton,
-.secondaryButton,
-.plansPage button {
-  min-height: 2.55rem;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 0.7rem;
-  cursor: pointer;
-  font-weight: 850;
+.searchField input {
+  padding-left: 2.8rem;
 }
 
-.primaryButton {
-  color: var(--color-on-accent);
-  background: var(--color-accent);
-  border-color: transparent;
-}
-
-.secondaryButton,
-.plansPage button {
-  color: var(--color-text);
-  background: var(--color-surface-raised);
-}
-
-.workspace {
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.68fr) minmax(0, 1.32fr);
-  min-height: 42rem;
+.plansPage input::placeholder {
+  color: #77758a;
 }
 
 .planList {
-  padding: var(--space-5);
-  background: var(--color-surface-muted);
-  border-right: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.55rem;
 }
 
-.planList > header {
+.planCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7.5rem minmax(16rem, 1fr) minmax(8.5rem, 0.26fr) auto;
+  gap: clamp(0.85rem, 1.6vw, 1.4rem);
+  align-items: center;
+  min-height: 8.65rem;
+  padding: 0.75rem 0.9rem 0.75rem 0.75rem;
+  background:
+    linear-gradient(105deg, rgb(16 13 30 / 98%), rgb(8 9 20 / 95%)), var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.85rem;
+  box-shadow: inset 0 1px rgb(255 255 255 / 2%);
+  transition:
+    border-color var(--motion-standard) ease,
+    transform var(--motion-standard) ease;
+}
+
+.planCard:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  transform: translateY(-1px);
+}
+
+.planArtwork {
+  position: relative;
+  display: grid;
+  width: 7.1rem;
+  min-height: 7.1rem;
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(255 255 255 / 5%), transparent), rgb(16 9 28);
+  border: 1px solid;
+  border-radius: 0.8rem;
+}
+
+.planArtwork::before,
+.planArtwork::after {
+  position: absolute;
+  width: 4.5rem;
+  height: 1px;
+  content: '';
+  background: currentColor;
+  opacity: 0.25;
+  transform: rotate(45deg);
+}
+
+.planArtwork::after {
+  transform: rotate(-45deg);
+}
+
+.planArtwork span {
+  z-index: 1;
+  font-size: 2.6rem;
+  filter: drop-shadow(0 0 0.75rem currentColor);
+}
+
+.artwork1 {
+  color: #ff3c77;
+  border-color: rgb(255 60 119 / 55%);
+  box-shadow: inset 0 0 2rem rgb(255 60 119 / 11%);
+}
+
+.artwork2 {
+  color: #39c8ff;
+  border-color: rgb(57 200 255 / 55%);
+  box-shadow: inset 0 0 2rem rgb(57 200 255 / 11%);
+}
+
+.artwork3 {
+  color: #38e6ae;
+  border-color: rgb(56 230 174 / 55%);
+  box-shadow: inset 0 0 2rem rgb(56 230 174 / 11%);
+}
+
+.artwork4 {
+  color: #ffc936;
+  border-color: rgb(255 201 54 / 55%);
+  box-shadow: inset 0 0 2rem rgb(255 201 54 / 11%);
+}
+
+.planSummary {
+  display: grid;
+  gap: 0.7rem;
+  align-content: center;
+}
+
+.planNameRow {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.7rem;
   align-items: center;
 }
 
-.planList h2 {
-  font-family: var(--font-display);
-}
-
-.planList > header span {
-  display: grid;
-  min-width: 2rem;
-  min-height: 2rem;
-  place-items: center;
-  background: var(--color-highlight-soft);
-  border-radius: 50%;
-  font-weight: 900;
-}
-
-.planList article {
-  display: grid;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-  padding: var(--space-4);
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: 0.9rem;
-}
-
-.planList .selectedCard {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
-}
-
-.planList article > div:first-child {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.planList small {
-  color: var(--color-text-muted);
+.planNameRow h2 {
+  margin: 0;
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
 }
 
 .status {
-  justify-self: start;
-  padding: 0.25rem 0.5rem;
+  padding: 0.22rem 0.45rem;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .draft {
-  background: var(--color-surface-muted);
+  color: #c3c0d0;
+  background: #1a1a29;
 }
 
 .ready {
-  color: #175b37;
-  background: #dff5e7;
+  color: #63f2bd;
+  background: rgb(17 84 63 / 42%);
+  border-color: rgb(56 230 174 / 35%);
 }
 
 .ready_with_warnings {
-  color: #71500b;
-  background: #fff0ba;
+  color: #ffd665;
+  background: rgb(105 76 10 / 38%);
+  border-color: rgb(255 201 54 / 35%);
 }
 
 .invalid {
-  color: #861c1c;
-  background: #ffe2df;
+  color: #ff7991;
+  background: rgb(111 20 44 / 42%);
+  border-color: rgb(255 79 112 / 35%);
 }
 
-.cardActions,
+.categoryTags,
+.planFacts,
 .actions,
 .editorFooter {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 0.55rem;
   align-items: center;
 }
 
-.cardActions button {
-  min-height: 2.15rem;
-  padding: 0.4rem 0.58rem;
+.categoryTags span {
+  padding: 0.22rem 0.52rem;
+  color: #d7b5ff;
+  background: rgb(83 34 112 / 34%);
+  border: 1px solid rgb(198 60 255 / 25%);
+  border-radius: 0.35rem;
+  font-size: 0.7rem;
+}
+
+.categoryTags span:nth-child(2) {
+  color: #8ddffb;
+  background: rgb(20 85 107 / 32%);
+  border-color: rgb(57 200 255 / 24%);
+}
+
+.categoryTags span:nth-child(3) {
+  color: #ff9db9;
+  background: rgb(108 29 53 / 32%);
+  border-color: rgb(255 60 119 / 24%);
+}
+
+.planFacts {
+  color: var(--color-text-muted);
   font-size: 0.72rem;
+}
+
+.planFacts span + span {
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--color-border);
+}
+
+.planFacts b {
+  color: #c2bfd0;
+}
+
+.planDate {
+  display: grid;
+  gap: 0.25rem;
+  align-content: center;
+  min-height: 5rem;
+  padding-left: 1.2rem;
+  color: var(--color-text-muted);
+  border-left: 1px solid var(--color-border);
+  font-size: 0.72rem;
+}
+
+.planDate strong {
+  color: var(--color-text);
+  font-size: 0.82rem;
+}
+
+.planActions {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.startButton {
+  min-width: 7.1rem;
+  color: #e884ff;
+  background: rgb(67 17 91 / 38%);
+  border-color: rgb(198 60 255 / 72%);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.startButton span {
+  margin-right: 0.35rem;
+  color: var(--color-accent);
+}
+
+.menuContainer {
+  position: relative;
+}
+
+.menuButton {
+  width: 3rem;
+  padding: 0;
+  font-size: 1.5rem;
+}
+
+.planMenu {
+  position: absolute;
+  z-index: 12;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  display: grid;
+  width: 12.5rem;
+  padding: 0.4rem;
+  background: rgb(10 10 21 / 98%);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.7rem;
+  box-shadow: 0 1.2rem 3rem rgb(0 0 0 / 60%);
+}
+
+.planMenu button {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: flex-start;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.7rem;
+  background: transparent;
+  border-color: transparent;
+  text-align: left;
+}
+
+.planMenu button:hover {
+  background: var(--color-surface-muted);
+}
+
+.planMenu .deleteAction {
+  color: var(--color-danger);
+}
+
+.tip {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding: 0.75rem 1rem;
+  color: var(--color-text-muted);
+  background: rgb(12 11 25 / 90%);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.tip > span {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  background: var(--color-highlight-soft);
+  border: 1px solid rgb(255 201 54 / 32%);
+  border-radius: 50%;
+}
+
+.tip p {
+  margin: 0;
+}
+
+.tip strong {
+  color: var(--color-highlight);
+}
+
+.emptyState {
+  display: grid;
+  justify-items: center;
+  min-height: 25rem;
+  padding: 3rem;
+  place-content: center;
+  color: var(--color-text-muted);
+  background: rgb(10 10 22 / 72%);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.emptyState > span {
+  color: var(--color-accent);
+  font-size: 3.5rem;
+  filter: drop-shadow(0 0 1rem rgb(198 60 255 / 50%));
+}
+
+.emptyState p {
+  max-width: 34rem;
+}
+
+.plansPage label,
+.modal label {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.modalBackdrop,
+.editorBackdrop {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  padding: clamp(1rem, 4vw, 3rem);
+  place-items: center;
+  overflow-y: auto;
+  background: rgb(1 1 8 / 82%);
+  backdrop-filter: blur(0.75rem);
+}
+
+.editorBackdrop {
+  z-index: 35;
+  align-items: start;
+}
+
+.modal,
+.editor {
+  width: min(100%, 34rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background:
+    linear-gradient(145deg, rgb(22 16 37 / 98%), rgb(8 9 20 / 99%)), var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 1rem;
+  box-shadow: 0 2rem 6rem rgb(0 0 0 / 60%);
+}
+
+.modal {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.modal p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
 }
 
 .editor {
   display: grid;
-  align-content: start;
-  gap: var(--space-5);
-  padding: clamp(1.5rem, 4vw, 3rem);
+  gap: 1.25rem;
+  width: min(100%, 70rem);
+  margin: auto;
 }
 
 .editorHeader {
+  position: sticky;
+  z-index: 2;
+  top: -1px;
   display: flex;
+  gap: 1rem;
   justify-content: space-between;
-  gap: var(--space-4);
+  padding-bottom: 1rem;
+  background: rgb(15 12 27 / 98%);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .formGrid,
 .configGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: 1rem;
 }
 
 .formGrid label:nth-child(2) {
@@ -240,48 +566,48 @@
 
 .fieldset {
   display: grid;
-  gap: var(--space-4);
+  gap: 1rem;
   margin: 0;
-  padding: var(--space-5);
-  background: var(--color-surface-muted);
+  padding: 1.15rem;
+  background: rgb(7 8 18 / 70%);
   border: 1px solid var(--color-border);
-  border-radius: 1rem;
+  border-radius: 0.8rem;
 }
 
 .fieldset legend,
 .fieldset summary {
   cursor: pointer;
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 
 .categoryGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: 0.6rem;
 }
 
 .checkboxCard {
   display: flex !important;
   flex-direction: row;
   align-items: center;
-  padding: var(--space-3);
+  padding: 0.75rem;
   background: var(--color-surface-raised);
-  border-radius: 0.75rem;
+  border-radius: 0.65rem;
 }
 
 .poolList,
 .issues {
   display: grid;
-  gap: var(--space-3);
+  gap: 0.75rem;
 }
 
 .poolList details {
-  padding: var(--space-3);
+  padding: 0.8rem;
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
+  border-radius: 0.65rem;
 }
 
 .poolList summary {
@@ -291,15 +617,15 @@
 
 .poolLevel {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3) 0;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
   border-bottom: 1px solid var(--color-border);
 }
 
 .levelConfig {
   display: grid;
   grid-template-columns: 0.5fr 1fr 1fr;
-  gap: var(--space-2);
+  gap: 0.5rem;
   align-items: center;
 }
 
@@ -310,12 +636,12 @@
 .toggleGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .issues {
-  padding: var(--space-4);
+  padding: 1rem;
   color: var(--color-text);
   background: var(--color-highlight-soft);
   border-left: 0.3rem solid var(--color-highlight);
@@ -330,88 +656,141 @@
   font-weight: 900;
 }
 
-.emptyEditor {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  padding: var(--space-6);
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-.emptyEditor > span {
-  font-size: 4rem;
-  color: var(--color-highlight);
-}
-
-.renameForm {
-  display: grid;
-  gap: var(--space-2);
-}
-
 .errorBanner {
   display: flex;
+  gap: 0.75rem;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
-  color: #7a1414;
-  background: #ffe2df;
+  padding: 0.75rem 1rem;
+  color: #ffd3dc;
+  background: rgb(111 20 44 / 60%);
+  border: 1px solid rgb(255 79 112 / 40%);
+  border-radius: 0.6rem;
 }
 
 .formError {
   margin: 0;
-  color: #8c1c1c;
+  color: #ff91a6 !important;
   font-weight: 800;
-}
-
-.modalBackdrop {
-  position: fixed;
-  z-index: 30;
-  inset: 0;
-  display: grid;
-  padding: var(--space-4);
-  place-items: center;
-  background: rgb(20 16 12 / 58%);
-}
-
-.modal {
-  width: min(100%, 32rem);
-}
-
-.modal h2 {
-  font-size: 2rem;
 }
 
 .warningAcceptance {
   display: flex !important;
   flex-direction: row;
-  padding: var(--space-3);
-  color: #684a0b !important;
-  background: #fff0ba;
-  border-radius: 0.7rem;
+  padding: 0.75rem;
+  color: #ffe59a !important;
+  background: rgb(105 76 10 / 40%);
+  border-radius: 0.65rem;
 }
 
 .loading {
   margin: auto;
 }
 
-@media (max-width: 62rem) {
-  .hero,
-  .workspace {
-    grid-template-columns: 1fr;
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 72rem) {
+  .planCard {
+    grid-template-columns: 6.25rem minmax(12rem, 1fr) auto;
   }
 
-  .planList {
-    border-right: 0;
-    border-bottom: 1px solid var(--color-border);
+  .planArtwork {
+    width: 5.85rem;
+    min-height: 5.85rem;
+  }
+
+  .planDate {
+    display: none;
+  }
+}
+
+@media (max-width: 54rem) {
+  .pageHeader {
+    align-items: flex-start;
+  }
+
+  .titleSpark {
+    display: none;
+  }
+
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .searchField {
+    grid-column: 1 / -1;
+  }
+
+  .planCard {
+    grid-template-columns: 5.25rem minmax(0, 1fr);
+  }
+
+  .planArtwork {
+    width: 4.9rem;
+    min-height: 4.9rem;
+  }
+
+  .planActions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--color-border);
   }
 }
 
 @media (max-width: 38rem) {
+  .plansPage {
+    padding: 1rem;
+  }
+
+  .pageHeader {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .pageHeader > button {
+    width: 100%;
+  }
+
+  .titleNote {
+    display: none;
+  }
+
+  .titleLockup h1 {
+    font-size: 2.15rem;
+  }
+
+  .controls,
   .formGrid,
   .configGrid,
   .categoryGrid {
     grid-template-columns: 1fr;
+  }
+
+  .searchField {
+    grid-column: auto;
+  }
+
+  .planCard {
+    grid-template-columns: 1fr;
+  }
+
+  .planArtwork {
+    width: 100%;
+    min-height: 5rem;
+  }
+
+  .planFacts span + span {
+    padding-left: 0;
+    border-left: 0;
   }
 
   .editorHeader {
