@@ -29,6 +29,7 @@ export function GameplayVideoStage({
   const containerRef = useRef<HTMLDivElement>(null);
   const coordinatorRef = useRef<ChallengePlaybackCoordinator | undefined>(undefined);
   const readySentRef = useRef(false);
+  const playSentRef = useRef(false);
   const pauseSentRef = useRef(false);
   const phaseRef = useRef(session.phase);
   phaseRef.current = session.phase;
@@ -40,6 +41,7 @@ export function GameplayVideoStage({
 
   useEffect(() => {
     readySentRef.current = false;
+    playSentRef.current = false;
     pauseSentRef.current = false;
     setVerificationStarted(false);
 
@@ -66,6 +68,15 @@ export function GameplayVideoStage({
         readySentRef.current = true;
         onReady();
       }
+      if (
+        !verification &&
+        nextSnapshot.status === 'PLAYING_CHALLENGE' &&
+        nextSnapshot.playerState === 'PLAYING' &&
+        !playSentRef.current
+      ) {
+        playSentRef.current = true;
+        if (!onPlay()) coordinator.pauseChallengePreview();
+      }
       if (!verification && nextSnapshot.status === 'PAUSED_AT_CHALLENGE' && !pauseSentRef.current) {
         pauseSentRef.current = true;
         onPaused();
@@ -84,15 +95,18 @@ export function GameplayVideoStage({
       coordinator.dispose();
       coordinatorRef.current = undefined;
     };
-  }, [activeChallenge, fakeMedia, onPaused, onReady, verification]);
+  }, [activeChallenge, fakeMedia, onPaused, onPlay, onReady, verification]);
 
   if (!activeChallenge) {
     return <p className={styles.notice}>The active challenge could not be loaded.</p>;
   }
 
   const playChallenge = () => {
-    if (!onPlay()) return;
-    if (!fakeMedia) coordinatorRef.current?.playChallenge();
+    if (fakeMedia) {
+      onPlay();
+      return;
+    }
+    coordinatorRef.current?.playChallenge();
   };
 
   const playVerification = () => {

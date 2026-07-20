@@ -27,7 +27,7 @@ interface YouTubePlayerOptions {
   height: string;
   playerVars: {
     autoplay: 0;
-    controls: 0;
+    controls: 1;
     playsinline: 1;
     origin: string;
   };
@@ -172,7 +172,7 @@ export class YouTubeVideoPlayerService implements VideoPlayerService {
           height: '100%',
           playerVars: {
             autoplay: 0,
-            controls: 0,
+            controls: 1,
             playsinline: 1,
             origin: window.location.origin,
           },
