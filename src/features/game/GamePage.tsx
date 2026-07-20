@@ -2,16 +2,16 @@ import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from
 import { useLocation } from 'react-router-dom';
 
 import { LyricPuzzle } from '../../components/LyricPuzzle/LyricPuzzle';
-import { selectChallenge } from '../../domain/catalog';
+import { analyzeCatalogCoverage, selectChallenge } from '../../domain/catalog';
 import { getCategoryConsumptionRecord, getWinningTeams } from '../../domain/engine';
 import type { AnswerResult, CategoryAssignmentMode, LifelineType } from '../../domain/enums';
 import type { Category } from '../../domain/models/catalog';
 import type { GameSession } from '../../domain/models/game';
 import type { ScoreBreakdown } from '../../domain/models/score';
 import type { TimerSnapshot } from '../../services/timer';
+import { useAdminStore } from '../../store/adminStore';
 import { useGameplayStore } from '../../store/gameplayStore';
 import { resolveCategoryIcon } from '../../utils/categoryIcon';
-import { GAMEPLAY_CATEGORIES } from './gameplayCatalog';
 import { GameplayVideoStage } from './GameplayVideoStage';
 import {
   buildRuntimeChallengeSelectionRequest,
@@ -123,9 +123,30 @@ function TeamSetup() {
   const completedSummaries = useGameplayStore((state) => state.completedSummaries);
   const persistenceError = useGameplayStore((state) => state.persistenceError);
   const clearPersistenceError = useGameplayStore((state) => state.clearPersistenceError);
+  const gameplayFailure = useGameplayStore((state) => state.failure);
+  const clearFailure = useGameplayStore((state) => state.clearFailure);
+  const catalog = getRuntimeCatalogIndex();
+  const coverageByCategoryId = new Map(
+    analyzeCatalogCoverage(catalog).categories.map((coverage) => [coverage.categoryId, coverage]),
+  );
+  const categories = catalog.snapshot.categories;
   const [teamOne, setTeamOne] = useState('Team Sunset');
   const [teamTwo, setTeamTwo] = useState('Team Starlight');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() =>
+    categories
+      .filter((category) => category.enabled)
+      .slice(0, 10)
+      .map((category) => category.id),
+  );
   const [validation, setValidation] = useState<string | undefined>();
+
+  const toggleCategory = (categoryId: string) => {
+    setValidation(undefined);
+    setSelectedCategoryIds((current) => {
+      if (current.includes(categoryId)) return current.filter((id) => id !== categoryId);
+      return current.length < 10 ? [...current, categoryId] : current;
+    });
+  };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -137,7 +158,11 @@ function TeamSetup() {
       setValidation('Choose two different team names.');
       return;
     }
-    startSetup(teamOne.trim(), teamTwo.trim());
+    if (selectedCategoryIds.length !== 10) {
+      setValidation('Select exactly ten enabled categories.');
+      return;
+    }
+    startSetup(teamOne.trim(), teamTwo.trim(), selectedCategoryIds);
   };
 
   return (
@@ -185,7 +210,44 @@ function TeamSetup() {
             value={teamTwo}
           />
         </label>
+        <fieldset className={styles.setupCategories}>
+          <legend>Categories · {selectedCategoryIds.length}/10 selected</legend>
+          <p>All saved categories appear here. Coverage labels show which need more challenges.</p>
+          <div className={styles.setupCategoryGrid}>
+            {categories.map((category) => {
+              const coverage = coverageByCategoryId.get(category.id);
+              const isReady = coverage?.isReady ?? false;
+              return (
+                <label className={styles.setupCategoryOption} key={category.id}>
+                  <input
+                    checked={selectedCategoryIds.includes(category.id)}
+                    disabled={!category.enabled}
+                    onChange={() => toggleCategory(category.id)}
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
+                  <strong>{category.name}</strong>
+                  <small>
+                    {category.enabled
+                      ? isReady
+                        ? 'Ready'
+                        : 'Needs challenges'
+                      : 'Disabled'}
+                  </small>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
         {validation && <p className={styles.formError}>{validation}</p>}
+        {gameplayFailure && (
+          <div className={styles.inlineError} role="alert">
+            <span>{gameplayFailure}</span>
+            <button onClick={clearFailure} type="button">
+              Dismiss
+            </button>
+          </div>
+        )}
         <button className={styles.primaryButton} type="submit">
           Build the round
         </button>
@@ -574,6 +636,13 @@ function PhaseStage(props: PhaseStageProps) {
   const activeTeam = session.teams.find((team) => team.id === turn?.primaryTeamId);
   const opposingTeam = session.teams.find((team) => team.id === turn?.opposingTeamId);
   const challenge = session.activeChallenge;
+  const categoriesById = new Map(
+    getRuntimeCatalogIndex().snapshot.categories.map((category) => [category.id, category]),
+  );
+  const roundCategories = session.roundConfig.selectedCategoryIds.flatMap((categoryId) => {
+    const category = categoriesById.get(categoryId);
+    return category ? [category] : [];
+  });
 
   switch (session.phase) {
     case 'ROUND_BUILDING':
@@ -581,10 +650,10 @@ function PhaseStage(props: PhaseStageProps) {
         <Stage
           eyebrow="Round builder"
           title="Ten categories are locked in."
-          description="Every category has fictional demo challenges at all five levels."
+          description="These categories and their saved song challenges will be used for this game."
         >
           <div className={styles.categoryGrid}>
-            {GAMEPLAY_CATEGORIES.map((category) => (
+            {roundCategories.map((category) => (
               <article className={styles.categoryCard} key={category.id}>
                 <span aria-hidden="true">{resolveCategoryIcon(category.icon)}</span>
                 <strong>{category.name}</strong>
@@ -696,7 +765,7 @@ function PhaseStage(props: PhaseStageProps) {
           </label>
           <CategoryAssignmentGrid
             assignmentMode={assignmentMode}
-            categories={GAMEPLAY_CATEGORIES}
+            categories={roundCategories}
             onAssign={assignCategory}
             session={session}
           />
@@ -1162,16 +1231,23 @@ function ActiveGame({ session }: { session: GameSession }) {
 export function GamePage() {
   const { session, persistenceStatus, savedSession, savedSessionIssue, initializePersistence } =
     useGameplayStore();
+  const catalogStatus = useAdminStore((state) => state.status);
+  const initializeCatalog = useAdminStore((state) => state.initialize);
 
   useEffect(() => {
     initializePersistence();
-  }, [initializePersistence]);
+    void initializeCatalog();
+  }, [initializeCatalog, initializePersistence]);
 
-  if (persistenceStatus !== 'READY') {
+  if (
+    persistenceStatus !== 'READY' ||
+    catalogStatus === 'UNINITIALIZED' ||
+    catalogStatus === 'LOADING'
+  ) {
     return (
       <section className={styles.resumeShell} aria-live="polite">
         <p className={styles.eyebrow}>Local game</p>
-        <h1>Checking for a saved game…</h1>
+        <h1>Loading the saved game and catalog…</h1>
       </section>
     );
   }

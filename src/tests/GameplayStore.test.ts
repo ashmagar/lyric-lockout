@@ -34,6 +34,38 @@ describe('gameplay application store', () => {
     expect(useGameplayStore.getState().session?.phase).toBe('LEVEL_INTRO');
   });
 
+  it('replaces demo content with the authored runtime catalog', () => {
+    const sourceCategory = GAMEPLAY_CATEGORIES[0]!;
+    const sourceSong = GAMEPLAY_CATALOG_INDEX.songById.get('song-90s-bollywood');
+    if (!sourceSong) throw new Error('Expected a bundled source song');
+    const authoredCategory = {
+      ...sourceCategory,
+      id: 'category-authored-runtime',
+      name: 'Authored Runtime Category',
+    };
+    const authoredSong = {
+      ...sourceSong,
+      id: 'song-authored-runtime',
+      title: 'Authored Runtime Song',
+      categoryIds: [authoredCategory.id],
+      challenges: sourceSong.challenges.map((challenge) => ({
+        ...challenge,
+        id: `authored-${challenge.id}`,
+      })),
+    };
+
+    const index = updateRuntimeCatalog([authoredCategory], [authoredSong]);
+
+    expect(index.snapshot.categories.map((category) => category.id)).toEqual([
+      authoredCategory.id,
+    ]);
+    expect(index.snapshot.songs.map((song) => song.id)).toEqual([authoredSong.id]);
+    expect(getCatalogCandidates(index, authoredCategory.id, 1)[0]?.song.title).toBe(
+      'Authored Runtime Song',
+    );
+    expect(index.songById.has('song-90s-bollywood')).toBe(false);
+  });
+
   it('selects a replacement challenge while preserving the assigned category', () => {
     const store = useGameplayStore.getState();
     store.startSetup('Alpha', 'Beta');

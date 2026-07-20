@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { AdminGateway } from '../application/admin';
 import { createTestRouter } from '../app/router';
+import { GAMEPLAY_CATEGORIES } from '../features/game/gameplayCatalog';
+import { resetRuntimeCatalog } from '../features/game/runtimeCatalog';
 import { ACTIVE_GAME_STORAGE_KEY } from '../repositories';
 import { configureAdminGateway, useAdminStore } from '../store/adminStore';
 import { configureGamePlanRepository, useGamePlanStore } from '../store/gamePlanStore';
@@ -33,6 +35,7 @@ describe('application shell', () => {
     configureGameplayRepository(undefined);
     configureGamePlanRepository(undefined);
     configureAdminGateway(EMPTY_ADMIN_GATEWAY);
+    resetRuntimeCatalog();
     useAdminStore.setState({
       status: 'UNINITIALIZED',
       categories: [],
@@ -75,6 +78,28 @@ describe('application shell', () => {
     renderRoute(path);
 
     expect(await screen.findByRole('heading', { name: heading })).toBeInTheDocument();
+  });
+
+  it('loads newly authored categories before rendering new-game setup', async () => {
+    const authoredCategory = {
+      ...GAMEPLAY_CATEGORIES[0]!,
+      id: 'category-authored-for-gameplay',
+      name: 'Authored Gameplay Category',
+      displayOrder: 42,
+    };
+    configureAdminGateway({
+      ...EMPTY_ADMIN_GATEWAY,
+      loadCatalog: () =>
+        Promise.resolve({ categories: [authoredCategory], songs: [], issues: [] }),
+    });
+
+    renderRoute('/game');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Bring two teams to the stage.' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Authored Gameplay Category')).toBeInTheDocument();
+    expect(screen.queryByText('Romantic')).not.toBeInTheDocument();
   });
 
   it.each([

@@ -48,7 +48,11 @@ export interface GameplayState {
   discardSavedGame: () => void;
   exportRecoveryData: () => string;
   clearPersistenceError: () => void;
-  startSetup: (teamOneName: string, teamTwoName: string) => void;
+  startSetup: (
+    teamOneName: string,
+    teamTwoName: string,
+    selectedCategoryIds?: readonly string[],
+  ) => void;
   startSession: (session: GameSession) => void;
   send: (command: CommandInput) => boolean;
   selectChallenge: () => void;
@@ -241,8 +245,14 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
     set({ persistenceError: undefined });
   },
 
-  startSetup(teamOneName, teamTwoName) {
+  startSetup(teamOneName, teamTwoName, selectedCategoryIds) {
     const createdAt = timestamp();
+    const categoryIds =
+      selectedCategoryIds ??
+      getRuntimeCatalogIndex().snapshot.categories
+        .filter((category) => category.enabled)
+        .slice(0, 10)
+        .map((category) => category.id);
     const session = createGame({
       id: nextId('game'),
       createdAt,
@@ -250,7 +260,10 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
         { id: 'team-a', name: teamOneName },
         { id: 'team-b', name: teamTwoName },
       ],
-      roundConfig: GAMEPLAY_ROUND_CONFIG,
+      roundConfig: {
+        ...GAMEPLAY_ROUND_CONFIG,
+        selectedCategoryIds: [...categoryIds],
+      },
     });
     set({
       session,

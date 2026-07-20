@@ -8,7 +8,7 @@ import {
   validateGamePlan,
   type GamePlan,
 } from '../domain';
-import { getCatalogCandidates } from '../domain/catalog';
+import { buildCatalogIndex, createCatalogSnapshot, getCatalogCandidates } from '../domain/catalog';
 import { GAMEPLAY_CATALOG_INDEX } from '../features/game/gameplayCatalog';
 import {
   GAME_PLANS_STORAGE_KEY,
@@ -80,6 +80,31 @@ function start(source: GamePlan, gameId: string, acceptWarnings = false) {
 }
 
 describe('Saved Game Plan domain lifecycle', () => {
+  it('prefers gameplay-ready categories when a catalog contains more than ten', () => {
+    const incompleteCategory = {
+      ...GAMEPLAY_CATALOG_INDEX.snapshot.categories[0]!,
+      id: 'category-incomplete-first',
+      name: 'Incomplete First Category',
+      displayOrder: 0,
+    };
+    const catalog = buildCatalogIndex(
+      createCatalogSnapshot(
+        [incompleteCategory, ...GAMEPLAY_CATALOG_INDEX.snapshot.categories],
+        GAMEPLAY_CATALOG_INDEX.snapshot.songs,
+      ),
+    );
+
+    const created = createGamePlan({
+      id: 'coverage-aware-plan',
+      name: 'Coverage Aware',
+      createdAt: TIMESTAMP,
+      catalog,
+    });
+
+    expect(created.roundConfig.selectedCategoryIds).toHaveLength(10);
+    expect(created.roundConfig.selectedCategoryIds).not.toContain(incompleteCategory.id);
+  });
+
   it('reuses one plan for multiple independent sessions', () => {
     const source = validateGamePlan({
       plan: plan(),

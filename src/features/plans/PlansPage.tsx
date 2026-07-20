@@ -1,13 +1,15 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { getCatalogCandidates } from '../../domain/catalog';
+import { getCatalogCandidates, type CatalogIndex } from '../../domain/catalog';
 import { DIFFICULTY_LEVELS, type DifficultyLevel, type GamePlan } from '../../domain';
-import { GAMEPLAY_CATALOG_INDEX, GAMEPLAY_CATEGORIES } from '../game/gameplayCatalog';
+import type { Category } from '../../domain/models/catalog';
+import { useAdminStore } from '../../store/adminStore';
 import { useGamePlanStore } from '../../store/gamePlanStore';
 import { resolveCategoryIcon } from '../../utils/categoryIcon';
 import { useGameplayStore } from '../../store/gameplayStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { getRuntimeCatalogIndex } from '../game/runtimeCatalog';
 import styles from './PlansPage.module.css';
 
 const STATUS_LABELS: Record<GamePlan['status'], string> = {
@@ -25,7 +27,17 @@ function PlanStatus({ plan }: { plan: GamePlan }) {
   );
 }
 
-function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) {
+function PlanEditor({
+  plan,
+  categories,
+  catalog,
+  onClose,
+}: {
+  plan: GamePlan;
+  categories: readonly Category[];
+  catalog: CatalogIndex;
+  onClose: () => void;
+}) {
   const savePlan = useGamePlanStore((state) => state.savePlan);
   const validatePlan = useGamePlanStore((state) => state.validatePlan);
   const [draft, setDraft] = useState(plan);
@@ -44,7 +56,9 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
 
   const toggleCategory = (categoryId: string) => {
     updateDraft((current) => {
-      const selected = current.roundConfig.selectedCategoryIds.includes(categoryId)
+      const isSelected = current.roundConfig.selectedCategoryIds.includes(categoryId);
+      if (!isSelected && current.roundConfig.selectedCategoryIds.length >= 10) return current;
+      const selected = isSelected
         ? current.roundConfig.selectedCategoryIds.filter((id) => id !== categoryId)
         : [...current.roundConfig.selectedCategoryIds, categoryId];
       return {
@@ -97,12 +111,12 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
       ...current,
       roundConfig: {
         ...current.roundConfig,
-        manualChallengePools: GAMEPLAY_CATEGORIES.map((category) => ({
+        manualChallengePools: categories.map((category) => ({
           categoryId: category.id,
           approvedChallengeIdsByDifficulty: Object.fromEntries(
             DIFFICULTY_LEVELS.map((difficulty) => [
               difficulty,
-              getCatalogCandidates(GAMEPLAY_CATALOG_INDEX, category.id, difficulty).map(
+              getCatalogCandidates(catalog, category.id, difficulty).map(
                 (candidate) => candidate.challenge.id,
               ),
             ]),
@@ -235,10 +249,11 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
         <fieldset className={styles.fieldset}>
           <legend>Categories · {draft.roundConfig.selectedCategoryIds.length}/10 selected</legend>
           <div className={styles.categoryGrid}>
-            {GAMEPLAY_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <label className={styles.checkboxCard} key={category.id}>
                 <input
                   checked={draft.roundConfig.selectedCategoryIds.includes(category.id)}
+                  disabled={!category.enabled}
                   onChange={() => toggleCategory(category.id)}
                   type="checkbox"
                 />
@@ -258,10 +273,10 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
             attached to this plan when modes change.
           </p>
           <button className={styles.secondaryButton} onClick={approveAllChallenges} type="button">
-            Approve all current demo challenges
+            Approve all current catalog challenges
           </button>
           <div className={styles.poolList}>
-            {GAMEPLAY_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <details key={category.id}>
                 <summary>{category.name}</summary>
                 {DIFFICULTY_LEVELS.map((difficulty) => {
@@ -269,11 +284,7 @@ function PlanEditor({ plan, onClose }: { plan: GamePlan; onClose: () => void }) 
                     draft.roundConfig.manualChallengePools.find(
                       (pool) => pool.categoryId === category.id,
                     )?.approvedChallengeIdsByDifficulty[difficulty] ?? [];
-                  const candidates = getCatalogCandidates(
-                    GAMEPLAY_CATALOG_INDEX,
-                    category.id,
-                    difficulty,
-                  );
+                  const candidates = getCatalogCandidates(catalog, category.id, difficulty);
                   return (
                     <div className={styles.poolLevel} key={difficulty}>
                       <strong>Level {difficulty}</strong>
@@ -629,11 +640,17 @@ export function PlansPage() {
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [startId, setStartId] = useState<string | undefined>();
   const initializeGameplayPersistence = useGameplayStore((state) => state.initializePersistence);
+  const catalogStatus = useAdminStore((state) => state.status);
+  const initializeCatalog = useAdminStore((state) => state.initialize);
 
   useEffect(() => {
     initialize();
     initializeGameplayPersistence();
-  }, [initialize, initializeGameplayPersistence]);
+    void initializeCatalog();
+  }, [initialize, initializeCatalog, initializeGameplayPersistence]);
+
+  const catalog = getRuntimeCatalogIndex();
+  const categories = catalog.snapshot.categories;
 
   const editingPlan = useMemo(
     () => plans.find((plan) => plan.id === editingId),
@@ -650,8 +667,12 @@ export function PlansPage() {
     }
   };
 
-  if (status !== 'READY') {
-    return <p className={styles.loading}>Loading Saved Game Plans…</p>;
+  if (
+    status !== 'READY' ||
+    catalogStatus === 'UNINITIALIZED' ||
+    catalogStatus === 'LOADING'
+  ) {
+    return <p className={styles.loading}>Loading Saved Game Plans and catalog…</p>;
   }
 
   return (
@@ -779,7 +800,12 @@ export function PlansPage() {
         </aside>
 
         {editingPlan ? (
-          <PlanEditor plan={editingPlan} onClose={() => setEditingId(undefined)} />
+          <PlanEditor
+            catalog={catalog}
+            categories={categories}
+            plan={editingPlan}
+            onClose={() => setEditingId(undefined)}
+          />
         ) : (
           <div className={styles.emptyEditor}>
             <span aria-hidden="true">♫</span>

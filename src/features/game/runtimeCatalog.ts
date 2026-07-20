@@ -1,7 +1,7 @@
 import { buildCatalogIndex, createCatalogSnapshot, type CatalogIndex } from '../../domain/catalog';
 import type { Category, Song } from '../../domain/models/catalog';
 import type { ChallengeSelectionRequest, GameSession } from '../../domain/models/game';
-import { GAMEPLAY_CATALOG_INDEX, GAMEPLAY_CATEGORIES } from './gameplayCatalog';
+import { GAMEPLAY_CATALOG_INDEX } from './gameplayCatalog';
 
 let runtimeCatalogIndex = GAMEPLAY_CATALOG_INDEX;
 
@@ -32,23 +32,20 @@ export function updateRuntimeCatalog(
   categories: readonly Category[],
   authoredSongs: readonly Song[],
 ): CatalogIndex {
-  const enabledCategoryIds = new Set(
-    categories.filter((category) => category.enabled).map((item) => item.id),
-  );
-  const runtimeCategories = GAMEPLAY_CATEGORIES.map((category) => ({
-    ...category,
-    enabled: enabledCategoryIds.size === 0 || enabledCategoryIds.has(category.id),
-  }));
-  const authoredIds = new Set(authoredSongs.map((song) => song.id));
-  const bundledSongs = GAMEPLAY_CATALOG_INDEX.snapshot.songs.filter(
-    (song) => !authoredIds.has(song.id),
+  if (categories.length === 0 && authoredSongs.length === 0) {
+    return resetRuntimeCatalog();
+  }
+
+  const runtimeCategories = [...categories].sort(
+    (left, right) => left.displayOrder - right.displayOrder || left.id.localeCompare(right.id),
   );
   runtimeCatalogIndex = buildCatalogIndex(
-    createCatalogSnapshot(runtimeCategories, [...bundledSongs, ...authoredSongs]),
+    createCatalogSnapshot(runtimeCategories, authoredSongs),
   );
   return runtimeCatalogIndex;
 }
 
-export function resetRuntimeCatalog(): void {
+export function resetRuntimeCatalog(): CatalogIndex {
   runtimeCatalogIndex = GAMEPLAY_CATALOG_INDEX;
+  return runtimeCatalogIndex;
 }

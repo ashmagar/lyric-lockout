@@ -1,4 +1,9 @@
-import { buildRoundConfig, type CatalogIndex, type ValidationDiagnostic } from '../catalog';
+import {
+  analyzeCatalogCoverage,
+  buildRoundConfig,
+  type CatalogIndex,
+  type ValidationDiagnostic,
+} from '../catalog';
 import { DEFAULT_GAME_CONFIG, DEFAULT_THEME, SCHEMA_VERSIONS } from '../constants';
 import { createGame, type RandomSource, type TeamIdentity } from '../engine';
 import type { GameSession } from '../models/game';
@@ -73,8 +78,16 @@ function toPlanIssue(diagnostic: ValidationDiagnostic): GamePlanValidationIssue 
 }
 
 export function createGamePlan(input: CreateGamePlanInput): GamePlan {
-  const selectedCategoryIds = input.catalog.snapshot.categories
-    .filter((category) => category.enabled)
+  const readyCategoryIds = new Set(
+    analyzeCatalogCoverage(input.catalog).categories
+      .filter((category) => category.isReady)
+      .map((category) => category.categoryId),
+  );
+  const enabledCategories = input.catalog.snapshot.categories.filter((category) => category.enabled);
+  const selectedCategoryIds = [
+    ...enabledCategories.filter((category) => readyCategoryIds.has(category.id)),
+    ...enabledCategories.filter((category) => !readyCategoryIds.has(category.id)),
+  ]
     .slice(0, 10)
     .map((category) => category.id);
 
