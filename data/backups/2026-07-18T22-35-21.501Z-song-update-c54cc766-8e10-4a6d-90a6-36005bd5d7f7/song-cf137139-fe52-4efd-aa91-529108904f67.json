@@ -1,0 +1,119 @@
+{
+  "id": "song-cf137139-fe52-4efd-aa91-529108904f67",
+  "schemaVersion": 1,
+  "title": "Ho Gayi Hai Mohabbat Tum Se",
+  "artist": "Atif Aslam",
+  "youtubeVideoId": "IdYrNjasdso",
+  "videoType": "LYRIC",
+  "categoryIds": [
+    "90s-bollywood",
+    "party-songs",
+    "category-f8597d70-8443-48ce-8b84-1ff52dd2dfb5",
+    "category-3be57b41-2fac-4d5a-9f83-44e89d6b972a"
+  ],
+  "language": "Hindi",
+  "releaseYear": 1998,
+  "enabled": false,
+  "challenges": [
+    {
+      "id": "challenge-fe0a9ec7-b86b-4ce3-a10b-c2d20368cb6f",
+      "difficulty": 5,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 66,
+      "verifyFromSeconds": 60,
+      "verifyToSeconds": 80,
+      "expectedLyrics": "Rakh Dein Saare Jahaan Ki Khushiyan\nTumhare Kadmon Par",
+      "hiddenWordIndexes": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "missingWordCount": 7,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:32:35.112Z",
+      "updatedAt": "2026-07-18T22:33:35.362Z"
+    },
+    {
+      "id": "challenge-84c1899e-84db-4920-9d10-9f4aad0a25d8",
+      "difficulty": 4,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 66.7,
+      "verifyFromSeconds": 60,
+      "verifyToSeconds": 80,
+      "expectedLyrics": "Rakh Dein Saare Jahaan Ki Khushiyan\nTumhare Kadmon Par",
+      "hiddenWordIndexes": [
+        2,
+        3,
+        6,
+        7,
+        8
+      ],
+      "missingWordCount": 5,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:33:37.487Z",
+      "updatedAt": "2026-07-18T22:34:09.836Z"
+    },
+    {
+      "id": "challenge-2e5f8a4a-b4df-4b6c-aaee-3a2fea3e9f32",
+      "difficulty": 3,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 66.7,
+      "verifyFromSeconds": 60,
+      "verifyToSeconds": 80,
+      "expectedLyrics": "Rakh Dein Saare Jahaan Ki Khushiyan\nTumhare Kadmon Par",
+      "hiddenWordIndexes": [
+        3,
+        5,
+        7
+      ],
+      "missingWordCount": 3,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:34:17.154Z",
+      "updatedAt": "2026-07-18T22:34:43.037Z"
+    },
+    {
+      "id": "challenge-915356e2-de38-4ee0-9cf4-794d519581ee",
+      "difficulty": 2,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 66.7,
+      "verifyFromSeconds": 60,
+      "verifyToSeconds": 80,
+      "expectedLyrics": "Rakh Dein Saare Jahaan Ki Khushiyan\nTumhare Kadmon Par",
+      "hiddenWordIndexes": [
+        2,
+        3
+      ],
+      "missingWordCount": 2,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:34:50.029Z",
+      "updatedAt": "2026-07-18T22:34:54.402Z"
+    },
+    {
+      "id": "challenge-7e32b39a-4f73-4463-a008-d5a2db995470",
+      "difficulty": 1,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 66.7,
+      "verifyFromSeconds": 60,
+      "verifyToSeconds": 80,
+      "expectedLyrics": "Rakh Dein Saare Jahaan Ki Khushiyan\nTumhare Kadmon Par",
+      "hiddenWordIndexes": [
+        5
+      ],
+      "missingWordCount": 1,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:34:59.294Z",
+      "updatedAt": "2026-07-18T22:35:10.203Z"
+    }
+  ],
+  "createdAt": "2026-07-18T22:30:11.788Z",
+  "updatedAt": "2026-07-18T22:35:10.203Z"
+}

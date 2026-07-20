@@ -1,0 +1,116 @@
+{
+  "id": "song-619360fa-f070-4efb-a78c-940ab8a23c3f",
+  "schemaVersion": 1,
+  "title": "Dum Dum Dum Mast Hai",
+  "artist": "Benny Dayal",
+  "youtubeVideoId": "JBGRCSQRse4",
+  "videoType": "LYRIC",
+  "categoryIds": [
+    "dance-hits",
+    "category-c1d57821-e58f-4bcf-958a-7aa75731c932",
+    "party-songs"
+  ],
+  "language": "Hindi",
+  "releaseYear": 2010,
+  "enabled": false,
+  "challenges": [
+    {
+      "id": "challenge-ef8b88e4-0f74-4e75-a9de-390f89c70fcb",
+      "difficulty": 5,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 31,
+      "verifyFromSeconds": 20,
+      "verifyToSeconds": 40,
+      "expectedLyrics": "Muteyaara Pe Vaara\nGhar Jaidaad Sab Haara",
+      "hiddenWordIndexes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "missingWordCount": 7,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:26:35.885Z",
+      "updatedAt": "2026-07-18T22:28:43.401Z"
+    },
+    {
+      "id": "challenge-4b816a86-339b-43d5-ad3f-5952372374d9",
+      "difficulty": 1,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 31,
+      "verifyFromSeconds": 20,
+      "verifyToSeconds": 40,
+      "expectedLyrics": "Muteyaara Pe Vaara\nGhar Jaidaad Sab Haara",
+      "hiddenWordIndexes": [
+        3
+      ],
+      "missingWordCount": 1,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:28:45.526Z",
+      "updatedAt": "2026-07-18T22:29:04.297Z"
+    },
+    {
+      "id": "challenge-588f781f-87ff-46e1-9244-6e2219477652",
+      "difficulty": 2,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 31,
+      "verifyFromSeconds": 20,
+      "verifyToSeconds": 40,
+      "expectedLyrics": "Muteyaara Pe Vaara\nGhar Jaidaad Sab Haara",
+      "hiddenWordIndexes": [
+        3,
+        4
+      ],
+      "missingWordCount": 2,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:29:07.668Z",
+      "updatedAt": "2026-07-18T22:29:12.017Z"
+    },
+    {
+      "id": "challenge-31caf590-5b2e-4cef-9c55-93da066b8d34",
+      "difficulty": 3,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 31,
+      "verifyFromSeconds": 20,
+      "verifyToSeconds": 40,
+      "expectedLyrics": "Muteyaara Pe Vaara\nGhar Jaidaad Sab Haara",
+      "hiddenWordIndexes": [
+        2,
+        3,
+        4
+      ],
+      "missingWordCount": 3,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:29:14.835Z",
+      "updatedAt": "2026-07-18T22:29:21.650Z"
+    },
+    {
+      "id": "challenge-dd7d9289-a271-402a-ace6-7c4e21605976",
+      "difficulty": 4,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 31,
+      "verifyFromSeconds": 20,
+      "verifyToSeconds": 40,
+      "expectedLyrics": "Muteyaara Pe Vaara\nGhar Jaidaad Sab Haara",
+      "hiddenWordIndexes": [
+        0,
+        3,
+        4
+      ],
+      "missingWordCount": 3,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:29:30.210Z",
+      "updatedAt": "2026-07-18T22:29:34.485Z"
+    }
+  ],
+  "createdAt": "2026-07-18T22:25:51.153Z",
+  "updatedAt": "2026-07-18T22:29:34.485Z"
+}
