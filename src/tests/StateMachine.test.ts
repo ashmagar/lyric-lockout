@@ -183,6 +183,7 @@ describe('phase transitions and command failures', () => {
     expect(isLegalPhaseTransition('GAME_SETUP', 'ROUND_BUILDING')).toBe(true);
     expect(isLegalPhaseTransition('PRIMARY_RESULT_REVIEW', 'STEAL_OFFER')).toBe(true);
     expect(isLegalPhaseTransition('PRIMARY_RESULT_REVIEW', 'CHALLENGE_VERIFICATION')).toBe(true);
+    expect(isLegalPhaseTransition('PRIMARY_ANSWERING', 'GAME_SUMMARY')).toBe(true);
     expect(isLegalPhaseTransition('TURN_SUMMARY', 'GAME_SUMMARY')).toBe(true);
     expect(isLegalPhaseTransition('GAME_SETUP', 'VIDEO_PLAYING')).toBe(false);
     expect(isLegalPhaseTransition('STEAL_ANSWERING', 'FINAL_SCORE_REVIEW')).toBe(false);
@@ -217,6 +218,31 @@ describe('phase transitions and command failures', () => {
     expect(duplicate.failure.code).toBe('DUPLICATE_COMMAND');
     expect(duplicate.session).toBe(first.session);
     expect(duplicate.events).toEqual([]);
+  });
+
+  it('lets the host finish an active game immediately', () => {
+    const { session, sequence } = enterAnswering();
+    session.teams[0].score = 300;
+    const finished = dispatch(session, command('FINISH_GAME', sequence, {}));
+
+    expect(finished.session).toMatchObject({
+      phase: 'GAME_SUMMARY',
+      status: 'COMPLETED',
+      completedAt: TIMESTAMP,
+      activeTurn: undefined,
+      activeChallenge: undefined,
+    });
+    expect(finished.session.teams.map((team) => team.score)).toEqual([300, 0]);
+    expect(finished.events.map((event) => event.type)).toEqual(
+      expect.arrayContaining([
+        'VIDEO_PAUSE_REQUESTED',
+        'SUSPENSE_STOP_REQUESTED',
+        'TIMER_ACTION_REQUESTED',
+        'GAME_COMPLETED',
+        'PHASE_CHANGED',
+      ]),
+    );
+    expect(() => gameSessionSchema.parse(finished.session)).not.toThrow();
   });
 
   it('blocks a steal after a Perfect primary answer', () => {

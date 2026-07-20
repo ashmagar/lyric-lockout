@@ -57,6 +57,7 @@ export type GameCommand =
       nextPrimaryAttemptId?: string | undefined;
     })
   | (CommandBase & { type: 'START_NEXT_LEVEL' })
+  | (CommandBase & { type: 'FINISH_GAME' })
   | (CommandBase & { type: 'PAUSE_TIMER'; remainingMilliseconds: number })
   | (CommandBase & { type: 'RESUME_TIMER' })
   | (CommandBase & { type: 'RESTART_TIMER' })

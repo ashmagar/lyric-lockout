@@ -184,6 +184,56 @@ function beginVerification(session: GameSession, command: GameCommand): Executio
   ]);
 }
 
+function finishGame(session: GameSession, command: GameCommand): ExecutionResult {
+  if (
+    session.phase === 'GAME_SETUP' ||
+    session.phase === 'ROUND_BUILDING' ||
+    session.phase === 'ROUND_VALIDATION' ||
+    session.phase === 'GAME_SUMMARY'
+  ) {
+    throw new CommandTransitionError(`FINISH_GAME is not allowed during ${session.phase}`);
+  }
+
+  const activeTurn = session.activeTurn;
+  const activeAttempt =
+    session.phase === 'STEAL_ANSWERING' || session.phase === 'STEAL_RESULT_REVIEW'
+      ? activeTurn?.stealAttempt
+      : activeTurn?.primaryAttempt;
+  const finalized =
+    session.phase === 'TURN_SUMMARY' ? completeTurn(session, command.issuedAt) : session;
+  const events: DomainEvent[] = [
+    { ...eventBase(command), type: 'VIDEO_PAUSE_REQUESTED' },
+    { ...eventBase(command), type: 'SUSPENSE_STOP_REQUESTED' },
+  ];
+
+  if (activeAttempt) {
+    events.push({
+      ...eventBase(command),
+      type: 'TIMER_ACTION_REQUESTED',
+      action: 'END',
+      attemptId: activeAttempt.id,
+    });
+  }
+  if (session.phase === 'TURN_SUMMARY' && activeTurn) {
+    events.push({ ...eventBase(command), type: 'TURN_COMPLETED', turnId: activeTurn.id });
+  }
+  events.push({ ...eventBase(command), type: 'GAME_COMPLETED', gameId: session.id });
+
+  return transition(
+    {
+      ...finalized,
+      status: 'COMPLETED',
+      completedAt: command.issuedAt,
+      activeTurn: undefined,
+      activeChallenge: undefined,
+      recovery: undefined,
+    },
+    'GAME_SUMMARY',
+    command,
+    events,
+  );
+}
+
 function timerCommand(session: GameSession, command: GameCommand): ExecutionResult {
   requirePhase(session, command, 'PRIMARY_ANSWERING', 'STEAL_ANSWERING');
   const attempt = getAttemptForAnsweringPhase(session);
@@ -664,6 +714,8 @@ function executeCommand(session: GameSession, command: GameCommand): ExecutionRe
     case 'START_NEXT_LEVEL':
       requirePhase(session, command, 'LEVEL_SUMMARY');
       return transition(session, 'LEVEL_INTRO', command);
+    case 'FINISH_GAME':
+      return finishGame(session, command);
     case 'PAUSE_TIMER':
     case 'RESUME_TIMER':
     case 'RESTART_TIMER':

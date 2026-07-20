@@ -58,6 +58,7 @@ export interface GameplayState {
   send: (command: CommandInput) => boolean;
   selectChallenge: () => void;
   assignCategory: (categoryId: string, assignmentMode: CategoryAssignmentMode) => void;
+  chooseFirstTeam: (teamId: string) => void;
   confirmTurnOrder: (firstPlayingTeamId: string) => void;
   activateLifeline: (teamId: string, lifelineType: LifelineType) => void;
   confirmPaidLifeline: () => void;
@@ -112,6 +113,27 @@ function persistenceMessage(error: unknown): string {
   return error instanceof Error
     ? `Game progress could not be saved: ${error.message}`
     : 'Game progress could not be saved.';
+}
+
+const EXHAUSTED_CHALLENGE_CODES = new Set([
+  'NO_INDEXED_CHALLENGES',
+  'NO_APPROVED_CHALLENGES',
+  'ALL_CHALLENGES_EXCLUDED',
+  'ALL_SONGS_EXCLUDED',
+]);
+
+function hasPlayableCategory(session: GameSession): boolean {
+  const catalog = getRuntimeCatalogIndex();
+  return session.roundConfig.selectedCategoryIds
+    .filter((categoryId) => !session.consumedCategoryIds.includes(categoryId))
+    .some(
+      (categoryId) =>
+        selectChallenge(
+          catalog,
+          buildRuntimeChallengeSelectionRequest(session, categoryId),
+          () => 0,
+        ).ok,
+    );
 }
 
 export function configureGameplayRepository(repository: GameSessionRepository | undefined): void {
@@ -250,8 +272,8 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
     const createdAt = timestamp();
     const categoryIds =
       selectedCategoryIds ??
-      getRuntimeCatalogIndex().snapshot.categories
-        .filter((category) => category.enabled)
+      getRuntimeCatalogIndex()
+        .snapshot.categories.filter((category) => category.enabled)
         .slice(0, 10)
         .map((category) => category.id);
     const session = createGame({
@@ -303,6 +325,8 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
       set({ failure: result.failure.message });
       return false;
     }
+    const contentExhausted =
+      result.session.phase === 'CATEGORY_ASSIGNMENT' && !hasPlayableCategory(result.session);
 
     const confirmation = result.events.find(
       (event): event is Extract<DomainEvent, { type: 'LIFELINE_CONFIRMATION_REQUESTED' }> =>
@@ -339,6 +363,9 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
     } catch (error) {
       set({ persistenceError: persistenceMessage(error) });
     }
+    if (contentExhausted) {
+      return get().send({ type: 'FINISH_GAME' });
+    }
     return true;
   },
 
@@ -355,6 +382,10 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
       () => 0,
     );
     if (!result.ok) {
+      if (result.diagnostics.some((diagnostic) => EXHAUSTED_CHALLENGE_CODES.has(diagnostic.code))) {
+        get().send({ type: 'FINISH_GAME' });
+        return;
+      }
       set({ failure: result.diagnostics.map((diagnostic) => diagnostic.message).join('; ') });
       return;
     }
@@ -375,6 +406,14 @@ export const useGameplayStore = create<GameplayState>((set, get) => ({
       assignmentMode,
       assignmentRecordId: nextId('category-assignment'),
     });
+  },
+
+  chooseFirstTeam(teamId) {
+    const session = get().session;
+    if (session?.phase !== 'LEVEL_INTRO') return;
+    if (!get().send({ type: 'BEGIN_TRIVIA' })) return;
+    if (!get().send({ type: 'RECORD_TRIVIA_WINNER', teamId })) return;
+    get().confirmTurnOrder(teamId);
   },
 
   confirmTurnOrder(firstPlayingTeamId) {

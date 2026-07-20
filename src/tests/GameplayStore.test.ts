@@ -16,6 +16,7 @@ describe('gameplay application store', () => {
     configureGameplayRepository(undefined);
     resetRuntimeCatalog();
     useGameplayStore.getState().reset();
+    useGameplayStore.setState({ completedSummaries: [] });
   });
 
   it('creates two teams and advances through round validation by dispatching commands', () => {
@@ -35,16 +36,47 @@ describe('gameplay application store', () => {
   });
 
   it('preserves random category selection mode when starting setup', () => {
-    useGameplayStore
-      .getState()
-      .startSetup(
-        'Alpha',
-        'Beta',
-        GAMEPLAY_CATEGORIES.map((category) => category.id),
-        'RANDOM',
-      );
+    useGameplayStore.getState().startSetup(
+      'Alpha',
+      'Beta',
+      GAMEPLAY_CATEGORIES.map((category) => category.id),
+      'RANDOM',
+    );
 
     expect(useGameplayStore.getState().session?.roundConfig.categorySelectionMode).toBe('RANDOM');
+  });
+
+  it('lets the host choose the first team without exposing trivia phases', () => {
+    useGameplayStore.getState().startSetup('Alpha', 'Beta');
+    useGameplayStore.getState().send({ type: 'VALIDATE_ROUND' });
+    useGameplayStore.getState().send({ type: 'START_GAME' });
+
+    useGameplayStore.getState().chooseFirstTeam('team-b');
+
+    expect(useGameplayStore.getState().session).toMatchObject({
+      phase: 'CATEGORY_ASSIGNMENT',
+      activeTurn: {
+        primaryTeamId: 'team-b',
+        opposingTeamId: 'team-a',
+      },
+    });
+  });
+
+  it('automatically finishes when no selected category has an eligible challenge', () => {
+    updateRuntimeCatalog(GAMEPLAY_CATEGORIES, []);
+    const store = useGameplayStore.getState();
+    store.startSetup('Alpha', 'Beta');
+    useGameplayStore.getState().send({ type: 'VALIDATE_ROUND' });
+    useGameplayStore.getState().send({ type: 'START_GAME' });
+
+    useGameplayStore.getState().chooseFirstTeam('team-a');
+
+    expect(useGameplayStore.getState().session).toMatchObject({
+      phase: 'GAME_SUMMARY',
+      status: 'COMPLETED',
+    });
+    expect(useGameplayStore.getState().completedSummaries).toHaveLength(1);
+    expect(useGameplayStore.getState().failure).toBeUndefined();
   });
 
   it('replaces demo content with the authored runtime catalog', () => {
@@ -69,9 +101,7 @@ describe('gameplay application store', () => {
 
     const index = updateRuntimeCatalog([authoredCategory], [authoredSong]);
 
-    expect(index.snapshot.categories.map((category) => category.id)).toEqual([
-      authoredCategory.id,
-    ]);
+    expect(index.snapshot.categories.map((category) => category.id)).toEqual([authoredCategory.id]);
     expect(index.snapshot.songs.map((song) => song.id)).toEqual([authoredSong.id]);
     expect(getCatalogCandidates(index, authoredCategory.id, 1)[0]?.song.title).toBe(
       'Authored Runtime Song',
@@ -152,7 +182,7 @@ describe('gameplay application store', () => {
     );
   });
 
-  it('does not reuse a played song when the song belongs to another category', () => {
+  it('finishes when an assigned category has no challenge left to play', () => {
     const sourceSong = GAMEPLAY_CATALOG_INDEX.songById.get('song-90s-bollywood');
     const romanticSong = GAMEPLAY_CATALOG_INDEX.songById.get('song-romantic');
     if (!sourceSong || !romanticSong) throw new Error('Expected bundled test songs');
@@ -195,7 +225,11 @@ describe('gameplay application store', () => {
     useGameplayStore.getState().selectChallenge();
 
     expect(useGameplayStore.getState().session?.activeChallenge).toBeUndefined();
-    expect(useGameplayStore.getState().failure).toContain('previously played songs');
+    expect(useGameplayStore.getState().session).toMatchObject({
+      phase: 'GAME_SUMMARY',
+      status: 'COMPLETED',
+    });
+    expect(useGameplayStore.getState().failure).toBeUndefined();
   });
 
   it('keeps an active challenge detached from later Admin catalog edits', () => {
