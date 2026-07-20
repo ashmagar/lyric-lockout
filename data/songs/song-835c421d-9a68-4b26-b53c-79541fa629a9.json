@@ -1,0 +1,118 @@
+{
+  "id": "song-835c421d-9a68-4b26-b53c-79541fa629a9",
+  "schemaVersion": 1,
+  "title": "O Sanam",
+  "artist": "Lucky Ali",
+  "youtubeVideoId": "wOGKW1IL8IU",
+  "videoType": "LYRIC",
+  "categoryIds": [
+    "90s-bollywood",
+    "category-f8597d70-8443-48ce-8b84-1ff52dd2dfb5",
+    "category-d17b52b6-1d33-4378-9d90-beaff020ae98",
+    "classic-rock",
+    "romantic"
+  ],
+  "language": "Hindi",
+  "releaseYear": 1996,
+  "enabled": true,
+  "challenges": [
+    {
+      "id": "challenge-505e7679-3c20-4c0e-9846-4a89ef3ed550",
+      "difficulty": 1,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 93.5,
+      "verifyFromSeconds": 90,
+      "verifyToSeconds": 110,
+      "expectedLyrics": "Yadoon Mein Teri\nMajboor Ho Gaya",
+      "hiddenWordIndexes": [
+        0
+      ],
+      "missingWordCount": 1,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:36:54.823Z",
+      "updatedAt": "2026-07-18T22:38:50.214Z"
+    },
+    {
+      "id": "challenge-63d2cc59-79a4-4183-b82a-2d9cfb34839b",
+      "difficulty": 2,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 93.5,
+      "verifyFromSeconds": 90,
+      "verifyToSeconds": 110,
+      "expectedLyrics": "Yadoon Mein Teri\nMajboor Ho Gaya",
+      "hiddenWordIndexes": [
+        0,
+        3
+      ],
+      "missingWordCount": 2,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:38:55.198Z",
+      "updatedAt": "2026-07-18T22:38:59.722Z"
+    },
+    {
+      "id": "challenge-a0a0ceba-9d35-4583-a92d-4de44743fceb",
+      "difficulty": 3,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 93.5,
+      "verifyFromSeconds": 90,
+      "verifyToSeconds": 110,
+      "expectedLyrics": "Yadoon Mein Teri\nMajboor Ho Gaya",
+      "hiddenWordIndexes": [
+        0,
+        1,
+        2
+      ],
+      "missingWordCount": 3,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:39:02.768Z",
+      "updatedAt": "2026-07-18T22:39:14.076Z"
+    },
+    {
+      "id": "challenge-247b6e84-afae-4247-8366-433d04d41f0b",
+      "difficulty": 4,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 93.5,
+      "verifyFromSeconds": 90,
+      "verifyToSeconds": 110,
+      "expectedLyrics": "Yadoon Mein Teri\nMajboor Ho Gaya",
+      "hiddenWordIndexes": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "missingWordCount": 4,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:39:14.460Z",
+      "updatedAt": "2026-07-18T22:39:26.077Z"
+    },
+    {
+      "id": "challenge-b5820760-0b09-4c97-b8f2-1569ebda8d98",
+      "difficulty": 5,
+      "playbackStartSeconds": 0,
+      "pauseAtSeconds": 93.5,
+      "verifyFromSeconds": 90,
+      "verifyToSeconds": 110,
+      "expectedLyrics": "Yadoon Mein Teri\nMajboor Ho Gaya",
+      "hiddenWordIndexes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "missingWordCount": 6,
+      "hintText": "Enter a helpful hint",
+      "enabled": true,
+      "createdAt": "2026-07-18T22:39:20.661Z",
+      "updatedAt": "2026-07-18T22:39:28.651Z"
+    }
+  ],
+  "createdAt": "2026-07-18T22:35:43.174Z",
+  "updatedAt": "2026-07-18T22:39:45.897Z"
+}
